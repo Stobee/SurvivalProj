@@ -6,7 +6,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "TopDownSpringArmComponent.generated.h"
 
-class UCameraComponent;
+
 /**
  * 
  */
@@ -14,14 +14,10 @@ UCLASS()
 class SURVIVALPROJ_API UTopDownSpringArmComponent : public USpringArmComponent
 {
 	GENERATED_BODY()
-	
+
 protected:
 	UTopDownSpringArmComponent();
 
-	virtual void Activate(bool bReset = false) override;
-
-	virtual void Deactivate() override;
-
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UCameraComponent>Camera;
+	void AddTargetArmLength(float value);
+	
 };

@@ -6,7 +6,7 @@
 
 UTopDownSpringArmComponent::UTopDownSpringArmComponent()
 {
-    this->TargetArmLength = 800.0f;
+    this->TargetArmLength = 700.0f;
     this->SetRelativeRotation(FRotator(-60.0f, 0.0f, 0.0f));
     this->bInheritPitch = false;
     this->bInheritRoll = false;
@@ -15,34 +15,16 @@ UTopDownSpringArmComponent::UTopDownSpringArmComponent()
     this->bEnableCameraLag = true;
     this->CameraLagSpeed = 3.0f;
 
-    Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("TopDownCamera"));
     
-    if (Camera)
-    {
-        Camera->SetupAttachment(this, USpringArmComponent::SocketName);
-        Camera->FieldOfView = 90.0f;
-        Camera->ProjectionMode = ECameraProjectionMode::Perspective;
-        Camera->bConstrainAspectRatio = false;
-    }
 }
 
-void UTopDownSpringArmComponent::Activate(bool bReset)
+void UTopDownSpringArmComponent::AddTargetArmLength(float value)
 {
-    Super::Activate(bReset);
-    
-    if (Camera)
+    if (this->TargetArmLength + value > 400.0f and this->TargetArmLength + value < 850.0f)
     {
-        Camera->Activate(bReset);
+        this->TargetArmLength = this->TargetArmLength + value;
     }
 }
 
-void UTopDownSpringArmComponent::Deactivate()
-{
-    Super::Deactivate();
 
-    if (Camera)
-    {
-        Camera->Activate();
-    }
-}
 
