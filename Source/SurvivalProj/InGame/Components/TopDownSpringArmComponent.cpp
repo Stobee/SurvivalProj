@@ -2,7 +2,6 @@
 
 
 #include "TopDownSpringArmComponent.h"
-#include "Camera/CameraComponent.h"
 
 UTopDownSpringArmComponent::UTopDownSpringArmComponent()
 {
