@@ -8,7 +8,7 @@ void AInGamePlayerController::OnPossess(APawn* aPawn)
 {
 	Super::OnPossess(aPawn);
 
-	if (IsLocalPlayerController())
+	if (IsLocalPlayerController() && GetLocalPlayer() != nullptr)
 	{
 		UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
 
@@ -20,6 +20,25 @@ void AInGamePlayerController::OnPossess(APawn* aPawn)
 
 		}
 	}
+}
+
+void AInGamePlayerController::AcknowledgePossession(APawn* InPawn)
+{
+	Super::AcknowledgePossession(InPawn);
+
+	if (IsLocalPlayerController() && GetLocalPlayer() != nullptr)
+	{
+		UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
+
+		if (Subsystem)
+		{
+			Subsystem->ClearAllMappings();
+
+			Subsystem->AddMappingContext(IMC_Default, 0);
+
+		}
+	}
+
 }
 
 void AInGamePlayerController::OnUnPossess()
