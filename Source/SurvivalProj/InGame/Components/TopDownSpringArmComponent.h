@@ -15,9 +15,12 @@ class SURVIVALPROJ_API UTopDownSpringArmComponent : public USpringArmComponent
 {
 	GENERATED_BODY()
 
+public:
+	void AddTargetArmLength(float value);
+
 protected:
 	UTopDownSpringArmComponent();
 
-	void AddTargetArmLength(float value);
+	
 	
 };

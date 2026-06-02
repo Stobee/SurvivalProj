@@ -32,9 +32,11 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	if (EIC)
 	{
 		EIC->BindAction(IA_Move, ETriggerEvent::Triggered, this, &APlayerCharacter::Move);
-		EIC->BindAction(IA_Jump, ETriggerEvent::Triggered, this, &APlayerCharacter::Jump);
+		EIC->BindAction(IA_Jump, ETriggerEvent::Triggered, this, &APlayerCharacter::JumpWithAnim);
 		EIC->BindAction(IA_Jump, ETriggerEvent::Canceled, this, &APlayerCharacter::StopJumping);
 		EIC->BindAction(IA_Jump, ETriggerEvent::Completed, this, &APlayerCharacter::StopJumping);
+		EIC->BindAction(IA_Zoom, ETriggerEvent::Triggered, this, &APlayerCharacter::Zoom);
+		EIC->BindAction(IA_Attack, ETriggerEvent::Triggered, this, &APlayerCharacter::Attack);
 	}
 }
 
@@ -57,4 +59,60 @@ void APlayerCharacter::Move(FInputActionValue const& Value)
 
 	// MovementVector.X에는 IMC_SideScroll에서 매핑한 좌우 하드웨어 입력값 상주
 	//AddMovementInput(SideDirection, MovementVector.X);
+}
+
+void APlayerCharacter::Attack()
+{
+	if (ActState != EPlayerActState::Attack)
+	{
+
+	}
+
+}
+void APlayerCharacter::ServerAttack_Implementation()
+{
+	if (HasAuthority())
+	{
+		MulticastAttack_Implementation();
+	}
+}
+
+void APlayerCharacter::MulticastAttack_Implementation()
+{
+}
+
+void APlayerCharacter::JumpWithAnim()
+{
+	Jump();
+	ServerJumpWithAnim_Implementation();
+}
+
+void APlayerCharacter::ServerJumpWithAnim_Implementation()
+{
+	if (HasAuthority())
+	{
+		MulticastJumpWithAnim_Implementation();
+	}
+}
+
+void APlayerCharacter::MulticastJumpWithAnim_Implementation()
+{
+
+	if (JumpStartMontage != nullptr)
+	{
+		PlayAnimMontage(JumpStartMontage, 1.0f);
+	}
+}
+
+void APlayerCharacter::Zoom(FInputActionValue const& Value)
+{
+	float WheelValue = Value.Get<float>();
+
+	SpringArm->AddTargetArmLength(-(WheelValue * ZoomWheelSpeed));
+}
+
+void APlayerCharacter::SetComboWindowRegistry(bool bIsOpen, FName NextSection)
+{
+	bCanUseCombo = bIsOpen;
+
 }

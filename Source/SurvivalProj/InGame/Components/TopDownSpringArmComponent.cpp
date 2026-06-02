@@ -5,7 +5,7 @@
 
 UTopDownSpringArmComponent::UTopDownSpringArmComponent()
 {
-    this->TargetArmLength = 700.0f;
+    this->TargetArmLength = 600.0f;
     this->SetRelativeRotation(FRotator(-60.0f, 0.0f, 0.0f));
     this->bInheritPitch = false;
     this->bInheritRoll = false;
