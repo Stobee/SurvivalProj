@@ -56,7 +56,7 @@ public:
 	bool bCanUseCombo = false;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Input")
-	FName NextAttackSection = "Attack1";
+	FName NextAttackSection = TEXT("Attack1");
 
 	UPROPERTY(BlueprintReadOnly, Category = "Input")
 	EPlayerActState ActState = EPlayerActState::Movable;

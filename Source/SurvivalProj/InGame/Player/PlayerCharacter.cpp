@@ -65,7 +65,7 @@ void APlayerCharacter::Attack()
 {
 	if (ActState != EPlayerActState::Attack)
 	{
-
+		ServerAttack_Implementation();
 	}
 
 }
@@ -79,6 +79,7 @@ void APlayerCharacter::ServerAttack_Implementation()
 
 void APlayerCharacter::MulticastAttack_Implementation()
 {
+	PlayAnimMontage(UnarmedAttackMontage, 1.0f, NextAttackSection);
 }
 
 void APlayerCharacter::JumpWithAnim()
@@ -114,5 +115,6 @@ void APlayerCharacter::Zoom(FInputActionValue const& Value)
 void APlayerCharacter::SetComboWindowRegistry(bool bIsOpen, FName NextSection)
 {
 	bCanUseCombo = bIsOpen;
+	NextAttackSection = NextSection;
 
 }
