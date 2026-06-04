@@ -63,36 +63,71 @@ void APlayerCharacter::Move(FInputActionValue const& Value)
 
 void APlayerCharacter::Attack()
 {
-	if (ActState != EPlayerActState::Attack)
+
+	if (AttackComboState == 0)
 	{
-		ServerAttack_Implementation();
+		if (ActState == EPlayerActState::Attack)
+		{
+			return;
+		}
+		ActState = EPlayerActState::Attack;
+
+		bCanUseCombo = false;
+		ServerAttack(TEXT("Attack1"));
+		AttackComboState = 1;
+		return;
 	}
 
+	if (AttackComboState != 0 && bCanUseCombo)
+	{
+		bCanUseCombo = false;
+		
+		FName NextAttackSection = NAME_None;
+		if (AttackComboState == 1)
+		{
+			NextAttackSection = TEXT("Attack2");
+			AttackComboState = 2; // 타수 전진
+		}
+		else if (AttackComboState == 2)
+		{
+			NextAttackSection = TEXT("Attack3");
+			AttackComboState = 3; // 막타 전진
+		}
+		if (NextAttackSection != NAME_None)
+		{
+			ServerAttack(NextAttackSection);
+		}
+	}
 }
-void APlayerCharacter::ServerAttack_Implementation()
+void APlayerCharacter::ServerAttack_Implementation(FName SectionName)
 {
 	if (HasAuthority())
 	{
-		MulticastAttack_Implementation();
+		
+		MulticastAttack(SectionName);
 	}
 }
 
-void APlayerCharacter::MulticastAttack_Implementation()
+void APlayerCharacter::MulticastAttack_Implementation(FName SectionName)
 {
-	PlayAnimMontage(UnarmedAttackMontage, 1.0f, NextAttackSection);
+	
+	if (UnarmedAttackMontage != nullptr)
+	{
+		PlayAnimMontage(UnarmedAttackMontage, 1.0f, SectionName);
+	}
 }
 
 void APlayerCharacter::JumpWithAnim()
 {
 	Jump();
-	ServerJumpWithAnim_Implementation();
+	ServerJumpWithAnim();
 }
 
 void APlayerCharacter::ServerJumpWithAnim_Implementation()
 {
 	if (HasAuthority())
 	{
-		MulticastJumpWithAnim_Implementation();
+		MulticastJumpWithAnim();
 	}
 }
 
@@ -112,9 +147,14 @@ void APlayerCharacter::Zoom(FInputActionValue const& Value)
 	SpringArm->AddTargetArmLength(-(WheelValue * ZoomWheelSpeed));
 }
 
-void APlayerCharacter::SetComboWindowRegistry(bool bIsOpen, FName NextSection)
+void APlayerCharacter::SetComboWindowRegistry(bool bIsOpen)
 {
 	bCanUseCombo = bIsOpen;
-	NextAttackSection = NextSection;
 
+}
+
+void APlayerCharacter::SetCharacterAttackEnd()
+{
+	ActState = EPlayerActState::Movable;
+	AttackComboState = 0;
 }

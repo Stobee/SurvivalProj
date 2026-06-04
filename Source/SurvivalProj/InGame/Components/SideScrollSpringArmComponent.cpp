@@ -13,6 +13,7 @@ USideScrollSpringArmComponent::USideScrollSpringArmComponent()
     this->bUsePawnControlRotation = false;
     this->bEnableCameraLag = true;
     this->CameraLagSpeed = 3.0f;
+    this->bDoCollisionTest = false;
 
 
 }

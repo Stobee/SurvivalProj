@@ -23,8 +23,6 @@ public:
 
     
 
-    UPROPERTY(EditAnywhere, Category = "Combo Data")
-    FName TargetSectionName = TEXT("Attack1");
     
     
 };

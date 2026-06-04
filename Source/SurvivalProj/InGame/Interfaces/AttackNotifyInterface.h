@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
+#include "SurvivalProj/Data/Enums/EPlayerActState.h"
 #include "AttackNotifyInterface.generated.h"
 
 // This class does not need to be modified.
@@ -23,5 +24,7 @@ class SURVIVALPROJ_API IAttackNotifyInterface
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 
-	virtual void SetComboWindowRegistry(bool bIsOpen, FName NextSection) = 0;
+	virtual void SetComboWindowRegistry(bool bIsOpen) = 0;
+
+	virtual void SetCharacterAttackEnd() = 0;
 };

@@ -44,10 +44,10 @@ public:
 	void Attack();
 
 	UFUNCTION(Server, Reliable)
-	void ServerAttack();
+	void ServerAttack(FName SectionName);
 
 	UFUNCTION(NetMulticast, Reliable)
-	void MulticastAttack();
+	void MulticastAttack(FName SectionName);
 
 	// 휠로 카메라 거리 조절
 	void Zoom(FInputActionValue const& Value);
@@ -56,13 +56,15 @@ public:
 	bool bCanUseCombo = false;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Input")
-	FName NextAttackSection = TEXT("Attack1");
-
-	UPROPERTY(BlueprintReadOnly, Category = "Input")
 	EPlayerActState ActState = EPlayerActState::Movable;
 
+	UPROPERTY(BluePrintReadOnly, Category = "Input")
+	uint8 AttackComboState = 0;
+
 	// 인터페이스 함수
-	virtual void SetComboWindowRegistry(bool bIsOpen, FName NextSection) override;
+	virtual void SetComboWindowRegistry(bool bIsOpen) override;
+
+	virtual void SetCharacterAttackEnd() override;
 	
 
 protected:
