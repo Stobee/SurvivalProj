@@ -3,6 +3,8 @@
 
 #include "PlayerCharacter.h"
 #include "SurvivalProj/InGame/Components/TopDownSpringArmComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Camera/CameraComponent.h"
 #include "EnhancedInputComponent.h"
@@ -14,6 +16,7 @@ APlayerCharacter::APlayerCharacter()
 	Movement->bUseControllerDesiredRotation = false;
 	bUseControllerRotationYaw = false;
 	
+	// 나중에 횡스크롤 카메라로 바꾸는 로직 들어가야함
 	SpringArm = CreateDefaultSubobject<UTopDownSpringArmComponent>(TEXT("SpringArm"));
 	SpringArm->SetupAttachment(RootComponent);
 
@@ -22,6 +25,7 @@ APlayerCharacter::APlayerCharacter()
     Camera->FieldOfView = 90.0f;
     Camera->ProjectionMode = ECameraProjectionMode::Perspective;
     Camera->bConstrainAspectRatio = false;
+	
     
 }
 
@@ -157,4 +161,46 @@ void APlayerCharacter::SetCharacterAttackEnd()
 {
 	ActState = EPlayerActState::Movable;
 	AttackComboState = 0;
+}
+
+void APlayerCharacter::ExecuteShortAttackTrace()
+{
+	if (!HasAuthority()) return;
+
+	
+	if (GetMesh() == nullptr) return;
+
+	// 캐릭터 전방 1미터 지정
+	FVector StartLocation = GetActorLocation();
+	FVector EndLocation = StartLocation + (GetActorForwardVector() * 100.0f);
+
+	// 멀티 트레이스에 Hit된 액터를 담을 배열
+	TArray<FHitResult> OutHits;
+
+	// 무시할 액터 배열
+	TArray<AActor*> ActorsToIgnore;
+
+
+	// 단 1프레임 순간의 물리 공간 스윕 수색, 근접 공격 채널 ECC_GameTraceChannel1
+	bool bIsHit = UKismetSystemLibrary::SphereTraceMulti(this, StartLocation, EndLocation,30.0f, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1),false,
+		ActorsToIgnore,EDrawDebugTrace::ForDuration, OutHits,true);
+
+	if (bIsHit)
+	{
+		for (const FHitResult& Hit : OutHits)
+		{
+			AActor* HitActor = Hit.GetActor();
+			if (HitActor != nullptr)
+			{
+				// [무결성 노선] 단발성이므로 중복 체크 배열 수색 없이 즉시 데미지 주입 마감!
+				UGameplayStatics::ApplyDamage(HitActor, 5, GetController(), this, UDamageType::StaticClass());
+
+				
+			}
+		}
+	}
+}
+
+void APlayerCharacter::ClearHitRegistry()
+{
 }

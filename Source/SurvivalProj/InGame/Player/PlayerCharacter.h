@@ -65,6 +65,10 @@ public:
 	virtual void SetComboWindowRegistry(bool bIsOpen) override;
 
 	virtual void SetCharacterAttackEnd() override;
+
+	virtual void ExecuteShortAttackTrace() override;
+
+	virtual void ClearHitRegistry() override;
 	
 
 protected:
