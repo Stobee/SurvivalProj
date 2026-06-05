@@ -41,6 +41,12 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EIC->BindAction(IA_Jump, ETriggerEvent::Completed, this, &APlayerCharacter::StopJumping);
 		EIC->BindAction(IA_Zoom, ETriggerEvent::Triggered, this, &APlayerCharacter::Zoom);
 		EIC->BindAction(IA_Attack, ETriggerEvent::Triggered, this, &APlayerCharacter::Attack);
+		EIC->BindAction(IA_UseItemSlot1, ETriggerEvent::Triggered, this, &APlayerCharacter::Input_UseSlot1);
+		EIC->BindAction(IA_UseItemSlot2, ETriggerEvent::Triggered, this, &APlayerCharacter::Input_UseSlot2);
+		EIC->BindAction(IA_UseItemSlot3, ETriggerEvent::Triggered, this, &APlayerCharacter::Input_UseSlot3);
+		EIC->BindAction(IA_UseItemSlot4, ETriggerEvent::Triggered, this, &APlayerCharacter::Input_UseSlot4);
+		EIC->BindAction(IA_UseItemSlot5, ETriggerEvent::Triggered, this, &APlayerCharacter::Input_UseSlot5);
+			
 	}
 }
 
@@ -65,6 +71,23 @@ void APlayerCharacter::Move(FInputActionValue const& Value)
 	//AddMovementInput(SideDirection, MovementVector.X);
 }
 
+
+void APlayerCharacter::EquipWeapon()
+{
+}
+
+void APlayerCharacter::ServerEquipWeapon_Implementation(FName WeaponName)
+{
+}
+
+void APlayerCharacter::MulticastEquipWeapon_Implementation(FName WeaponName)
+{
+	if (WeaponEquipMontage != nullptr)
+	{
+		PlayAnimMontage(WeaponEquipMontage, 1.0f);
+	}
+}
+
 void APlayerCharacter::Attack()
 {
 
@@ -85,7 +108,7 @@ void APlayerCharacter::Attack()
 	if (AttackComboState != 0 && bCanUseCombo)
 	{
 		bCanUseCombo = false;
-		
+
 		FName NextAttackSection = NAME_None;
 		if (AttackComboState == 1)
 		{
@@ -112,12 +135,38 @@ void APlayerCharacter::ServerAttack_Implementation(FName SectionName)
 	}
 }
 
+// 최종적으로 몽타주 실행
 void APlayerCharacter::MulticastAttack_Implementation(FName SectionName)
 {
 	
-	if (UnarmedAttackMontage != nullptr)
+	switch (WeaponEquipState)
 	{
-		PlayAnimMontage(UnarmedAttackMontage, 1.0f, SectionName);
+		case (EWeaponEquipState::Unarmed):
+		{
+			if (UnarmedAttackMontage != nullptr)
+			{
+				PlayAnimMontage(UnarmedAttackMontage, 1.0f, SectionName);
+			}
+		}
+		break;
+
+		case (EWeaponEquipState::OneHanded):
+		{
+			if (OneHandedAttackMontage != nullptr)
+			{
+				PlayAnimMontage(OneHandedAttackMontage, 1.0f, SectionName);
+			}
+		}
+		break;
+
+		case (EWeaponEquipState::TwoHanded):
+		{
+			if (TwoHandedAttackMontage != nullptr)
+			{
+				PlayAnimMontage(TwoHandedAttackMontage, 1.0f, SectionName);
+			}
+		}
+		break;
 	}
 }
 
@@ -135,6 +184,7 @@ void APlayerCharacter::ServerJumpWithAnim_Implementation()
 	}
 }
 
+// 최종적으로 몽타주 실행
 void APlayerCharacter::MulticastJumpWithAnim_Implementation()
 {
 
@@ -144,11 +194,46 @@ void APlayerCharacter::MulticastJumpWithAnim_Implementation()
 	}
 }
 
+
+
 void APlayerCharacter::Zoom(FInputActionValue const& Value)
 {
 	float WheelValue = Value.Get<float>();
 
 	SpringArm->AddTargetArmLength(-(WheelValue * ZoomWheelSpeed));
+}
+
+void APlayerCharacter::UseItemFromInventory(uint8 KeyNum)
+{
+	switch (KeyNum)
+	{
+		case 1:
+		{
+			
+		}
+		break;
+
+		case 2:
+		{
+
+		}
+		break;
+		case 3:
+		{
+
+		}
+		break;
+		case 4:
+		{
+
+		}
+		break;
+		case 5:
+		{
+
+		}
+		break;
+	}
 }
 
 void APlayerCharacter::SetComboWindowRegistry(bool bIsOpen)
@@ -165,9 +250,10 @@ void APlayerCharacter::SetCharacterAttackEnd()
 
 void APlayerCharacter::ExecuteShortAttackTrace()
 {
+	// 서버 가드
 	if (!HasAuthority()) return;
 
-	
+	// 캐릭터 널 가드
 	if (GetMesh() == nullptr) return;
 
 	// 캐릭터 전방 1미터 지정
@@ -181,7 +267,7 @@ void APlayerCharacter::ExecuteShortAttackTrace()
 	TArray<AActor*> ActorsToIgnore;
 
 
-	// 단 1프레임 순간의 물리 공간 스윕 수색, 근접 공격 채널 ECC_GameTraceChannel1
+	// 근접 공격 채널 ECC_GameTraceChannel1
 	bool bIsHit = UKismetSystemLibrary::SphereTraceMulti(this, StartLocation, EndLocation,30.0f, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1),false,
 		ActorsToIgnore,EDrawDebugTrace::ForDuration, OutHits,true);
 

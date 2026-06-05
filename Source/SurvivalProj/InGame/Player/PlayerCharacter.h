@@ -7,10 +7,12 @@
 #include "SurvivalProj/InGame/Interfaces/AttackNotifyInterface.h"
 #include "SurvivalProj/InGame/MainCharacter.h"
 #include "SurvivalProj/Data/Enums/EPlayerActState.h"
+#include "SurvivalProj/Data/Enums/EWeaponEquipState.h"
 #include "PlayerCharacter.generated.h"
 
 class UTopDownSpringArmComponent;
 class UCameraComponent;
+class UPlayerInventoryComponent;
 class UInputAction;
 class UAnimMontage;
 
@@ -49,30 +51,62 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastAttack(FName SectionName);
 
+	void EquipWeapon();
+
+	UFUNCTION(Server, Reliable)
+	void ServerEquipWeapon(FName WeaponName);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastEquipWeapon(FName WeaponName);
+
 	// 휠로 카메라 거리 조절
 	void Zoom(FInputActionValue const& Value);
 
+	// 숫자 키로 입력한 인벤토리의 아이템 사용
+	void UseItemFromInventory(uint8 KeyNum);
+
+	// 공격 콤보 입력 활성화 여부
 	UPROPERTY(BlueprintReadOnly, Category = "Input")
 	bool bCanUseCombo = false;
 
+	// 이동 가능 여부와 관련된 상태
 	UPROPERTY(BlueprintReadOnly, Category = "Input")
 	EPlayerActState ActState = EPlayerActState::Movable;
 
+	// 현재 공격 콤보 단계
 	UPROPERTY(BluePrintReadOnly, Category = "Input")
 	uint8 AttackComboState = 0;
 
+	// 무기 장착 상태
+	UPROPERTY(BluePrintReadOnly, Category = "Input")
+	EWeaponEquipState WeaponEquipState = EWeaponEquipState::Unarmed;
+
+
 	// 인터페이스 함수
+	// set bCanUseCombo
 	virtual void SetComboWindowRegistry(bool bIsOpen) override;
 
+	// set ActState Movable
 	virtual void SetCharacterAttackEnd() override;
 
+	// use sphere multiTrace by AnimNotify
 	virtual void ExecuteShortAttackTrace() override;
 
+	// reset Hit Actors
 	virtual void ClearHitRegistry() override;
+	
+private:
+
+	void Input_UseSlot1() { UseItemFromInventory(1); }
+	void Input_UseSlot2() { UseItemFromInventory(2); }
+	void Input_UseSlot3() { UseItemFromInventory(3); }
+	void Input_UseSlot4() { UseItemFromInventory(4); }
+	void Input_UseSlot5() { UseItemFromInventory(5); }
 	
 
 protected:
 
+	// 탑 다운 전용 스프링 암
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "SpringArm", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UTopDownSpringArmComponent>SpringArm;
 
@@ -95,9 +129,38 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	TObjectPtr<UInputAction> IA_Attack;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	TObjectPtr<UInputAction> IA_UseItemSlot1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	TObjectPtr<UInputAction> IA_UseItemSlot2;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	TObjectPtr<UInputAction> IA_UseItemSlot3;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	TObjectPtr<UInputAction> IA_UseItemSlot4;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	TObjectPtr<UInputAction> IA_UseItemSlot5;
+
+	// 에디터에서 입력
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UAnimMontage> JumpStartMontage;
 
+	// 에디터에서 입력
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UAnimMontage> UnarmedAttackMontage;
+
+	// 에디터에서 입력
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UAnimMontage> OneHandedAttackMontage;
+
+	// 에디터에서 입력
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UAnimMontage> TwoHandedAttackMontage;
+
+	// 에디터에서 입력
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UAnimMontage> WeaponEquipMontage;
 };
