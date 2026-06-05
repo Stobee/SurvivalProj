@@ -3,6 +3,9 @@
 
 #include "PlayerCharacter.h"
 #include "SurvivalProj/InGame/Components/TopDownSpringArmComponent.h"
+#include "SurvivalProj/InGame/Components/PlayerQuickSlotComponent.h"
+#include "SurvivalProj/InGame/Components/PlayerInventoryComponent.h"
+#include "SurvivalProj/Data/Enums/EItemType.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -15,6 +18,9 @@ APlayerCharacter::APlayerCharacter()
 	Movement->bOrientRotationToMovement = true;
 	Movement->bUseControllerDesiredRotation = false;
 	bUseControllerRotationYaw = false;
+
+	Inventory = CreateDefaultSubobject<UPlayerInventoryComponent>(TEXT("Inventory"));
+	QuickSlot = CreateDefaultSubobject<UPlayerQuickSlotComponent>(TEXT("QuickSlot"));
 	
 	// 나중에 횡스크롤 카메라로 바꾸는 로직 들어가야함
 	SpringArm = CreateDefaultSubobject<UTopDownSpringArmComponent>(TEXT("SpringArm"));
@@ -203,13 +209,13 @@ void APlayerCharacter::Zoom(FInputActionValue const& Value)
 	SpringArm->AddTargetArmLength(-(WheelValue * ZoomWheelSpeed));
 }
 
-void APlayerCharacter::UseItemFromInventory(uint8 KeyNum)
+void APlayerCharacter::UseItemFromQuickSlot(uint8 KeyNum)
 {
 	switch (KeyNum)
 	{
 		case 1:
 		{
-			
+			QuickSlot->ExecuteSlotAction(1);
 		}
 		break;
 

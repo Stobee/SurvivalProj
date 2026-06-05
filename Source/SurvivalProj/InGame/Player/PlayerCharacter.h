@@ -13,6 +13,7 @@
 class UTopDownSpringArmComponent;
 class UCameraComponent;
 class UPlayerInventoryComponent;
+class UPlayerQuickSlotComponent;
 class UInputAction;
 class UAnimMontage;
 
@@ -63,7 +64,7 @@ public:
 	void Zoom(FInputActionValue const& Value);
 
 	// 숫자 키로 입력한 인벤토리의 아이템 사용
-	void UseItemFromInventory(uint8 KeyNum);
+	void UseItemFromQuickSlot(uint8 KeyNum);
 
 	// 공격 콤보 입력 활성화 여부
 	UPROPERTY(BlueprintReadOnly, Category = "Input")
@@ -97,21 +98,27 @@ public:
 	
 private:
 
-	void Input_UseSlot1() { UseItemFromInventory(1); }
-	void Input_UseSlot2() { UseItemFromInventory(2); }
-	void Input_UseSlot3() { UseItemFromInventory(3); }
-	void Input_UseSlot4() { UseItemFromInventory(4); }
-	void Input_UseSlot5() { UseItemFromInventory(5); }
+	void Input_UseSlot1() { UseItemFromQuickSlot(1); }
+	void Input_UseSlot2() { UseItemFromQuickSlot(2); }
+	void Input_UseSlot3() { UseItemFromQuickSlot(3); }
+	void Input_UseSlot4() { UseItemFromQuickSlot(4); }
+	void Input_UseSlot5() { UseItemFromQuickSlot(5); }
 	
 
 protected:
 
 	// 탑 다운 전용 스프링 암
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "SpringArm", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UTopDownSpringArmComponent>SpringArm;
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UCameraComponent>Camera;
+
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UPlayerInventoryComponent>Inventory;
+
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UPlayerQuickSlotComponent>QuickSlot;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	TObjectPtr<UInputAction> IA_Move;
