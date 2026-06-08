@@ -3,6 +3,11 @@
 
 #include "ItemInstance.h"
 
+void UItemInstance::InitItem()
+{
+
+}
+
 void UItemInstance::UseItem(ACharacter* UserCharacter)
 {
 }

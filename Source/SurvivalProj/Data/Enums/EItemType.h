@@ -10,6 +10,7 @@
 UENUM(BlueprintType)
 enum class EItemType : uint8
 {
+	None UMETA(DisplayName = "None"),
 	Weapon UMETA(DisplayName = "무기"),
 	Armor UMETA(DisplayName = "방어구"),
 	Potion UMETA(DisplayName = "물약"),

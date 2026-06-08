@@ -13,6 +13,14 @@ UPlayerInventoryComponent::UPlayerInventoryComponent()
 	// ...
 }
 
+bool UPlayerInventoryComponent::AddItemFromClass(TSubclassOf<UItemInstance> ItemBlueprintClass, int32 Amount)
+{
+	if (ItemBlueprintClass == nullptr || Amount <= 0) return false;
+
+	// 아이템 습득 로직
+	return true;
+}
+
 
 // Called when the game starts
 void UPlayerInventoryComponent::BeginPlay()

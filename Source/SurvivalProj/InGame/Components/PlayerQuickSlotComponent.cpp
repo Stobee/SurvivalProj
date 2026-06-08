@@ -32,7 +32,6 @@ void UPlayerQuickSlotComponent::BeginPlay()
 	
 }
 
-
 // Called every frame
 void UPlayerQuickSlotComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {

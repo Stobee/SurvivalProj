@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "SurvivalProj/InGame/Item/ItemInstance.h"
 #include "Components/ActorComponent.h"
 #include "PlayerInventoryComponent.generated.h"
 
@@ -16,6 +17,9 @@ public:
 	// Sets default values for this component's properties
 	UPlayerInventoryComponent();
 
+	// [핵심 포트] 기획자가 만든 BP_RedPotion 같은 블루프린트 클래스 타입을 인자로 안전하게 수집
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
+	bool AddItemFromClass(TSubclassOf<UItemInstance> ItemBlueprintClass, int32 Amount);
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
