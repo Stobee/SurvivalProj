@@ -24,7 +24,6 @@ public:
 
 	UTexture2D* GetWeaponIcon() const { return ItemRow ? ItemRow->ItemIconTexture : nullptr; }
 
-
 	virtual void InitItem() override;
 
 protected:

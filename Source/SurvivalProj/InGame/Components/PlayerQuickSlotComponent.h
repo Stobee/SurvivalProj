@@ -18,9 +18,17 @@ public:
 	// Sets default values for this component's properties
 	UPlayerQuickSlotComponent();
 
-	void RegisterItemToSlot(int32 SlotIndex, UItemInstance* ItemToLink);
+	void RegisterWeaponToEmptySlot(FName WeaponId);
+
+	void RegisterArmorToEmptySlot(FName ArmorId);
+
+	void RegisterResourceToEmptySlot(FName ResourceId, int32 Quantity);
+	
+	void RegisterPotionToEmptySlot(FName PotionId, int32 Quantity);
 
 	void ExecuteSlotAction(int32 SlotIndex);
+
+	bool bIsQuickSlotFull();
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -29,6 +37,18 @@ protected:
 	TArray<UItemInstance*> QuickSlots;
 
 	int32 MaxSlotCount = 5;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
+	UDataTable* WeaponTable;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
+	UDataTable* ArmorTable;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
+	UDataTable* ResourceTable;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
+	UDataTable* PotionTable;
 
 public:	
 	// Called every frame

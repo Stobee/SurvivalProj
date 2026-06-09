@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
+#include "SurvivalProj/Data/Enums/EItemType.h"
 #include "InteractiveInterface.generated.h"
 
 // This class does not need to be modified.
@@ -23,5 +24,5 @@ class SURVIVALPROJ_API IInteractiveInterface
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 
-	virtual void GetFieldItem(FName ItemId, int32 ItemQuantity) = 0;
+	virtual void GetFieldItem(FName ItemId, int32 ItemQuantity, EItemType ItemType) = 0;
 };

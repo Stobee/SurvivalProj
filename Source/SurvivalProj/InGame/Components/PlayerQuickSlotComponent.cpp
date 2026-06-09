@@ -2,6 +2,7 @@
 
 
 #include "PlayerQuickSlotComponent.h"
+#include "SurvivalProj/Data/DataTableStructs/WeaponItemStruct.h"
 
 // Sets default values for this component's properties
 UPlayerQuickSlotComponent::UPlayerQuickSlotComponent()
@@ -13,14 +14,59 @@ UPlayerQuickSlotComponent::UPlayerQuickSlotComponent()
 	// ...
 }
 
-void UPlayerQuickSlotComponent::RegisterItemToSlot(int32 SlotIndex, UItemInstance* ItemToLink)
+void UPlayerQuickSlotComponent::RegisterWeaponToEmptySlot(FName WeaponId)
 {
-	// 퀵슬롯에 등록
+	if (WeaponTable == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[테이블 파열] WeaponTable 자산이 바인딩되지 않았습니다."));
+		return;
+	}
+	for (auto slot : QuickSlots)
+	{
+		if (!slot)
+		{
+			FWeaponItemStruct* FoundRowData = WeaponTable->FindRow<FWeaponItemStruct>(WeaponId, TEXT("WeaponSearching"));
+
+		}
+	}
 }
 
+void UPlayerQuickSlotComponent::RegisterArmorToEmptySlot(FName ArmorId)
+{
+	if (ArmorTable == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[테이블 파열] ArmorTable 자산이 바인딩되지 않았습니다."));
+		return;
+	}
+}
+
+void UPlayerQuickSlotComponent::RegisterResourceToEmptySlot(FName ResourceId, int32 Quantity)
+{
+	if (ResourceTable == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[테이블 파열] ResourceTable 자산이 바인딩되지 않았습니다."));
+		return;
+	}
+}
+
+void UPlayerQuickSlotComponent::RegisterPotionToEmptySlot(FName PotionId, int32 Quantity)
+{
+	if (PotionTable == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[테이블 파열] PotionTable 자산이 바인딩되지 않았습니다."));
+		return;
+	}
+}
 
 void UPlayerQuickSlotComponent::ExecuteSlotAction(int32 SlotIndex)
 {
+
+}
+
+bool UPlayerQuickSlotComponent::bIsQuickSlotFull()
+{
+	if (QuickSlots.Num() == MaxSlotCount) return true;
+	return false;
 }
 
 // Called when the game starts

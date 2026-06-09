@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "SurvivalProj/Data/Enums/EItemType.h"
 #include "GameFramework/Actor.h"
 #include "FieldItem.generated.h"
 
@@ -55,6 +56,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ItemState")
 	int32 ItemQuantity = 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ItemState")
+	EItemType ItemType = EItemType::None;
 
 
 public:	

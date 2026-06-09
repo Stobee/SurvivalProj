@@ -4,9 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h" // 데이터 테이블 가동을 위한 필수 헤더 인입
+#include "SurvivalProj/InGame/Item/EquipWeapon.h"
 #include "WeaponItemStruct.generated.h"
 
-class AEquipWeapon;
+
 
 /**
  * [핵심] USTRUCT 내부에 BlueprintType을 주입하고, FTableRowBase를 상속받아야
@@ -38,7 +39,7 @@ public:
 
 	//아이템 메시
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")
-	AEquipWeapon* EquipWeaponActor = nullptr;
+	TSubclassOf<AEquipWeapon> EquipWeaponActor = nullptr;
 
 	//아이템 설명 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")

@@ -98,7 +98,7 @@ public:
 	virtual void ClearHitRegistry() override;
 
 	// Interact FieldItems
-	virtual void GetFieldItem(FName ItemId, int32 ItemQuantity) override;
+	virtual void GetFieldItem(FName ItemId, int32 ItemQuantity, EItemType ItemType) override;
 	
 private:
 

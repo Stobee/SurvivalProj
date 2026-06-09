@@ -305,6 +305,50 @@ void APlayerCharacter::ClearHitRegistry()
 {
 }
 
-void APlayerCharacter::GetFieldItem(FName ItemId, int32 ItemQuantity)
+void APlayerCharacter::GetFieldItem(FName ItemId, int32 ItemQuantity, EItemType ItemType)
 {
+	if (QuickSlot->bIsQuickSlotFull())
+	{
+		switch (ItemType)
+		{
+		case (EItemType::Armor):
+		{
+
+		} break;
+		case (EItemType::Weapon):
+		{
+			
+		} break;
+		case (EItemType::Resource):
+		{
+
+		} break;
+		case (EItemType::Potion):
+		{
+
+		} break;
+		}
+	}
+	else
+	{
+		switch (ItemType)
+		{
+		case (EItemType::Armor):
+		{
+			QuickSlot->RegisterArmorToEmptySlot(ItemId);
+		} break;
+		case (EItemType::Weapon):
+		{
+			QuickSlot->RegisterWeaponToEmptySlot(ItemId);
+		} break;
+		case (EItemType::Resource):
+		{
+			QuickSlot->RegisterResourceToEmptySlot(ItemId, ItemQuantity);
+		} break;
+		case (EItemType::Potion):
+		{
+			QuickSlot->RegisterPotionToEmptySlot(ItemId, ItemQuantity);
+		} break;
+		}
+	}
 }
