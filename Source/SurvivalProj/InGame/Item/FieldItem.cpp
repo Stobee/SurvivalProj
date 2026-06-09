@@ -4,6 +4,7 @@
 #include "FieldItem.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "SurvivalProj/InGame/Interfaces/InteractiveInterface.h"
 
 // Sets default values
 AFieldItem::AFieldItem()
@@ -13,12 +14,45 @@ AFieldItem::AFieldItem()
 
 	Box = CreateDefaultSubobject<UBoxComponent>(TEXT("Box"));
 	RootComponent = Box;
-	Box->SetCollisionProfileName(TEXT("OverlapAllDynamic"));
+	Box->SetCollisionProfileName(TEXT("ItemSearch"));
 
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
 	StaticMesh->SetupAttachment(Box);
 	StaticMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	StaticMesh->bRenderCustomDepth = false;
 
+}
+
+void AFieldItem::SetMeshOutlineActive(bool bActive)
+{
+	if (StaticMesh == nullptr) return;
+
+	StaticMesh->bRenderCustomDepth = bActive;
+	// 렌더 쓰레드 새로고침 강제화 하는 명령어
+	StaticMesh->MarkRenderStateDirty();
+}
+
+void AFieldItem::OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, 
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor == nullptr || OtherActor == this) return;
+
+	// 인터페이스 검사
+	if (OtherActor->GetClass()->ImplementsInterface(UInteractiveInterface::StaticClass()))
+	{
+		SetMeshOutlineActive(true);
+	}
+}
+
+void AFieldItem::OnBoxEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if (OtherActor == nullptr || OtherActor == this) return;
+
+	if (OtherActor->GetClass()->ImplementsInterface(UInteractiveInterface::StaticClass()))
+	{
+		
+		SetMeshOutlineActive(false);
+	}
 }
 
 // Called when the game starts or when spawned
@@ -26,6 +60,11 @@ void AFieldItem::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	if (Box)
+	{
+		Box->OnComponentBeginOverlap.AddDynamic(this, &AFieldItem::OnBoxBeginOverlap);
+		Box->OnComponentEndOverlap.AddDynamic(this, &AFieldItem::OnBoxEndOverlap);
+	}
 }
 
 // Called every frame

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "InputActionValue.h"
 #include "SurvivalProj/InGame/Interfaces/AttackNotifyInterface.h"
+#include "SurvivalProj/InGame/Interfaces/InteractiveInterface.h"
 #include "SurvivalProj/InGame/MainCharacter.h"
 #include "SurvivalProj/Data/Enums/EPlayerActState.h"
 #include "SurvivalProj/Data/Enums/EWeaponEquipState.h"
@@ -21,7 +22,7 @@ class UAnimMontage;
  * 
  */
 UCLASS()
-class SURVIVALPROJ_API APlayerCharacter : public AMainCharacter, public IAttackNotifyInterface
+class SURVIVALPROJ_API APlayerCharacter : public AMainCharacter, public IAttackNotifyInterface, public IInteractiveInterface
 {
 	GENERATED_BODY()
 	
@@ -95,6 +96,9 @@ public:
 
 	// reset Hit Actors
 	virtual void ClearHitRegistry() override;
+
+	// Interact FieldItems
+	virtual void GetFieldItem(FName ItemId, int32 ItemQuantity) override;
 	
 private:
 

@@ -20,6 +20,26 @@ public:
 	// Sets default values for this actor's properties
 	AFieldItem();
 
+	void SetMeshOutlineActive(bool bActive);
+
+	UFUNCTION() 
+	void OnBoxBeginOverlap(
+		UPrimitiveComponent* OverlappedComponent,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex,
+		bool bFromSweep,
+		const FHitResult& SweepResult
+	);
+
+	UFUNCTION()
+	void OnBoxEndOverlap(
+		UPrimitiveComponent* OverlappedComponent,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex
+	);
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -35,6 +55,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ItemState")
 	int32 ItemQuantity = 1;
+
 
 public:	
 	// Called every frame

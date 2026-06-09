@@ -8,6 +8,8 @@
 #include "SurvivalProj/Data/Enums/EItemType.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Components/CapsuleComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Camera/CameraComponent.h"
 #include "EnhancedInputComponent.h"
@@ -18,6 +20,12 @@ APlayerCharacter::APlayerCharacter()
 	Movement->bOrientRotationToMovement = true;
 	Movement->bUseControllerDesiredRotation = false;
 	bUseControllerRotationYaw = false;
+
+	UCapsuleComponent* Capsule = GetCapsuleComponent();
+	Capsule->SetCollisionResponseToChannel(ECC_EngineTraceChannel3, ECR_Overlap);
+
+	USkeletalMeshComponent* SkeletalMesh = GetMesh();
+	
 
 	Inventory = CreateDefaultSubobject<UPlayerInventoryComponent>(TEXT("Inventory"));
 	QuickSlot = CreateDefaultSubobject<UPlayerQuickSlotComponent>(TEXT("QuickSlot"));
@@ -294,5 +302,9 @@ void APlayerCharacter::ExecuteShortAttackTrace()
 }
 
 void APlayerCharacter::ClearHitRegistry()
+{
+}
+
+void APlayerCharacter::GetFieldItem(FName ItemId, int32 ItemQuantity)
 {
 }
