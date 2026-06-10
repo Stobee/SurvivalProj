@@ -20,9 +20,16 @@ public:
 	// [핵심 포트] 기획자가 만든 BP_RedPotion 같은 블루프린트 클래스 타입을 인자로 안전하게 수집
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
 	bool AddItemFromClass(TSubclassOf<UItemInstance> ItemBlueprintClass, int32 Amount);
+
+	bool bIsInventorySlotFull();
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
+
+	UPROPERTY()
+	TArray<UItemInstance*> InventorySlots;
+
+	int32 MaxSlotCount = 32;
 
 public:	
 	// Called every frame

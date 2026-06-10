@@ -3,7 +3,7 @@
 
 #include "ItemInstance.h"
 
-void UItemInstance::InitItem()
+void UItemInstance::InitItem(UDataTable* DataTable, FName ID)
 {
 
 }

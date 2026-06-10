@@ -21,6 +21,12 @@ bool UPlayerInventoryComponent::AddItemFromClass(TSubclassOf<UItemInstance> Item
 	return true;
 }
 
+bool UPlayerInventoryComponent::bIsInventorySlotFull()
+{
+	if (InventorySlots.Num() == MaxSlotCount) return true;
+	return false;
+}
+
 
 // Called when the game starts
 void UPlayerInventoryComponent::BeginPlay()

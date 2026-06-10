@@ -5,10 +5,10 @@
 #include "CoreMinimal.h"
 #include "InputActionValue.h"
 #include "SurvivalProj/InGame/Interfaces/AttackNotifyInterface.h"
-#include "SurvivalProj/InGame/Interfaces/InteractiveInterface.h"
 #include "SurvivalProj/InGame/MainCharacter.h"
 #include "SurvivalProj/Data/Enums/EPlayerActState.h"
 #include "SurvivalProj/Data/Enums/EWeaponEquipState.h"
+#include "SurvivalProj/Data/Enums/EItemType.h"
 #include "PlayerCharacter.generated.h"
 
 class UTopDownSpringArmComponent;
@@ -22,7 +22,7 @@ class UAnimMontage;
  * 
  */
 UCLASS()
-class SURVIVALPROJ_API APlayerCharacter : public AMainCharacter, public IAttackNotifyInterface, public IInteractiveInterface
+class SURVIVALPROJ_API APlayerCharacter : public AMainCharacter, public IAttackNotifyInterface
 {
 	GENERATED_BODY()
 	
@@ -53,13 +53,21 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastAttack(FName SectionName);
 
-	void EquipWeapon();
+	void EquipWeapon(FName WeaponName);
 
 	UFUNCTION(Server, Reliable)
 	void ServerEquipWeapon(FName WeaponName);
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastEquipWeapon(FName WeaponName);
+
+	void Interact();
+
+	UFUNCTION(Server, Reliable)
+	void ServerInteract(AActor* TargetActor);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastInteract(AActor* TargetActor);
 
 	// 휠로 카메라 거리 조절
 	void Zoom(FInputActionValue const& Value);
@@ -83,6 +91,31 @@ public:
 	UPROPERTY(BluePrintReadOnly, Category = "Input")
 	EWeaponEquipState WeaponEquipState = EWeaponEquipState::Unarmed;
 
+	// 필드 아이템과 상호작용 시 호출
+	bool GetFieldItem(FName ItemId, int32 ItemQuantity, EItemType ItemType);
+
+
+	UFUNCTION()
+	void OnCapsuleBeginOverlap(
+		UPrimitiveComponent* OverlappedComponent,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex,
+		bool bFromSweep,
+		const FHitResult& SweepResult
+	);
+
+	UFUNCTION()
+	void OnCapsuleEndOverlap(
+		UPrimitiveComponent* OverlappedComponent,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex
+	);
+
+	// 현재 오버랩 된 액터
+	UPROPERTY(BlueprintReadOnly, Category = "Input")
+	AActor* OverlappedActor = nullptr;
 
 	// 인터페이스 함수
 	// set bCanUseCombo
@@ -97,8 +130,8 @@ public:
 	// reset Hit Actors
 	virtual void ClearHitRegistry() override;
 
-	// Interact FieldItems
-	virtual void GetFieldItem(FName ItemId, int32 ItemQuantity, EItemType ItemType) override;
+	// Interact Other Actors
+	//virtual void StartInteract_Implementation(AActor* InteractCauser) const override;
 	
 private:
 
@@ -108,7 +141,7 @@ private:
 	void Input_UseSlot4() { UseItemFromQuickSlot(4); }
 	void Input_UseSlot5() { UseItemFromQuickSlot(5); }
 	
-
+// 컴포넌트
 protected:
 
 	// 탑 다운 전용 스프링 암
@@ -123,6 +156,9 @@ protected:
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UPlayerQuickSlotComponent>QuickSlot;
+
+// Input
+protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	TObjectPtr<UInputAction> IA_Move;
@@ -141,6 +177,9 @@ protected:
 	TObjectPtr<UInputAction> IA_Attack;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	TObjectPtr<UInputAction> IA_Interact;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	TObjectPtr<UInputAction> IA_UseItemSlot1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
@@ -154,6 +193,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	TObjectPtr<UInputAction> IA_UseItemSlot5;
+
+// 애니메이션 몽타주
+protected:
 
 	// 에디터에서 입력
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation", meta = (AllowPrivateAccess = "true"))

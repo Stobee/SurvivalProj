@@ -5,7 +5,7 @@
 #include "SurvivalProj/InGame/Components/TopDownSpringArmComponent.h"
 #include "SurvivalProj/InGame/Components/PlayerQuickSlotComponent.h"
 #include "SurvivalProj/InGame/Components/PlayerInventoryComponent.h"
-#include "SurvivalProj/Data/Enums/EItemType.h"
+#include "SurvivalProj/InGame/Interfaces/InteractiveInterface.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Components/CapsuleComponent.h"
@@ -55,6 +55,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EIC->BindAction(IA_Jump, ETriggerEvent::Completed, this, &APlayerCharacter::StopJumping);
 		EIC->BindAction(IA_Zoom, ETriggerEvent::Triggered, this, &APlayerCharacter::Zoom);
 		EIC->BindAction(IA_Attack, ETriggerEvent::Triggered, this, &APlayerCharacter::Attack);
+		EIC->BindAction(IA_Interact, ETriggerEvent::Triggered, this, &APlayerCharacter::Interact);
 		EIC->BindAction(IA_UseItemSlot1, ETriggerEvent::Triggered, this, &APlayerCharacter::Input_UseSlot1);
 		EIC->BindAction(IA_UseItemSlot2, ETriggerEvent::Triggered, this, &APlayerCharacter::Input_UseSlot2);
 		EIC->BindAction(IA_UseItemSlot3, ETriggerEvent::Triggered, this, &APlayerCharacter::Input_UseSlot3);
@@ -85,13 +86,43 @@ void APlayerCharacter::Move(FInputActionValue const& Value)
 	//AddMovementInput(SideDirection, MovementVector.X);
 }
 
-
-void APlayerCharacter::EquipWeapon()
+void APlayerCharacter::Interact()
 {
+	if (OverlappedActor)
+	{
+		ServerInteract(OverlappedActor);
+	}
+
+}
+
+void APlayerCharacter::ServerInteract_Implementation(AActor* TargetActor)
+{
+	if (TargetActor == nullptr) return;
+
+	if (TargetActor->GetClass()->ImplementsInterface(UInteractiveInterface::StaticClass()))
+	{
+	
+			IInteractiveInterface::Execute_StartInteract(TargetActor, this);
+		
+	}
+}
+
+void APlayerCharacter::MulticastInteract_Implementation(AActor* TargetActor)
+{
+	
+}
+
+void APlayerCharacter::EquipWeapon(FName WeaponName)
+{
+	ServerEquipWeapon(WeaponName);
 }
 
 void APlayerCharacter::ServerEquipWeapon_Implementation(FName WeaponName)
 {
+	if (HasAuthority())
+	{
+		MulticastEquipWeapon(WeaponName);
+	}
 }
 
 void APlayerCharacter::MulticastEquipWeapon_Implementation(FName WeaponName)
@@ -208,8 +239,6 @@ void APlayerCharacter::MulticastJumpWithAnim_Implementation()
 	}
 }
 
-
-
 void APlayerCharacter::Zoom(FInputActionValue const& Value)
 {
 	float WheelValue = Value.Get<float>();
@@ -229,22 +258,22 @@ void APlayerCharacter::UseItemFromQuickSlot(uint8 KeyNum)
 
 		case 2:
 		{
-
+			QuickSlot->ExecuteSlotAction(2);
 		}
 		break;
 		case 3:
 		{
-
+			QuickSlot->ExecuteSlotAction(3);
 		}
 		break;
 		case 4:
 		{
-
+			QuickSlot->ExecuteSlotAction(4);
 		}
 		break;
 		case 5:
 		{
-
+			QuickSlot->ExecuteSlotAction(5);
 		}
 		break;
 	}
@@ -305,10 +334,15 @@ void APlayerCharacter::ClearHitRegistry()
 {
 }
 
-void APlayerCharacter::GetFieldItem(FName ItemId, int32 ItemQuantity, EItemType ItemType)
+//void APlayerCharacter::StartInteract_Implementation(AActor* InteractCauser) const
+//{
+//}
+
+bool APlayerCharacter::GetFieldItem(FName ItemId, int32 ItemQuantity, EItemType ItemType)
 {
 	if (QuickSlot->bIsQuickSlotFull())
 	{
+		if (Inventory->bIsInventorySlotFull()) return false;
 		switch (ItemType)
 		{
 		case (EItemType::Armor):
@@ -350,5 +384,28 @@ void APlayerCharacter::GetFieldItem(FName ItemId, int32 ItemQuantity, EItemType 
 			QuickSlot->RegisterPotionToEmptySlot(ItemId, ItemQuantity);
 		} break;
 		}
+	}
+	return true;
+}
+
+void APlayerCharacter::OnCapsuleBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor == nullptr || OtherActor == this) return;
+
+	if (OtherActor->GetClass()->ImplementsInterface(UInteractiveInterface::StaticClass()))
+	{
+		OverlappedActor = OtherActor;
+		
+	}
+}
+
+void APlayerCharacter::OnCapsuleEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if (OtherActor == nullptr || OtherActor == this) return;
+
+	if (OtherActor->GetClass()->ImplementsInterface(UInteractiveInterface::StaticClass()))
+	{
+		OverlappedActor = nullptr;
+		
 	}
 }

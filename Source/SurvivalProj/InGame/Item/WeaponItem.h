@@ -20,11 +20,7 @@ public:
 
 	float GetWeaponAP() const { return AttackPoint; }
 
-	FText GetWeaponDescription() const { return ItemRow ? ItemRow->ItemDescription : FText::GetEmpty(); }
-
-	UTexture2D* GetWeaponIcon() const { return ItemRow ? ItemRow->ItemIconTexture : nullptr; }
-
-	virtual void InitItem() override;
+	virtual void InitItem(UDataTable* DataTable, FName ID) override;
 
 protected:
 	

@@ -3,30 +3,34 @@
 
 #include "PlayerQuickSlotComponent.h"
 #include "SurvivalProj/Data/DataTableStructs/WeaponItemStruct.h"
+#include "SurvivalProj/InGame/Item/WeaponItem.h"
 
 // Sets default values for this component's properties
 UPlayerQuickSlotComponent::UPlayerQuickSlotComponent()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bCanEverTick = false;
 
 	// ...
 }
 
-void UPlayerQuickSlotComponent::RegisterWeaponToEmptySlot(FName WeaponId)
+void UPlayerQuickSlotComponent::RegisterWeaponToEmptySlot(FName WeaponID)
 {
 	if (WeaponTable == nullptr)
 	{
 		UE_LOG(LogTemp, Error, TEXT("[테이블 파열] WeaponTable 자산이 바인딩되지 않았습니다."));
 		return;
 	}
-	for (auto slot : QuickSlots)
+	for (auto& slot : QuickSlots)
 	{
 		if (!slot)
 		{
-			FWeaponItemStruct* FoundRowData = WeaponTable->FindRow<FWeaponItemStruct>(WeaponId, TEXT("WeaponSearching"));
-
+			UWeaponItem* NewWeapon = NewObject<UWeaponItem>(this);
+			NewWeapon->InitItem(WeaponTable, WeaponID);
+			slot = NewWeapon;
+			
+			break;
 		}
 	}
 }

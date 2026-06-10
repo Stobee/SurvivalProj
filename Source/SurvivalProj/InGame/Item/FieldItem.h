@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "SurvivalProj/Data/Enums/EItemType.h"
+#include "SurvivalProj/InGame/Interfaces/InteractiveInterface.h"
 #include "GameFramework/Actor.h"
 #include "FieldItem.generated.h"
 
@@ -13,7 +14,7 @@ class UStaticMeshComponent;
 
 
 UCLASS()
-class SURVIVALPROJ_API AFieldItem : public AActor
+class SURVIVALPROJ_API AFieldItem : public AActor, public IInteractiveInterface
 {
 	GENERATED_BODY()
 	
@@ -22,6 +23,7 @@ public:
 	AFieldItem();
 
 	void SetMeshOutlineActive(bool bActive);
+
 
 	UFUNCTION() 
 	void OnBoxBeginOverlap(
@@ -40,6 +42,9 @@ public:
 		UPrimitiveComponent* OtherComp,
 		int32 OtherBodyIndex
 	);
+
+	// 인터페이스 함수
+	virtual void StartInteract_Implementation(AActor* InteractCauser) override;
 
 protected:
 	// Called when the game starts or when spawned

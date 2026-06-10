@@ -6,13 +6,13 @@
 
 
 
-void UWeaponItem::InitItem()
+void UWeaponItem::InitItem(UDataTable* DataTable, FName ID)
 {
-	Super::InitItem();
-
-	if (ItemDataTable != nullptr && ItemID.IsValid())
+	if (ItemDataTable != nullptr && ID.IsValid())
 	{
-		ItemRow = ItemDataTable->FindRow<FWeaponItemStruct>(ItemID, TEXT("WeaponItemInit"));
+		Super::InitItem(ItemDataTable, ID);
+		ItemID = ID;
+		ItemRow = ItemDataTable->FindRow<FWeaponItemStruct>(ID, TEXT("WeaponItemInit"));
 
 		ItemName = ItemRow->ItemName;
 		AttackPoint = ItemRow->BaseAttackDamage;

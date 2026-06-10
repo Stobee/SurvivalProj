@@ -23,18 +23,16 @@ public:
 	int32 GetQuantity() const { return Quantity; }
 	FText GetItemName() const { return ItemName; }
 	
-
-	void SetItemID(FName InID) { ItemID = InID; }
 	void AddQuantity(int32 Amount) { Quantity += Amount; }
 
-	virtual void InitItem();
+	virtual void InitItem(UDataTable* DataTable, FName ID);
 
 	// 자식 아이템(포션, 장비)들이 독단적으로 재정의할 연산 가교
 	virtual void UseItem(class ACharacter* UserCharacter);
 
 	
 protected:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ItemState")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ItemState")
 	FName ItemID;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ItemState")
@@ -47,6 +45,6 @@ protected:
 	FText ItemName;
 
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Config")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Config")
 	UDataTable* ItemDataTable;
 };

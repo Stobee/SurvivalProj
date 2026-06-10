@@ -4,7 +4,8 @@
 #include "FieldItem.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
-#include "SurvivalProj/InGame/Interfaces/InteractiveInterface.h"
+#include "SurvivalProj/InGame/Player/PlayerCharacter.h"
+
 
 // Sets default values
 AFieldItem::AFieldItem()
@@ -32,15 +33,20 @@ void AFieldItem::SetMeshOutlineActive(bool bActive)
 	StaticMesh->MarkRenderStateDirty();
 }
 
+
 void AFieldItem::OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, 
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (OtherActor == nullptr || OtherActor == this) return;
 
-	// 인터페이스 검사
-	if (OtherActor->GetClass()->ImplementsInterface(UInteractiveInterface::StaticClass()))
+	APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(OtherActor);
+
+	if (PlayerCharacter != nullptr)
 	{
-		SetMeshOutlineActive(true);
+		if (PlayerCharacter->IsLocallyControlled())
+		{
+			SetMeshOutlineActive(true);
+		}
 	}
 }
 
@@ -48,10 +54,27 @@ void AFieldItem::OnBoxEndOverlap(UPrimitiveComponent* OverlappedComponent, AActo
 {
 	if (OtherActor == nullptr || OtherActor == this) return;
 
-	if (OtherActor->GetClass()->ImplementsInterface(UInteractiveInterface::StaticClass()))
+	APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(OtherActor);
+
+	if (PlayerCharacter != nullptr)
 	{
-		
-		SetMeshOutlineActive(false);
+		if (PlayerCharacter->IsLocallyControlled())
+		{
+			SetMeshOutlineActive(false);
+		}
+	}
+}
+
+void AFieldItem::StartInteract_Implementation(AActor* InteractCauser) 
+{
+	if (!InteractCauser) return;
+	
+	APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(InteractCauser);
+	bool SaveSuccess = PlayerCharacter->GetFieldItem(ItemID, ItemQuantity, ItemType);
+	
+	if (SaveSuccess)
+	{
+		Destroy();
 	}
 }
 
