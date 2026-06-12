@@ -9,3 +9,9 @@ void UPlayerQuickSlotWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 }
+
+void UPlayerQuickSlotWidget::NativeOnInitialized()
+{
+	Super::NativeOnInitialized();
+
+}

@@ -8,6 +8,7 @@
 
 class UCanvasPanel;
 class UUniformGridPanel;
+class UItemSlotWidget;
 
 /**
  * 
@@ -25,5 +26,10 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UUniformGridPanel> QuickSlotGrid;
 
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UItemSlotWidget> QuickSlotGrid;
+
 	virtual void NativeConstruct() override;
+
+	virtual void NativeOnInitialized() override;
 };

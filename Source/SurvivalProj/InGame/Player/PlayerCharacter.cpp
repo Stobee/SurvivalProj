@@ -22,7 +22,10 @@ APlayerCharacter::APlayerCharacter()
 	bUseControllerRotationYaw = false;
 
 	UCapsuleComponent* Capsule = GetCapsuleComponent();
-	Capsule->SetCollisionResponseToChannel(ECC_EngineTraceChannel3, ECR_Overlap);
+	//Capsule->SetCollisionResponseToChannel(ECC_EngineTraceChannel3, ECR_Overlap);
+	Capsule->SetGenerateOverlapEvents(true);
+	Capsule->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::OnCapsuleBeginOverlap);
+	Capsule->OnComponentEndOverlap.AddDynamic(this, &APlayerCharacter::OnCapsuleEndOverlap);
 
 	USkeletalMeshComponent* SkeletalMesh = GetMesh();
 	
@@ -102,7 +105,8 @@ void APlayerCharacter::ServerInteract_Implementation(AActor* TargetActor)
 	if (TargetActor->GetClass()->ImplementsInterface(UInteractiveInterface::StaticClass()))
 	{
 	
-			IInteractiveInterface::Execute_StartInteract(TargetActor, this);
+		IInteractiveInterface::Execute_StartInteract(TargetActor, this);
+		OverlappedActor = nullptr;
 		
 	}
 }
@@ -217,8 +221,11 @@ void APlayerCharacter::MulticastAttack_Implementation(FName SectionName)
 
 void APlayerCharacter::JumpWithAnim()
 {
-	Jump();
-	ServerJumpWithAnim();
+	if (ActState == EPlayerActState::Movable && GetCharacterMovement()->IsFalling() == false)
+	{
+		Jump();
+		ServerJumpWithAnim();
+	}
 }
 
 void APlayerCharacter::ServerJumpWithAnim_Implementation()
@@ -392,7 +399,11 @@ void APlayerCharacter::OnCapsuleBeginOverlap(UPrimitiveComponent* OverlappedComp
 {
 	if (OtherActor == nullptr || OtherActor == this) return;
 
-	if (OtherActor->GetClass()->ImplementsInterface(UInteractiveInterface::StaticClass()))
+	if (IsLocallyControlled() == false) return;
+
+	IInteractiveInterface* InteractiveObject = Cast<IInteractiveInterface>(OtherActor);
+
+	if (InteractiveObject)
 	{
 		OverlappedActor = OtherActor;
 		
@@ -403,7 +414,11 @@ void APlayerCharacter::OnCapsuleEndOverlap(UPrimitiveComponent* OverlappedCompon
 {
 	if (OtherActor == nullptr || OtherActor == this) return;
 
-	if (OtherActor->GetClass()->ImplementsInterface(UInteractiveInterface::StaticClass()))
+	if (IsLocallyControlled() == false) return;
+
+	IInteractiveInterface* InteractiveObject = Cast<IInteractiveInterface>(OtherActor);
+
+	if (InteractiveObject)
 	{
 		OverlappedActor = nullptr;
 		

@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -27,16 +27,16 @@ class SURVIVALPROJ_API APlayerCharacter : public AMainCharacter, public IAttackN
 	GENERATED_BODY()
 	
 public:
-	// ÇÃ·¹ÀÌ¾î »ı¼ºÀÚ
+	// í”Œë ˆì´ì–´ ìƒì„±ì
 	APlayerCharacter();
 
-	// ÇÃ·¹ÀÌ¾î ÀÎÇ²
+	// í”Œë ˆì´ì–´ ì¸í’‹
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	// ÀÌµ¿ ·ÎÁ÷
+	// ì´ë™ ë¡œì§
 	void Move(FInputActionValue const& Value);
 
-	// Á¡ÇÁ ½ÃÀÛ ½Ã ¸ùÅ¸ÁÖ ½ÇÇà
+	// ì í”„ ì‹œì‘ ì‹œ ëª½íƒ€ì£¼ ì‹¤í–‰
 	void JumpWithAnim();
 
 	UFUNCTION(Server, Reliable)
@@ -69,29 +69,29 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastInteract(AActor* TargetActor);
 
-	// ÈÙ·Î Ä«¸Ş¶ó °Å¸® Á¶Àı
+	// íœ ë¡œ ì¹´ë©”ë¼ ê±°ë¦¬ ì¡°ì ˆ
 	void Zoom(FInputActionValue const& Value);
 
-	// ¼ıÀÚ Å°·Î ÀÔ·ÂÇÑ ÀÎº¥Åä¸®ÀÇ ¾ÆÀÌÅÛ »ç¿ë
+	// ìˆ«ì í‚¤ë¡œ ì…ë ¥í•œ ì¸ë²¤í† ë¦¬ì˜ ì•„ì´í…œ ì‚¬ìš©
 	void UseItemFromQuickSlot(uint8 KeyNum);
 
-	// °ø°İ ÄŞº¸ ÀÔ·Â È°¼ºÈ­ ¿©ºÎ
+	// ê³µê²© ì½¤ë³´ ì…ë ¥ í™œì„±í™” ì—¬ë¶€
 	UPROPERTY(BlueprintReadOnly, Category = "Input")
 	bool bCanUseCombo = false;
 
-	// ÀÌµ¿ °¡´É ¿©ºÎ¿Í °ü·ÃµÈ »óÅÂ
+	// ì´ë™ ê°€ëŠ¥ ì—¬ë¶€ì™€ ê´€ë ¨ëœ ìƒíƒœ
 	UPROPERTY(BlueprintReadOnly, Category = "Input")
 	EPlayerActState ActState = EPlayerActState::Movable;
 
-	// ÇöÀç °ø°İ ÄŞº¸ ´Ü°è
+	// í˜„ì¬ ê³µê²© ì½¤ë³´ ë‹¨ê³„
 	UPROPERTY(BluePrintReadOnly, Category = "Input")
 	uint8 AttackComboState = 0;
 
-	// ¹«±â ÀåÂø »óÅÂ
+	// ë¬´ê¸° ì¥ì°© ìƒíƒœ
 	UPROPERTY(BluePrintReadOnly, Category = "Input")
 	EWeaponEquipState WeaponEquipState = EWeaponEquipState::Unarmed;
 
-	// ÇÊµå ¾ÆÀÌÅÛ°ú »óÈ£ÀÛ¿ë ½Ã È£Ãâ
+	// í•„ë“œ ì•„ì´í…œê³¼ ìƒí˜¸ì‘ìš© ì‹œ í˜¸ì¶œ
 	bool GetFieldItem(FName ItemId, int32 ItemQuantity, EItemType ItemType);
 
 
@@ -113,11 +113,11 @@ public:
 		int32 OtherBodyIndex
 	);
 
-	// ÇöÀç ¿À¹ö·¦ µÈ ¾×ÅÍ
+	// í˜„ì¬ ì˜¤ë²„ë© ëœ ì•¡í„°
 	UPROPERTY(BlueprintReadOnly, Category = "Input")
 	AActor* OverlappedActor = nullptr;
 
-	// ÀÎÅÍÆäÀÌ½º ÇÔ¼ö
+	// ì¸í„°í˜ì´ìŠ¤ í•¨ìˆ˜
 	// set bCanUseCombo
 	virtual void SetComboWindowRegistry(bool bIsOpen) override;
 
@@ -141,10 +141,10 @@ private:
 	void Input_UseSlot4() { UseItemFromQuickSlot(4); }
 	void Input_UseSlot5() { UseItemFromQuickSlot(5); }
 	
-// ÄÄÆ÷³ÍÆ®
+// ì»´í¬ë„ŒíŠ¸
 protected:
 
-	// Å¾ ´Ù¿î Àü¿ë ½ºÇÁ¸µ ¾Ï
+	// íƒ‘ ë‹¤ìš´ ì „ìš© ìŠ¤í”„ë§ ì•”
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UTopDownSpringArmComponent>SpringArm;
 
@@ -169,7 +169,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	TObjectPtr<UInputAction> IA_Zoom;
 
-	// ÁÜ °¡¼Óµµ. ¿¡µğÅÍ¿¡¼­ Á¶Á¤
+	// ì¤Œ ê°€ì†ë„. ì—ë””í„°ì—ì„œ ì¡°ì •
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	float ZoomWheelSpeed = 50.0f;
 
@@ -194,26 +194,22 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	TObjectPtr<UInputAction> IA_UseItemSlot5;
 
-// ¾Ö´Ï¸ŞÀÌ¼Ç ¸ùÅ¸ÁÖ
+// ì• ë‹ˆë©”ì´ì…˜ ëª½íƒ€ì£¼
+// ì—ë””í„°ì—ì„œ ì…ë ¥
 protected:
 
-	// ¿¡µğÅÍ¿¡¼­ ÀÔ·Â
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UAnimMontage> JumpStartMontage;
 
-	// ¿¡µğÅÍ¿¡¼­ ÀÔ·Â
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UAnimMontage> UnarmedAttackMontage;
 
-	// ¿¡µğÅÍ¿¡¼­ ÀÔ·Â
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UAnimMontage> OneHandedAttackMontage;
 
-	// ¿¡µğÅÍ¿¡¼­ ÀÔ·Â
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UAnimMontage> TwoHandedAttackMontage;
 
-	// ¿¡µğÅÍ¿¡¼­ ÀÔ·Â
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UAnimMontage> WeaponEquipMontage;
 };

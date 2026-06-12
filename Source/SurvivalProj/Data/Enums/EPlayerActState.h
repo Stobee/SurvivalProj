@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+Ôªø// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -11,7 +11,7 @@
 UENUM(BlueprintType)
 enum class EPlayerActState : uint8
 {
-	Movable UMETA(DisplayName = "¿Ãµø ∞°¥…"),
-	Attack UMETA(DisplayName = "∞¯∞› ¡ﬂ"),
+	Movable UMETA(DisplayName = "Ïù¥Îèô Í∞ÄÎä•"),
+	Attack UMETA(DisplayName = "Í≥µÍ≤© Ï§ë"),
 	
 };

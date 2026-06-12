@@ -25,4 +25,6 @@ protected:
 	TObjectPtr<UTextBlock> ItemQuantityText;
 
 	virtual void NativeConstruct() override;
+
+	virtual void NativeOnInitialized() override;
 };

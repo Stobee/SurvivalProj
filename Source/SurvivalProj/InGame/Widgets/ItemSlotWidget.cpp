@@ -10,3 +10,13 @@ void UItemSlotWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 }
+
+void UItemSlotWidget::NativeOnInitialized()
+{
+	Super::NativeOnInitialized();
+
+	if (ItemImage)
+	{
+		ItemImage->SetVisibility(ESlateVisibility::Hidden);
+	}
+}

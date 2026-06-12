@@ -39,16 +39,16 @@ protected:
 	int32 MaxSlotCount = 5;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
-	UDataTable* WeaponTable;
+	UDataTable* WeaponTable = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
-	UDataTable* ArmorTable;
+	UDataTable* ArmorTable = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
-	UDataTable* ResourceTable;
+	UDataTable* ResourceTable = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
-	UDataTable* PotionTable;
+	UDataTable* PotionTable = nullptr;
 
 public:	
 	// Called every frame

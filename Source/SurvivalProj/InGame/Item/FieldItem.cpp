@@ -13,9 +13,12 @@ AFieldItem::AFieldItem()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
+	bReplicates = true;
+
 	Box = CreateDefaultSubobject<UBoxComponent>(TEXT("Box"));
 	RootComponent = Box;
 	Box->SetCollisionProfileName(TEXT("ItemSearch"));
+	Box->SetGenerateOverlapEvents(true);
 
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
 	StaticMesh->SetupAttachment(Box);
@@ -43,6 +46,7 @@ void AFieldItem::OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AAc
 
 	if (PlayerCharacter != nullptr)
 	{
+		// 오버랩 된 플레이어의 화면에서만 아웃라인을 그림
 		if (PlayerCharacter->IsLocallyControlled())
 		{
 			SetMeshOutlineActive(true);
@@ -68,12 +72,17 @@ void AFieldItem::OnBoxEndOverlap(UPrimitiveComponent* OverlappedComponent, AActo
 void AFieldItem::StartInteract_Implementation(AActor* InteractCauser) 
 {
 	if (!InteractCauser) return;
+	if (HasAuthority() == false) return;
 	
+	// 플레이어의 인벤토리에 아이템을 추가하고 액터 삭제
 	APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(InteractCauser);
 	bool SaveSuccess = PlayerCharacter->GetFieldItem(ItemID, ItemQuantity, ItemType);
 	
 	if (SaveSuccess)
 	{
+		// 서버에서 메모리해제를 알림
+		TearOff();
+
 		Destroy();
 	}
 }

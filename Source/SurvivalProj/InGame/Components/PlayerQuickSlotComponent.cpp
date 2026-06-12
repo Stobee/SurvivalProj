@@ -22,6 +22,7 @@ void UPlayerQuickSlotComponent::RegisterWeaponToEmptySlot(FName WeaponID)
 		UE_LOG(LogTemp, Error, TEXT("[테이블 파열] WeaponTable 자산이 바인딩되지 않았습니다."));
 		return;
 	}
+	// 비어있는 슬롯에 아이템 추가
 	for (auto& slot : QuickSlots)
 	{
 		if (!slot)
