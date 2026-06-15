@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "SurvivalProj/InGame/Item/ItemWidgetStruct.h"
 #include "ItemSlotWidget.generated.h"
 
 class UImage;
@@ -15,6 +16,12 @@ UCLASS()
 class SURVIVALPROJ_API UItemSlotWidget : public UUserWidget
 {
 	GENERATED_BODY()
+
+public:
+
+	FName ItemId = NAME_None;
+
+	void SlotUpdate(FItemSlotData SlotData);
 	
 protected:
 

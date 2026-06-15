@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "SurvivalProj/InGame/Interfaces/ItemWidgetInterface.h"
 #include "PlayerQuickSlotWidget.generated.h"
 
 class UCanvasPanel;
@@ -14,9 +15,13 @@ class UItemSlotWidget;
  * 
  */
 UCLASS()
-class SURVIVALPROJ_API UPlayerQuickSlotWidget : public UUserWidget
+class SURVIVALPROJ_API UPlayerQuickSlotWidget : public UUserWidget, public IItemWidgetInterface
 {
 	GENERATED_BODY()
+
+public:
+
+	virtual void UpdateItemSlot(int32 IndexNum, const FItemSlotData& ItemSlotData) override;
 
 protected:
 
@@ -26,8 +31,11 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UUniformGridPanel> QuickSlotGrid;
 
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UItemSlotWidget> QuickSlotGrid;
+	UPROPERTY(EditDefaultsOnly, Category = "UI Config")
+	TSubclassOf<UItemSlotWidget> SlotWidget;
+
+	UPROPERTY()
+	TArray<TObjectPtr<UItemSlotWidget>> CachedSlots;
 
 	virtual void NativeConstruct() override;
 

@@ -2,8 +2,13 @@
 
 
 #include "PlayerQuickSlotComponent.h"
+#include "GameFramework/PlayerController.h"
 #include "SurvivalProj/Data/DataTableStructs/WeaponItemStruct.h"
+#include "SurvivalProj/InGame/InGameHUD.h"
+#include "SurvivalProj/InGame/Interfaces/ItemWidgetInterface.h"
 #include "SurvivalProj/InGame/Item/WeaponItem.h"
+#include "SurvivalProj/InGame/Item/ItemWidgetStruct.h"
+#include "SurvivalProj/InGame/Widgets/PlayerQuickSlotWidget.h"
 
 // Sets default values for this component's properties
 UPlayerQuickSlotComponent::UPlayerQuickSlotComponent()
@@ -23,13 +28,26 @@ void UPlayerQuickSlotComponent::RegisterWeaponToEmptySlot(FName WeaponID)
 		return;
 	}
 	// 비어있는 슬롯에 아이템 추가
-	for (auto& slot : QuickSlots)
+	for (int i = 0; i < QuickSlots.Num(); i++)
 	{
-		if (!slot)
+
+		if (QuickSlots[i] == nullptr)
 		{
+			
 			UWeaponItem* NewWeapon = NewObject<UWeaponItem>(this);
 			NewWeapon->InitItem(WeaponTable, WeaponID);
-			slot = NewWeapon;
+			QuickSlots[i] = NewWeapon;
+
+			if (CachedUIInterface)
+			{
+				FItemSlotData UpdatePacket;
+				FWeaponItemStruct* ItemRow = WeaponTable->FindRow<FWeaponItemStruct>(WeaponID, TEXT("WeaponItemInit"));
+				UpdatePacket.IconTexture = ItemRow->ItemIconTexture;
+				UpdatePacket.Quantity = 1;
+				UpdatePacket.ItemId = WeaponID;
+
+				CachedUIInterface->UpdateItemSlot(i,UpdatePacket);
+			}
 			
 			break;
 		}
@@ -70,8 +88,14 @@ void UPlayerQuickSlotComponent::ExecuteSlotAction(int32 SlotIndex)
 
 bool UPlayerQuickSlotComponent::bIsQuickSlotFull()
 {
-	if (QuickSlots.Num() == MaxSlotCount) return true;
-	return false;
+	for (auto& slot : QuickSlots)
+	{
+		if (slot == nullptr)
+		{
+			return false;
+		}
+	}
+	return true;
 }
 
 // Called when the game starts
@@ -79,7 +103,24 @@ void UPlayerQuickSlotComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
+	if (QuickSlots.Num() == 0)
+	{
+		QuickSlots.SetNum(MaxSlotCount);
+	}
+
+	APawn* OwningPawn = Cast<APawn>(GetOwner());
+	if (OwningPawn != nullptr)
+	{
+		APlayerController* PC = Cast<APlayerController>(OwningPawn->GetController());
+		if (PC != nullptr)
+		{
+			AInGameHUD* MyHUD = Cast<AInGameHUD>(PC->GetHUD());
+			if (MyHUD != nullptr)
+			{
+				CachedUIInterface = Cast<IItemWidgetInterface>(MyHUD->GetPlayerQuickSlotInterface());
+			}
+		}
+	}
 	
 }
 

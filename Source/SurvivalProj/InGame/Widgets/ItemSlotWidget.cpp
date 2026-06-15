@@ -6,6 +6,17 @@
 #include "Components/TextBlock.h"
 
 
+void UItemSlotWidget::SlotUpdate(FItemSlotData SlotData)
+{
+	ItemImage->SetBrushFromTexture(SlotData.IconTexture);
+	// int를 text로 바꿔서 인입.
+	ItemQuantityText->SetText(FText::AsNumber(SlotData.Quantity));
+	ItemId = SlotData.ItemId;
+	ItemImage->SetVisibility(ESlateVisibility::Visible);
+	ItemQuantityText->SetVisibility(ESlateVisibility::Visible);
+
+}
+
 void UItemSlotWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
@@ -18,5 +29,6 @@ void UItemSlotWidget::NativeOnInitialized()
 	if (ItemImage)
 	{
 		ItemImage->SetVisibility(ESlateVisibility::Hidden);
+		ItemQuantityText->SetVisibility(ESlateVisibility::Hidden);
 	}
 }

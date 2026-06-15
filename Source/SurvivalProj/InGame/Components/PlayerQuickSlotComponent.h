@@ -7,7 +7,7 @@
 #include "SurvivalProj/InGame/Item/ItemInstance.h"
 #include "PlayerQuickSlotComponent.generated.h"
 
-
+class IItemWidgetInterface;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SURVIVALPROJ_API UPlayerQuickSlotComponent : public UActorComponent
@@ -33,6 +33,7 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
+	IItemWidgetInterface* CachedUIInterface = nullptr;
 	UPROPERTY()
 	TArray<UItemInstance*> QuickSlots;
 
