@@ -7,7 +7,6 @@
 #include "InGameHUD.generated.h"
 
 class UPlayerQuickSlotWidget;
-class IItemWidgetInterface;
 
 /**
  * 
@@ -26,11 +25,11 @@ protected:
 
 private:
 
-	UPROPERTY()
-	TObjectPtr<UPlayerQuickSlotWidget> CachedQuickSlotWidget;
+	//UPROPERTY()
+	//TObjectPtr<UPlayerQuickSlotWidget> CachedQuickSlotWidget;
 
 public:
 
-	class IItemWidgetInterface* GetPlayerQuickSlotInterface() const;
+	//class UPlayerQuickSlotWidget* GetPlayerQuickSlotWidgetRef() const;
 	
 };

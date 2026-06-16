@@ -10,6 +10,9 @@ AEquipWeapon::AEquipWeapon()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
+	// Replicates On
+	bReplicates = true;
+	SetReplicateMovement(true);
 
 	Capsule = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Capsule"));
 	RootComponent = Capsule;

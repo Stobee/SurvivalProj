@@ -25,5 +25,5 @@ class SURVIVALPROJ_API IItemWidgetInterface
 public:
 
 	
-	virtual void UpdateItemSlot(int32 IndexNum, const FItemSlotData& ItemSlotData) = 0;
+	//virtual void UpdateItemSlot(int32 IndexNum, const FItemSlotData& ItemSlotData) = 0;
 };

@@ -30,6 +30,8 @@ public:
 	// 자식 아이템(포션, 장비)들이 독단적으로 재정의할 연산 가교
 	virtual void UseItem(class ACharacter* UserCharacter);
 
+	EItemType GetItemType() const { return ItemType; }
+
 	
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ItemState")

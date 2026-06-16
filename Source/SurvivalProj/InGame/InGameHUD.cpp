@@ -3,7 +3,8 @@
 
 #include "InGameHUD.h"
 #include "SurvivalProj/InGame/Widgets/PlayerQuickSlotWidget.h"
-#include "SurvivalProj/InGame/Interfaces/ItemWidgetInterface.h"
+#include "SurvivalProj/InGame/Components/PlayerQuickSlotComponent.h"
+
 
 void AInGameHUD::BeginPlay()
 {
@@ -14,6 +15,7 @@ void AInGameHUD::BeginPlay()
 
 	if (PC->IsLocalController() == false) return;
 	
+	// Create QuickSlotWidget
 	if (QuickSlotWidgetClass != nullptr)
 	{
 		
@@ -23,18 +25,25 @@ void AInGameHUD::BeginPlay()
 			
 			NewQuickUI->AddToViewport();
 
-			
-			CachedQuickSlotWidget = NewQuickUI;
+			APawn* PlayerPawn = PC->GetPawn();
+			if (!PlayerPawn) return;
+
+			UPlayerQuickSlotComponent* QuickSlotComp = PlayerPawn->GetComponentByClass<UPlayerQuickSlotComponent>();
+			if (!QuickSlotComp) return;
+
+			QuickSlotComp->OnWidgetReferenceRegistered.AddDynamic(QuickSlotComp, &UPlayerQuickSlotComponent::RegisterWidgetReference);
+
+			QuickSlotComp->OnWidgetReferenceRegistered.Broadcast(NewQuickUI);
 		}
 	}
 }
 
-IItemWidgetInterface* AInGameHUD::GetPlayerQuickSlotInterface() const
+/*UPlayerQuickSlotWidget* AInGameHUD::GetPlayerQuickSlotWidgetRef() const
 {
 	if (CachedQuickSlotWidget == nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("CachedQuickSlotWidget is nullptr. Return is nullptr."));
 		return nullptr;
 	}
-	return Cast<IItemWidgetInterface>(CachedQuickSlotWidget);
-}
+	return CachedQuickSlotWidget;
+}*/

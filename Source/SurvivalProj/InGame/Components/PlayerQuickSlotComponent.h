@@ -5,9 +5,12 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "SurvivalProj/InGame/Item/ItemInstance.h"
+#include "SurvivalProj/InGame/Widgets/PlayerQuickSlotWidget.h"
 #include "PlayerQuickSlotComponent.generated.h"
 
-class IItemWidgetInterface;
+
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWidgetReferenceRegistered, UPlayerQuickSlotWidget*, WidgetRef);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SURVIVALPROJ_API UPlayerQuickSlotComponent : public UActorComponent
@@ -17,6 +20,14 @@ class SURVIVALPROJ_API UPlayerQuickSlotComponent : public UActorComponent
 public:	
 	// Sets default values for this component's properties
 	UPlayerQuickSlotComponent();
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerRegisterWeaponToEmptySlot(FName WeaponID);
+
+	UFUNCTION(Client, Reliable)
+	void ClientNotifyWeaponRegistered(int32 SlotIndex, FName Id);
 
 	void RegisterWeaponToEmptySlot(FName WeaponId);
 
@@ -28,13 +39,25 @@ public:
 
 	void ExecuteSlotAction(int32 SlotIndex);
 
+	UFUNCTION(Server, Reliable)
+	void ServerEquipWeapon(FName WeaponId);
+
+	// Äü ½½·ÔÀÌ ²Ë Ã¡´ÂÁö È®ÀÎ
 	bool bIsQuickSlotFull();
+
+	UPROPERTY(BlueprintAssignable, Category = "UI")
+	FOnWidgetReferenceRegistered OnWidgetReferenceRegistered;
+
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void RegisterWidgetReference(UPlayerQuickSlotWidget* WidgetRef);
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
-
-	IItemWidgetInterface* CachedUIInterface = nullptr;
+	
 	UPROPERTY()
+	UPlayerQuickSlotWidget* CachedQuickSlotWidget = nullptr;
+
+	UPROPERTY(Replicated)
 	TArray<UItemInstance*> QuickSlots;
 
 	int32 MaxSlotCount = 5;

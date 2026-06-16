@@ -21,7 +21,7 @@ class SURVIVALPROJ_API UPlayerQuickSlotWidget : public UUserWidget, public IItem
 
 public:
 
-	virtual void UpdateItemSlot(int32 IndexNum, const FItemSlotData& ItemSlotData) override;
+	void UpdateItemSlot(int32 IndexNum, const FItemSlotData& ItemSlotData);
 
 protected:
 
