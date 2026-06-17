@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h" // 데이터 테이블 가동을 위한 필수 헤더 인입
 #include "SurvivalProj/InGame/Item/EquipWeapon.h"
+#include "SurvivalProj/Data/Enums/EWeaponEquipState.h"
 #include "WeaponItemStruct.generated.h"
 
 
@@ -44,4 +45,8 @@ public:
 	//아이템 설명 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")
 	FText ItemDescription;
+
+	//아이템 형태
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")
+	EWeaponEquipState WeaponType = EWeaponEquipState::OneHanded;
 };

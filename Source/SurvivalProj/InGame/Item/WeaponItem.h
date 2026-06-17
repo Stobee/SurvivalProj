@@ -16,6 +16,9 @@ class SURVIVALPROJ_API UWeaponItem : public UItemInstance
 	GENERATED_BODY()
 
 public:
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 	float GetWeaponDuravility() const { return CurrentDuravility; }
 
 	float GetWeaponAP() const { return AttackPoint; }
@@ -24,17 +27,20 @@ public:
 
 protected:
 	
-	UPROPERTY(VisibleAnywhere, Category = "WeaponState")
+	UPROPERTY(Replicated, VisibleAnywhere, Category = "WeaponState")
 	float MaxDuravility = 100.0f;
 
-	UPROPERTY(VisibleAnywhere, Category = "WeaponState")
+	UPROPERTY(Replicated, VisibleAnywhere, Category = "WeaponState")
 	float CurrentDuravility = 100.0f;
 
-	UPROPERTY(VisibleAnywhere, Category = "WeaponState")
+	UPROPERTY(Replicated, VisibleAnywhere, Category = "WeaponState")
 	float AttackPoint = 0.0f;
 
-	UPROPERTY(VisibleAnywhere, Category = "WeaponState")
+	UPROPERTY(Replicated, VisibleAnywhere, Category = "WeaponState")
 	int32 EnhencementLevel = 0;
+
+	UPROPERTY(Replicated, VisibleAnywhere, Category = "WeaponState")
+	EWeaponEquipState WeaponType = EWeaponEquipState::OneHanded;
 
 	FWeaponItemStruct* ItemRow = nullptr;
 };

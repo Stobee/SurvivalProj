@@ -3,16 +3,28 @@
 
 #include "WeaponItem.h"
 #include "SurvivalProj/Data/Enums/EItemType.h"
+#include "Net/UnrealNetwork.h"
 
 
+
+void UWeaponItem::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UWeaponItem, MaxDuravility);
+	DOREPLIFETIME(UWeaponItem, CurrentDuravility);
+	DOREPLIFETIME(UWeaponItem, AttackPoint);
+	DOREPLIFETIME(UWeaponItem, EnhencementLevel);
+	DOREPLIFETIME(UWeaponItem, WeaponType);
+}
 
 void UWeaponItem::InitItem(UDataTable* DataTable, FName ID)
 {
-	if (ItemDataTable != nullptr && ID.IsValid())
+	if (DataTable != nullptr && ID.IsValid())
 	{
-		Super::InitItem(ItemDataTable, ID);
+		Super::InitItem(DataTable, ID);
 		ItemID = ID;
-		ItemRow = ItemDataTable->FindRow<FWeaponItemStruct>(ID, TEXT("WeaponItemInit"));
+		ItemRow = DataTable->FindRow<FWeaponItemStruct>(ID, TEXT("WeaponItemInit"));
 
 		ItemName = ItemRow->ItemName;
 		AttackPoint = ItemRow->BaseAttackDamage;
@@ -20,6 +32,7 @@ void UWeaponItem::InitItem(UDataTable* DataTable, FName ID)
 
 		CurrentDuravility = MaxDuravility;
 		ItemType = EItemType::Weapon;
+		WeaponType = ItemRow->WeaponType;
 	}
 	
 }

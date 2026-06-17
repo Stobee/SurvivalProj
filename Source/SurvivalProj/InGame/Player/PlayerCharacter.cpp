@@ -8,6 +8,7 @@
 #include "SurvivalProj/InGame/Interfaces/InteractiveInterface.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Net/UnrealNetwork.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -44,6 +45,13 @@ APlayerCharacter::APlayerCharacter()
     Camera->bConstrainAspectRatio = false;
 	
     
+}
+
+void APlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(APlayerCharacter, WeaponEquipState);
 }
 
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -259,28 +267,28 @@ void APlayerCharacter::UseItemFromQuickSlot(uint8 KeyNum)
 	{
 		case 1:
 		{
-			QuickSlot->ExecuteSlotAction(1);
+			QuickSlot->ExecuteSlotAction(0);
 		}
 		break;
 
 		case 2:
 		{
-			QuickSlot->ExecuteSlotAction(2);
+			QuickSlot->ExecuteSlotAction(1);
 		}
 		break;
 		case 3:
 		{
-			QuickSlot->ExecuteSlotAction(3);
+			QuickSlot->ExecuteSlotAction(2);
 		}
 		break;
 		case 4:
 		{
-			QuickSlot->ExecuteSlotAction(4);
+			QuickSlot->ExecuteSlotAction(3);
 		}
 		break;
 		case 5:
 		{
-			QuickSlot->ExecuteSlotAction(5);
+			QuickSlot->ExecuteSlotAction(4);
 		}
 		break;
 	}

@@ -17,6 +17,10 @@ class SURVIVALPROJ_API UItemInstance : public UObject
 	GENERATED_BODY()
 	
 public:
+
+	virtual bool IsSupportedForNetworking() const override { return true; }
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 	// 데이터 테이블 수색용 고유 해시 키
 	FName GetItemID() const { return ItemID; }
 
@@ -34,19 +38,18 @@ public:
 
 	
 protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ItemState")
+	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "ItemState")
 	FName ItemID;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ItemState")
+	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "ItemState")
 	int32 Quantity = 1;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ItemState")
+	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "ItemState")
 	EItemType ItemType = EItemType::None;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ItemState")
 	FText ItemName;
 
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Config")
-	UDataTable* ItemDataTable;
+	virtual void BeginDestroy() override;
+	
 };

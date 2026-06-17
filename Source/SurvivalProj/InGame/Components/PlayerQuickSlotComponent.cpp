@@ -6,10 +6,12 @@
 #include "SurvivalProj/InGame/Player/PlayerCharacter.h"
 #include "Net/UnrealNetwork.h"
 #include "SurvivalProj/Data/DataTableStructs/WeaponItemStruct.h"
+#include "SurvivalProj/Data/Enums/EWeaponEquipState.h"
 #include "SurvivalProj/InGame/InGameHUD.h"
 #include "SurvivalProj/InGame/Item/WeaponItem.h"
 #include "SurvivalProj/InGame/Item/ItemWidgetStruct.h"
 #include "SurvivalProj/InGame/Item/EquipWeapon.h"
+
 
 
 
@@ -20,7 +22,8 @@ UPlayerQuickSlotComponent::UPlayerQuickSlotComponent()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = false;
-
+	SetIsReplicatedByDefault(true);
+	bReplicateUsingRegisteredSubObjectList = true;
 	// ...
 }
 
@@ -31,6 +34,7 @@ void UPlayerQuickSlotComponent::GetLifetimeReplicatedProps(TArray<FLifetimePrope
 	// 소유자 로컬 클라이언트에게만 패킷을 전송하도록 조건부 복제 마감
 	DOREPLIFETIME_CONDITION(UPlayerQuickSlotComponent, QuickSlots, COND_OwnerOnly);
 }
+
 
 bool UPlayerQuickSlotComponent::ServerRegisterWeaponToEmptySlot_Validate(FName WeaponId)
 {
@@ -70,6 +74,9 @@ void UPlayerQuickSlotComponent::ServerRegisterWeaponToEmptySlot_Implementation(F
 			UWeaponItem* NewWeapon = NewObject<UWeaponItem>(this);
 			NewWeapon->InitItem(WeaponTable, WeaponID);
 			QuickSlots[i] = NewWeapon;
+
+			// 새로 만든 서브오브젝트를 Replicated 등록
+			AddReplicatedSubObject(NewWeapon);
 
 			ClientNotifyWeaponRegistered(i, WeaponID);
 
@@ -129,6 +136,9 @@ void UPlayerQuickSlotComponent::RegisterPotionToEmptySlot(FName PotionId, int32 
 
 void UPlayerQuickSlotComponent::ExecuteSlotAction(int32 SlotIndex)
 {
+	// 널 포인터 접근을 차단
+	if (!QuickSlots[SlotIndex]) return;
+
 	switch (QuickSlots[SlotIndex]->GetItemType())
 	{
 	case (EItemType::Weapon):
@@ -162,18 +172,48 @@ void UPlayerQuickSlotComponent::ExecuteSlotAction(int32 SlotIndex)
 
 void UPlayerQuickSlotComponent::ServerEquipWeapon_Implementation(FName WeaponId)
 {
-	AActor* MyOwner = GetOwner();
-	ACharacter* OwnerCharacter = Cast<ACharacter>(MyOwner);
 	if (OwnerCharacter == nullptr) return;
 
 	USkeletalMeshComponent* MeshComp = OwnerCharacter->GetMesh();
 	if (MeshComp == nullptr) return;
 
-	const USkeletalMeshSocket* WeaponSocket = MeshComp->GetSocketByName(TEXT("S_Weapon_r"));
+	WeaponSocketName = TEXT("S_Weapon_r");
+
+	FTransform SpawnTransform = OwnerCharacter->GetActorTransform();
+
+	// 스폰 파라미터 생성
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Owner = OwnerCharacter;
+	SpawnParams.Instigator = OwnerCharacter;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 	FWeaponItemStruct* ItemRow = WeaponTable->FindRow<FWeaponItemStruct>(WeaponId, TEXT("WeaponEquip"));
 
-	//AEquipWeapon* EquipWeapon = GetWorld()->SpawnActor();
+	EquipWeaponClass = ItemRow->EquipWeaponActor;
+
+	EquipWeaponActor = GetWorld()->SpawnActor<AEquipWeapon>(EquipWeaponClass,SpawnTransform, SpawnParams);
+
+	if (EquipWeaponActor)
+	{
+		EquipWeaponActor->SetActorEnableCollision(false);
+
+		// Attach 옵션 구조체
+		FAttachmentTransformRules AttachRules(
+			EAttachmentRule::SnapToTarget,
+			EAttachmentRule::SnapToTarget,
+			EAttachmentRule::KeepWorld,
+			false
+		);
+
+		if (WeaponSocketName != NAME_None)
+		{
+			EquipWeaponActor->AttachToComponent(MeshComp, AttachRules, WeaponSocketName);
+			
+			OwnerCharacter->WeaponEquipState = ItemRow->WeaponType;
+			
+			
+		}
+	}
 }
 
 bool UPlayerQuickSlotComponent::bIsQuickSlotFull()
@@ -207,6 +247,7 @@ void UPlayerQuickSlotComponent::BeginPlay()
 	{
 		QuickSlots.SetNum(MaxSlotCount);
 	}
+	OwnerCharacter = Cast<APlayerCharacter>(GetOwner());
 }
 
 // Called every frame

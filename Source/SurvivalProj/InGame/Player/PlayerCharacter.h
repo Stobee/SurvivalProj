@@ -30,6 +30,8 @@ public:
 	// 플레이어 생성자
 	APlayerCharacter();
 
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 	// 플레이어 인풋
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
@@ -88,7 +90,7 @@ public:
 	uint8 AttackComboState = 0;
 
 	// 무기 장착 상태
-	UPROPERTY(BluePrintReadOnly, Category = "Input")
+	UPROPERTY(Replicated, BluePrintReadOnly, Category = "Input")
 	EWeaponEquipState WeaponEquipState = EWeaponEquipState::Unarmed;
 
 	// 필드 아이템과 상호작용 시 호출

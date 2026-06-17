@@ -8,7 +8,8 @@
 #include "SurvivalProj/InGame/Widgets/PlayerQuickSlotWidget.h"
 #include "PlayerQuickSlotComponent.generated.h"
 
-
+class AEquipWeapon;
+class APlayerCharacter;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWidgetReferenceRegistered, UPlayerQuickSlotWidget*, WidgetRef);
 
@@ -73,6 +74,18 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
 	UDataTable* PotionTable = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
+	FName WeaponSocketName = NAME_None;
+
+	UPROPERTY(Transient)
+	TSubclassOf<AEquipWeapon> EquipWeaponClass = nullptr;
+
+	UPROPERTY(Transient)
+	TObjectPtr<AEquipWeapon> EquipWeaponActor = nullptr;
+
+	UPROPERTY(Transient)
+	TObjectPtr<APlayerCharacter> OwnerCharacter;
 
 public:	
 	// Called every frame
