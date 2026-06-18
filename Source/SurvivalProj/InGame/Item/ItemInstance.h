@@ -50,6 +50,6 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ItemState")
 	FText ItemName;
 
-	virtual void BeginDestroy() override;
+	//virtual void BeginDestroy() override;
 	
 };

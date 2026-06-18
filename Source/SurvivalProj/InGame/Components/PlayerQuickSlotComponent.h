@@ -8,8 +8,8 @@
 #include "SurvivalProj/InGame/Widgets/PlayerQuickSlotWidget.h"
 #include "PlayerQuickSlotComponent.generated.h"
 
-class AEquipWeapon;
 class APlayerCharacter;
+class UPlayerEquipmentComponent;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWidgetReferenceRegistered, UPlayerQuickSlotWidget*, WidgetRef);
 
@@ -64,28 +64,22 @@ protected:
 	int32 MaxSlotCount = 5;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
-	UDataTable* WeaponTable = nullptr;
+	TObjectPtr<UDataTable> WeaponTable = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
-	UDataTable* ArmorTable = nullptr;
+	TObjectPtr<UDataTable> ArmorTable = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
-	UDataTable* ResourceTable = nullptr;
+	TObjectPtr<UDataTable> ResourceTable = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
-	UDataTable* PotionTable = nullptr;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
-	FName WeaponSocketName = NAME_None;
-
-	UPROPERTY(Transient)
-	TSubclassOf<AEquipWeapon> EquipWeaponClass = nullptr;
-
-	UPROPERTY(Transient)
-	TObjectPtr<AEquipWeapon> EquipWeaponActor = nullptr;
+	TObjectPtr<UDataTable> PotionTable = nullptr;
 
 	UPROPERTY(Transient)
 	TObjectPtr<APlayerCharacter> OwnerCharacter;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UPlayerEquipmentComponent> EquipmentComponent;
 
 public:	
 	// Called every frame

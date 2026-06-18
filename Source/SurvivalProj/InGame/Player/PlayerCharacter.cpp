@@ -5,6 +5,7 @@
 #include "SurvivalProj/InGame/Components/TopDownSpringArmComponent.h"
 #include "SurvivalProj/InGame/Components/PlayerQuickSlotComponent.h"
 #include "SurvivalProj/InGame/Components/PlayerInventoryComponent.h"
+#include "SurvivalProj/InGame/Components/PlayerEquipmentComponent.h"
 #include "SurvivalProj/InGame/Interfaces/InteractiveInterface.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -33,6 +34,7 @@ APlayerCharacter::APlayerCharacter()
 
 	Inventory = CreateDefaultSubobject<UPlayerInventoryComponent>(TEXT("Inventory"));
 	QuickSlot = CreateDefaultSubobject<UPlayerQuickSlotComponent>(TEXT("QuickSlot"));
+	Equipment = CreateDefaultSubobject<UPlayerEquipmentComponent>(TEXT("Equipment"));
 	
 	// 나중에 횡스크롤 카메라로 바꾸는 로직 들어가야함
 	SpringArm = CreateDefaultSubobject<UTopDownSpringArmComponent>(TEXT("SpringArm"));
@@ -124,20 +126,8 @@ void APlayerCharacter::MulticastInteract_Implementation(AActor* TargetActor)
 	
 }
 
-void APlayerCharacter::EquipWeapon(FName WeaponName)
-{
-	ServerEquipWeapon(WeaponName);
-}
 
-void APlayerCharacter::ServerEquipWeapon_Implementation(FName WeaponName)
-{
-	if (HasAuthority())
-	{
-		MulticastEquipWeapon(WeaponName);
-	}
-}
-
-void APlayerCharacter::MulticastEquipWeapon_Implementation(FName WeaponName)
+void APlayerCharacter::MulticastPlayEquipWeaponMontage_Implementation()
 {
 	if (WeaponEquipMontage != nullptr)
 	{

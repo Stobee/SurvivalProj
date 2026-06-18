@@ -15,6 +15,7 @@ class UTopDownSpringArmComponent;
 class UCameraComponent;
 class UPlayerInventoryComponent;
 class UPlayerQuickSlotComponent;
+class UPlayerEquipmentComponent;
 class UInputAction;
 class UAnimMontage;
 
@@ -55,13 +56,8 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastAttack(FName SectionName);
 
-	void EquipWeapon(FName WeaponName);
-
-	UFUNCTION(Server, Reliable)
-	void ServerEquipWeapon(FName WeaponName);
-
 	UFUNCTION(NetMulticast, Reliable)
-	void MulticastEquipWeapon(FName WeaponName);
+	void MulticastPlayEquipWeaponMontage();
 
 	void Interact();
 
@@ -158,6 +154,9 @@ protected:
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UPlayerQuickSlotComponent>QuickSlot;
+
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UPlayerEquipmentComponent>Equipment;
 
 // Input
 protected:

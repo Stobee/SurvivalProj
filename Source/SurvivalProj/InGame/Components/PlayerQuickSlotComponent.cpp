@@ -4,6 +4,7 @@
 #include "PlayerQuickSlotComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "SurvivalProj/InGame/Player/PlayerCharacter.h"
+#include "SurvivalProj/InGame/Components/PlayerEquipmentComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "SurvivalProj/Data/DataTableStructs/WeaponItemStruct.h"
 #include "SurvivalProj/Data/Enums/EWeaponEquipState.h"
@@ -11,6 +12,7 @@
 #include "SurvivalProj/InGame/Item/WeaponItem.h"
 #include "SurvivalProj/InGame/Item/ItemWidgetStruct.h"
 #include "SurvivalProj/InGame/Item/EquipWeapon.h"
+
 
 
 
@@ -172,48 +174,9 @@ void UPlayerQuickSlotComponent::ExecuteSlotAction(int32 SlotIndex)
 
 void UPlayerQuickSlotComponent::ServerEquipWeapon_Implementation(FName WeaponId)
 {
-	if (OwnerCharacter == nullptr) return;
+	EquipmentComponent->UpdateWeaponSlot(WeaponId);
 
-	USkeletalMeshComponent* MeshComp = OwnerCharacter->GetMesh();
-	if (MeshComp == nullptr) return;
-
-	WeaponSocketName = TEXT("S_Weapon_r");
-
-	FTransform SpawnTransform = OwnerCharacter->GetActorTransform();
-
-	// 스폰 파라미터 생성
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.Owner = OwnerCharacter;
-	SpawnParams.Instigator = OwnerCharacter;
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
-	FWeaponItemStruct* ItemRow = WeaponTable->FindRow<FWeaponItemStruct>(WeaponId, TEXT("WeaponEquip"));
-
-	EquipWeaponClass = ItemRow->EquipWeaponActor;
-
-	EquipWeaponActor = GetWorld()->SpawnActor<AEquipWeapon>(EquipWeaponClass,SpawnTransform, SpawnParams);
-
-	if (EquipWeaponActor)
-	{
-		EquipWeaponActor->SetActorEnableCollision(false);
-
-		// Attach 옵션 구조체
-		FAttachmentTransformRules AttachRules(
-			EAttachmentRule::SnapToTarget,
-			EAttachmentRule::SnapToTarget,
-			EAttachmentRule::KeepWorld,
-			false
-		);
-
-		if (WeaponSocketName != NAME_None)
-		{
-			EquipWeaponActor->AttachToComponent(MeshComp, AttachRules, WeaponSocketName);
-			
-			OwnerCharacter->WeaponEquipState = ItemRow->WeaponType;
-			
-			
-		}
-	}
+	OwnerCharacter->MulticastPlayEquipWeaponMontage();
 }
 
 bool UPlayerQuickSlotComponent::bIsQuickSlotFull()
@@ -248,6 +211,8 @@ void UPlayerQuickSlotComponent::BeginPlay()
 		QuickSlots.SetNum(MaxSlotCount);
 	}
 	OwnerCharacter = Cast<APlayerCharacter>(GetOwner());
+
+	EquipmentComponent = OwnerCharacter->GetComponentByClass<UPlayerEquipmentComponent>();
 }
 
 // Called every frame

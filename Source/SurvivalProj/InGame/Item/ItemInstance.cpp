@@ -22,7 +22,7 @@ void UItemInstance::UseItem(ACharacter* UserCharacter)
 {
 }
 
-void UItemInstance::BeginDestroy()
+/*void UItemInstance::BeginDestroy()
 {
 	Super::BeginDestroy();
 
@@ -32,4 +32,4 @@ void UItemInstance::BeginDestroy()
 		// 내가 메모리에서 파괴되는 프레임에 부모의 복제 리스트에서 나를 자동으로 지운다!
 		MyOwnerComp->RemoveReplicatedSubObject(this);
 	}
-}
+}*/
