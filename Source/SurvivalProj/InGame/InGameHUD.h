@@ -7,6 +7,7 @@
 #include "InGameHUD.generated.h"
 
 class UPlayerQuickSlotWidget;
+class UPlayerInventoryWidget;
 
 /**
  * 
@@ -20,6 +21,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "UI Config")
 	TSubclassOf<UPlayerQuickSlotWidget> QuickSlotWidgetClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "UI Config")
+	TSubclassOf<UPlayerInventoryWidget> InventoryWidgetClass;
 
 	virtual void BeginPlay() override;
 

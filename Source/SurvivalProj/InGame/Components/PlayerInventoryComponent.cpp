@@ -2,6 +2,7 @@
 
 
 #include "PlayerInventoryComponent.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values for this component's properties
 UPlayerInventoryComponent::UPlayerInventoryComponent()
@@ -15,12 +16,38 @@ UPlayerInventoryComponent::UPlayerInventoryComponent()
 	// ...
 }
 
-bool UPlayerInventoryComponent::AddItemFromClass(TSubclassOf<UItemInstance> ItemBlueprintClass, int32 Amount)
+void UPlayerInventoryComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
-	if (ItemBlueprintClass == nullptr || Amount <= 0) return false;
+}
 
-	// 아이템 습득 로직
-	return true;
+void UPlayerInventoryComponent::ServerRegisterWeaponToEmptySlot_Implementation(FName WeaponID)
+{
+}
+
+
+void UPlayerInventoryComponent::ClientNotifyWeaponRegistered_Implementation(int32 SlotIndex, FName Id)
+{
+
+}
+
+void UPlayerInventoryComponent::RegisterWeaponToEmptySlot(FName WeaponId)
+{
+
+}
+
+void UPlayerInventoryComponent::RegisterArmorToEmptySlot(FName ArmorId)
+{
+
+}
+
+void UPlayerInventoryComponent::RegisterResourceToEmptySlot(FName ResourceId, int32 Quantity)
+{ 
+
+}
+
+void UPlayerInventoryComponent::RegisterPotionToEmptySlot(FName PotionId, int32 Quantity)
+{
+
 }
 
 bool UPlayerInventoryComponent::bIsInventorySlotFull()

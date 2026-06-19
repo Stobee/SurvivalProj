@@ -4,9 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "SurvivalProj/InGame/Item/ItemInstance.h"
+#include "SurvivalProj/InGame/Widgets/PlayerInventoryWidget.h"
 #include "Components/ActorComponent.h"
 #include "PlayerInventoryComponent.generated.h"
 
+class APlayerCharacter;
+class UPlayerEquipmentComponent;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SURVIVALPROJ_API UPlayerInventoryComponent : public UActorComponent
@@ -17,9 +20,22 @@ public:
 	// Sets default values for this component's properties
 	UPlayerInventoryComponent();
 
-	// [핵심 포트] 기획자가 만든 BP_RedPotion 같은 블루프린트 클래스 타입을 인자로 안전하게 수집
-	UFUNCTION(BlueprintCallable, Category = "Inventory")
-	bool AddItemFromClass(TSubclassOf<UItemInstance> ItemBlueprintClass, int32 Amount);
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	UFUNCTION(Server, Reliable)
+	void ServerRegisterWeaponToEmptySlot(FName WeaponID);
+
+	UFUNCTION(Client, Reliable)
+	void ClientNotifyWeaponRegistered(int32 SlotIndex, FName Id);
+
+	void RegisterWeaponToEmptySlot(FName WeaponId);
+
+	void RegisterArmorToEmptySlot(FName ArmorId);
+
+	void RegisterResourceToEmptySlot(FName ResourceId, int32 Quantity);
+
+	void RegisterPotionToEmptySlot(FName PotionId, int32 Quantity);
+	
 
 	bool bIsInventorySlotFull();
 protected:
@@ -27,9 +43,30 @@ protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY()
+	UPlayerInventoryWidget* CachedQuickSlotWidget = nullptr;
+
+	UPROPERTY(Replicated)
 	TArray<UItemInstance*> InventorySlots;
 
 	int32 MaxSlotCount = 32;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
+	TObjectPtr<UDataTable> WeaponTable = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
+	TObjectPtr<UDataTable> ArmorTable = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
+	TObjectPtr<UDataTable> ResourceTable = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
+	TObjectPtr<UDataTable> PotionTable = nullptr;
+
+	UPROPERTY(Transient)
+	TObjectPtr<APlayerCharacter> OwnerCharacter;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UPlayerEquipmentComponent> EquipmentComponent;
 
 public:	
 	// Called every frame
