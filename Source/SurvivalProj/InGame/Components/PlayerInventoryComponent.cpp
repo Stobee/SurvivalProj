@@ -2,7 +2,16 @@
 
 
 #include "PlayerInventoryComponent.h"
+#include "SurvivalProj/InGame/Player/PlayerCharacter.h"
+#include "SurvivalProj/InGame/Components/PlayerEquipmentComponent.h"
 #include "Net/UnrealNetwork.h"
+#include "GameFramework/PlayerController.h"
+#include "SurvivalProj/Data/DataTableStructs/WeaponItemStruct.h"
+#include "SurvivalProj/Data/Enums/EWeaponEquipState.h"
+#include "SurvivalProj/InGame/InGameHUD.h"
+#include "SurvivalProj/InGame/Item/WeaponItem.h"
+#include "SurvivalProj/InGame/Item/ItemWidgetStruct.h"
+#include "SurvivalProj/InGame/Item/EquipWeapon.h"
 
 // Sets default values for this component's properties
 UPlayerInventoryComponent::UPlayerInventoryComponent()
@@ -18,10 +27,39 @@ UPlayerInventoryComponent::UPlayerInventoryComponent()
 
 void UPlayerInventoryComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME_CONDITION(UPlayerInventoryComponent, InventorySlots, COND_OwnerOnly);
 }
 
 void UPlayerInventoryComponent::ServerRegisterWeaponToEmptySlot_Implementation(FName WeaponID)
 {
+	if (WeaponTable == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[테이블 파열] WeaponTable 자산이 바인딩되지 않았습니다."));
+		return;
+	}
+
+	// 비어있는 슬롯에 아이템 추가
+	for (int i = 0; i < InventorySlots.Num(); i++)
+	{
+
+		if (InventorySlots[i] == nullptr)
+		{
+
+			UWeaponItem* NewWeapon = NewObject<UWeaponItem>(this);
+			NewWeapon->InitItem(WeaponTable, WeaponID);
+			InventorySlots[i] = NewWeapon;
+
+			// 새로 만든 서브오브젝트를 Replicated 등록
+			AddReplicatedSubObject(NewWeapon);
+
+			ClientNotifyWeaponRegistered(i, WeaponID);
+
+			break;
+
+		}
+	}
 }
 
 
@@ -57,12 +95,22 @@ bool UPlayerInventoryComponent::bIsInventorySlotFull()
 }
 
 
+void UPlayerInventoryComponent::RegisterWidgetReference(UPlayerInventoryWidget* WidgetRef)
+{
+}
+
 // Called when the game starts
 void UPlayerInventoryComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
+	if (InventorySlots.Num() == 0)
+	{
+		InventorySlots.SetNum(MaxSlotCount);
+	}
+	OwnerCharacter = Cast<APlayerCharacter>(GetOwner());
+
+	EquipmentComponent = OwnerCharacter->GetComponentByClass<UPlayerEquipmentComponent>();
 	
 }
 

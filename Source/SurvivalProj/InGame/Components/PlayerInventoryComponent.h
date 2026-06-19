@@ -11,6 +11,8 @@
 class APlayerCharacter;
 class UPlayerEquipmentComponent;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWidgetReferenceRegistered, UPlayerInventoryWidget*, WidgetRef);
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SURVIVALPROJ_API UPlayerInventoryComponent : public UActorComponent
 {
@@ -36,8 +38,13 @@ public:
 
 	void RegisterPotionToEmptySlot(FName PotionId, int32 Quantity);
 	
-
 	bool bIsInventorySlotFull();
+
+	UPROPERTY(BlueprintAssignable, Category = "UI")
+	FOnWidgetReferenceRegistered OnWidgetReferenceRegistered;
+
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void RegisterWidgetReference(UPlayerInventoryWidget* WidgetRef);
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
