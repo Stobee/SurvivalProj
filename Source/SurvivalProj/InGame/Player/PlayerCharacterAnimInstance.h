@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
+#include "SurvivalProj/Data/Enums/EWeaponEquipState.h"
 #include "PlayerCharacterAnimInstance.generated.h"
 
 class APlayerCharacter;
@@ -30,7 +31,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Move")
 	float Speed = 0.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Move")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "State")
 	bool bIsFalling = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "State")
+	EWeaponEquipState PlayerEquipState = EWeaponEquipState::Unarmed;
 	
 };

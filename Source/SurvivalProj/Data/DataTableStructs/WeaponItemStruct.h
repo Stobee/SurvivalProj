@@ -49,4 +49,8 @@ public:
 	//아이템 형태
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")
 	EWeaponEquipState WeaponType = EWeaponEquipState::OneHanded;
+
+	//소켓 부착 시 오프셋
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")
+	FVector WeaponSocketOffset = FVector(0.0f, 0.0f, 0.0f);
 };

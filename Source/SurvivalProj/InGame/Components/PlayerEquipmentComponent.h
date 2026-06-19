@@ -52,7 +52,11 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
 	FName WeaponSocketName = NAME_None;
 
+	UFUNCTION()
 	void AttachWeapon(FName WeaponId);
+
+	UFUNCTION()
+	void DettachWeapon();
 
 public:	
 	// Called every frame

@@ -69,11 +69,13 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EIC->BindAction(IA_Zoom, ETriggerEvent::Triggered, this, &APlayerCharacter::Zoom);
 		EIC->BindAction(IA_Attack, ETriggerEvent::Triggered, this, &APlayerCharacter::Attack);
 		EIC->BindAction(IA_Interact, ETriggerEvent::Triggered, this, &APlayerCharacter::Interact);
-		EIC->BindAction(IA_UseItemSlot1, ETriggerEvent::Triggered, this, &APlayerCharacter::Input_UseSlot1);
-		EIC->BindAction(IA_UseItemSlot2, ETriggerEvent::Triggered, this, &APlayerCharacter::Input_UseSlot2);
-		EIC->BindAction(IA_UseItemSlot3, ETriggerEvent::Triggered, this, &APlayerCharacter::Input_UseSlot3);
-		EIC->BindAction(IA_UseItemSlot4, ETriggerEvent::Triggered, this, &APlayerCharacter::Input_UseSlot4);
-		EIC->BindAction(IA_UseItemSlot5, ETriggerEvent::Triggered, this, &APlayerCharacter::Input_UseSlot5);
+
+		// 한 번만 입력되도록 Started 이벤트 적용
+		EIC->BindAction(IA_UseItemSlot1, ETriggerEvent::Started, this, &APlayerCharacter::Input_UseSlot1);
+		EIC->BindAction(IA_UseItemSlot2, ETriggerEvent::Started, this, &APlayerCharacter::Input_UseSlot2);
+		EIC->BindAction(IA_UseItemSlot3, ETriggerEvent::Started, this, &APlayerCharacter::Input_UseSlot3);
+		EIC->BindAction(IA_UseItemSlot4, ETriggerEvent::Started, this, &APlayerCharacter::Input_UseSlot4);
+		EIC->BindAction(IA_UseItemSlot5, ETriggerEvent::Started, this, &APlayerCharacter::Input_UseSlot5);
 			
 	}
 }

@@ -21,6 +21,7 @@ void UPlayerCharacterAnimInstance::NativeThreadSafeUpdateAnimation(float DeltaSe
 	{
 		Speed = Player->GetVelocity().Length();
 		bIsFalling = Player->GetCharacterMovement()->IsFalling();
+		PlayerEquipState = Player->WeaponEquipState;
 	}
 
 }

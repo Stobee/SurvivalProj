@@ -174,9 +174,12 @@ void UPlayerQuickSlotComponent::ExecuteSlotAction(int32 SlotIndex)
 
 void UPlayerQuickSlotComponent::ServerEquipWeapon_Implementation(FName WeaponId)
 {
-	EquipmentComponent->UpdateWeaponSlot(WeaponId);
+	if (OwnerCharacter->HasAuthority())
+	{
+		EquipmentComponent->UpdateWeaponSlot(WeaponId);
 
-	OwnerCharacter->MulticastPlayEquipWeaponMontage();
+		OwnerCharacter->MulticastPlayEquipWeaponMontage();
+	}
 }
 
 bool UPlayerQuickSlotComponent::bIsQuickSlotFull()

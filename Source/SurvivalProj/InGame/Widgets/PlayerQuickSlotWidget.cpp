@@ -5,6 +5,7 @@
 #include "Components/UniformGridPanel.h"
 #include "Components/UniformGridSlot.h"
 #include "SurvivalProj/InGame/Widgets/ItemSlotWidget.h"
+#include "PlayerInventoryWidget.h"
 
 
 void UPlayerQuickSlotWidget::UpdateItemSlot(int32 IndexNum, const FItemSlotData& ItemSlotData)
@@ -13,6 +14,7 @@ void UPlayerQuickSlotWidget::UpdateItemSlot(int32 IndexNum, const FItemSlotData&
 
 	CachedSlots[IndexNum]->SlotUpdate(ItemSlotData);
 }
+
 
 void UPlayerQuickSlotWidget::NativeConstruct()
 {

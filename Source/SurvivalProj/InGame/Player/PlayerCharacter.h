@@ -86,6 +86,7 @@ public:
 	uint8 AttackComboState = 0;
 
 	// 무기 장착 상태
+	// 이후 protected 함수 호출로 바꿔야함
 	UPROPERTY(Replicated, BluePrintReadOnly, Category = "Input")
 	EWeaponEquipState WeaponEquipState = EWeaponEquipState::Unarmed;
 

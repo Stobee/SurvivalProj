@@ -30,6 +30,7 @@ void UPlayerEquipmentComponent::GetLifetimeReplicatedProps(TArray<FLifetimePrope
 // Add Or Delete WeaponSlot
 void UPlayerEquipmentComponent::UpdateWeaponSlot(FName WeaponId)
 {
+	
 	if (WeaponTable == nullptr)
 	{
 		UE_LOG(LogTemp, Error, TEXT("[테이블 파열] WeaponTable 자산이 바인딩되지 않았습니다."));
@@ -45,6 +46,9 @@ void UPlayerEquipmentComponent::UpdateWeaponSlot(FName WeaponId)
 			RemoveReplicatedSubObject(WeaponSlot);
 			ChangeStats(EItemType::Weapon, false);
 			WeaponSlot = nullptr;
+			DettachWeapon();
+
+			OwnerCharacter->WeaponEquipState = EWeaponEquipState::Unarmed;
 		}
 		else
 		{
@@ -52,6 +56,7 @@ void UPlayerEquipmentComponent::UpdateWeaponSlot(FName WeaponId)
 			RemoveReplicatedSubObject(WeaponSlot);
 			ChangeStats(EItemType::Weapon, false);
 			WeaponSlot = nullptr;
+			DettachWeapon();
 
 			UWeaponItem* NewWeapon = NewObject<UWeaponItem>(this);
 			NewWeapon->InitItem(WeaponTable, WeaponId);
@@ -137,7 +142,7 @@ void UPlayerEquipmentComponent::AttachWeapon(FName WeaponId)
 
 		// Attach 옵션 구조체
 		FAttachmentTransformRules AttachRules(
-			EAttachmentRule::SnapToTarget,
+			EAttachmentRule::KeepRelative,
 			EAttachmentRule::SnapToTarget,
 			EAttachmentRule::KeepWorld,
 			false
@@ -147,10 +152,34 @@ void UPlayerEquipmentComponent::AttachWeapon(FName WeaponId)
 		{
 			EquipWeaponActor->AttachToComponent(MeshComp, AttachRules, WeaponSocketName);
 
+			// 데이터 테이블 내 오프셋으로 변경
+			EquipWeaponActor->SetActorRelativeLocation(ItemRow->WeaponSocketOffset);
+
 			OwnerCharacter->WeaponEquipState = ItemRow->WeaponType;
 
 		}
 	}
+}
+
+void UPlayerEquipmentComponent::DettachWeapon()
+{
+
+
+	if (EquipWeaponActor)
+	{
+		// Dettach 옵션 구조체
+		FDetachmentTransformRules DetachRules(
+			EDetachmentRule::KeepWorld, // 소켓에서 떨어지는 순간 그 자리에 실물 좌표를 잠시 보존
+			true                        // 캐릭터의 뼈대 물리 바디와 합선 충돌 피격 방지 완장
+		);
+
+		EquipWeaponActor->DetachFromActor(DetachRules);
+
+		EquipWeaponActor->Destroy();
+
+		EquipWeaponActor = nullptr;
+	}
+
 }
 
 // Called every frame

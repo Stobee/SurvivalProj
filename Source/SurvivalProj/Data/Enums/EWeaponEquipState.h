@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #pragma once
@@ -12,8 +12,8 @@
 UENUM(BlueprintType)
 enum class EWeaponEquipState : uint8
 {
-	Unarmed UMETA(DisplayName = "¹«±â ¾øÀ½"),
-	OneHanded UMETA(DisplayName = "ÇÑ ¼Õ ¹«±â"),
-	TwoHanded UMETA(DisplayName = "µÎ ¼Õ ¹«±â")
+	Unarmed UMETA(DisplayName = "ë¬´ê¸° ì—†ìŒ"),
+	OneHanded UMETA(DisplayName = "í•œ ì† ë¬´ê¸°"),
+	TwoHanded UMETA(DisplayName = "ë‘ ì† ë¬´ê¸°")
 
 };
