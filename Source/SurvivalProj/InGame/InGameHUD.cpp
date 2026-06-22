@@ -5,6 +5,7 @@
 #include "SurvivalProj/InGame/Widgets/PlayerQuickSlotWidget.h"
 #include "SurvivalProj/InGame/Widgets/PlayerInventoryWidget.h"
 #include "SurvivalProj/InGame/Components/PlayerQuickSlotComponent.h"
+#include "SurvivalProj/InGame/Components/PlayerInventoryComponent.h"
 
 
 void AInGameHUD::BeginPlay()
@@ -32,9 +33,9 @@ void AInGameHUD::BeginPlay()
 			UPlayerQuickSlotComponent* QuickSlotComp = PlayerPawn->GetComponentByClass<UPlayerQuickSlotComponent>();
 			if (!QuickSlotComp) return;
 
-			QuickSlotComp->OnWidgetReferenceRegistered.AddDynamic(QuickSlotComp, &UPlayerQuickSlotComponent::RegisterWidgetReference);
+			QuickSlotComp->OnQuickSlotWidgetReferenceRegistered.AddDynamic(QuickSlotComp, &UPlayerQuickSlotComponent::RegisterWidgetReference);
 
-			QuickSlotComp->OnWidgetReferenceRegistered.Broadcast(NewQuickUI);
+			QuickSlotComp->OnQuickSlotWidgetReferenceRegistered.Broadcast(NewQuickUI);
 		}
 	}
 
@@ -49,12 +50,12 @@ void AInGameHUD::BeginPlay()
 
 			NewInventoryUI->SetVisibility(ESlateVisibility::Collapsed);
 
-			//UPlayerQuickSlotComponent* QuickSlotComp = PlayerPawn->GetComponentByClass<UPlayerQuickSlotComponent>();
-			//if (!QuickSlotComp) return;
+			UPlayerInventoryComponent* InventoryComp = PlayerPawn->GetComponentByClass<UPlayerInventoryComponent>();
+			if (!InventoryComp) return;
 
-			//QuickSlotComp->OnWidgetReferenceRegistered.AddDynamic(QuickSlotComp, &UPlayerQuickSlotComponent::RegisterWidgetReference);
+			InventoryComp->OnInventoryWidgetReferenceRegistered.AddDynamic(InventoryComp, &UPlayerInventoryComponent::RegisterWidgetReference);
 
-			//QuickSlotComp->OnWidgetReferenceRegistered.Broadcast(NewInventoryUI);
+			InventoryComp->OnInventoryWidgetReferenceRegistered.Broadcast(NewInventoryUI);
 		}
 	}
 }

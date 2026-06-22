@@ -11,7 +11,7 @@
 class APlayerCharacter;
 class UPlayerEquipmentComponent;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWidgetReferenceRegistered, UPlayerQuickSlotWidget*, WidgetRef);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnQuickSlotWidgetReferenceRegistered, UPlayerQuickSlotWidget*, WidgetRef);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SURVIVALPROJ_API UPlayerQuickSlotComponent : public UActorComponent
@@ -47,7 +47,7 @@ public:
 	bool bIsQuickSlotFull();
 
 	UPROPERTY(BlueprintAssignable, Category = "UI")
-	FOnWidgetReferenceRegistered OnWidgetReferenceRegistered;
+	FOnQuickSlotWidgetReferenceRegistered OnQuickSlotWidgetReferenceRegistered;
 
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	void RegisterWidgetReference(UPlayerQuickSlotWidget* WidgetRef);

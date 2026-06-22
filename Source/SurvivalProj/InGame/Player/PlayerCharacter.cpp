@@ -69,6 +69,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EIC->BindAction(IA_Zoom, ETriggerEvent::Triggered, this, &APlayerCharacter::Zoom);
 		EIC->BindAction(IA_Attack, ETriggerEvent::Triggered, this, &APlayerCharacter::Attack);
 		EIC->BindAction(IA_Interact, ETriggerEvent::Triggered, this, &APlayerCharacter::Interact);
+		EIC->BindAction(IA_Inventory, ETriggerEvent::Started, this, &APlayerCharacter::OpenInventoryWidget);
+		EIC->BindAction(IA_Evade, ETriggerEvent::Triggered, this, &APlayerCharacter::Evade);
 
 		// 한 번만 입력되도록 Started 이벤트 적용
 		EIC->BindAction(IA_UseItemSlot1, ETriggerEvent::Started, this, &APlayerCharacter::Input_UseSlot1);
@@ -142,7 +144,7 @@ void APlayerCharacter::Attack()
 
 	if (AttackComboState == 0)
 	{
-		if (ActState == EPlayerActState::Attack)
+		if (ActState == EPlayerActState::Attack || ActState == EPlayerActState::UsingInventory)
 		{
 			return;
 		}
@@ -246,6 +248,10 @@ void APlayerCharacter::MulticastJumpWithAnim_Implementation()
 	}
 }
 
+void APlayerCharacter::Evade()
+{
+}
+
 void APlayerCharacter::Zoom(FInputActionValue const& Value)
 {
 	float WheelValue = Value.Get<float>();
@@ -255,6 +261,7 @@ void APlayerCharacter::Zoom(FInputActionValue const& Value)
 
 void APlayerCharacter::UseItemFromQuickSlot(uint8 KeyNum)
 {
+	if (ActState != EPlayerActState::Movable) return;
 	switch (KeyNum)
 	{
 		case 1:
@@ -284,6 +291,12 @@ void APlayerCharacter::UseItemFromQuickSlot(uint8 KeyNum)
 		}
 		break;
 	}
+}
+
+void APlayerCharacter::OpenInventoryWidget()
+{
+	if (!Inventory) return;
+	Inventory->VisibleInventoryWidget();
 }
 
 void APlayerCharacter::SetComboWindowRegistry(bool bIsOpen)

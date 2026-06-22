@@ -3,9 +3,9 @@
 
 #include "PlayerInventoryComponent.h"
 #include "SurvivalProj/InGame/Player/PlayerCharacter.h"
+#include "SurvivalProj/InGame/InGamePlayerController.h"
 #include "SurvivalProj/InGame/Components/PlayerEquipmentComponent.h"
 #include "Net/UnrealNetwork.h"
-#include "GameFramework/PlayerController.h"
 #include "SurvivalProj/Data/DataTableStructs/WeaponItemStruct.h"
 #include "SurvivalProj/Data/Enums/EWeaponEquipState.h"
 #include "SurvivalProj/InGame/InGameHUD.h"
@@ -94,9 +94,62 @@ bool UPlayerInventoryComponent::bIsInventorySlotFull()
 	return false;
 }
 
+void UPlayerInventoryComponent::VisibleInventoryWidget()
+{
+	if (CachedInventoryWidget)
+	{
+		static bool bIsFlip = true;
+
+		if (bIsFlip)
+		{
+			CachedInventoryWidget->SetVisibility(ESlateVisibility::Visible);
+
+			if (CachedPlayerController)
+			{
+				CachedPlayerController->bShowMouseCursor = true;
+
+				// UI 입력 모드 구조체 (기본 값)
+				FInputModeGameAndUI InputModeData;
+				
+				CachedPlayerController->SetInputMode(InputModeData);
+
+				OwnerCharacter->ActState = EPlayerActState::UsingInventory;
+				
+			}
+
+		}
+		else
+		{
+			CachedInventoryWidget->SetVisibility(ESlateVisibility::Collapsed);
+
+			if (CachedPlayerController)
+			{
+				CachedPlayerController->bShowMouseCursor = false;
+
+				// 게임 입력 모드 구조체 (기본 값)
+				FInputModeGameOnly InputModeData;
+
+				CachedPlayerController->SetInputMode(InputModeData);
+
+				OwnerCharacter->ActState = EPlayerActState::Movable;
+
+			}
+		}
+
+		// true는 false로, false는 true로 0프레임 만에 환장하여 다음 격발 타이밍을 선제 예약한다.
+		bIsFlip = !bIsFlip;
+	}
+}
+
 
 void UPlayerInventoryComponent::RegisterWidgetReference(UPlayerInventoryWidget* WidgetRef)
 {
+	if (WidgetRef == nullptr)
+	{
+		return;
+	}
+
+	CachedInventoryWidget = WidgetRef;
 }
 
 // Called when the game starts
@@ -109,6 +162,8 @@ void UPlayerInventoryComponent::BeginPlay()
 		InventorySlots.SetNum(MaxSlotCount);
 	}
 	OwnerCharacter = Cast<APlayerCharacter>(GetOwner());
+
+	CachedPlayerController = Cast<AInGamePlayerController>(OwnerCharacter->GetController());
 
 	EquipmentComponent = OwnerCharacter->GetComponentByClass<UPlayerEquipmentComponent>();
 	

@@ -13,5 +13,6 @@ enum class EPlayerActState : uint8
 {
 	Movable UMETA(DisplayName = "이동 가능"),
 	Attack UMETA(DisplayName = "공격 중"),
+	UsingInventory UMETA(DisplayName = "인벤토리 사용 중"),
 	
 };

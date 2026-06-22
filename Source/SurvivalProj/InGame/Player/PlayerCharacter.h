@@ -67,11 +67,17 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastInteract(AActor* TargetActor);
 
+	// Add Evade later
+	void Evade();
+
 	// 휠로 카메라 거리 조절
 	void Zoom(FInputActionValue const& Value);
 
 	// 숫자 키로 입력한 인벤토리의 아이템 사용
 	void UseItemFromQuickSlot(uint8 KeyNum);
+
+	// "I or B" 키를 이용해 위젯 열고 닫기
+	void OpenInventoryWidget();
 
 	// 공격 콤보 입력 활성화 여부
 	UPROPERTY(BlueprintReadOnly, Category = "Input")
@@ -182,6 +188,12 @@ protected:
 	TObjectPtr<UInputAction> IA_Interact;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	TObjectPtr<UInputAction> IA_Inventory;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	TObjectPtr<UInputAction> IA_Evade;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	TObjectPtr<UInputAction> IA_UseItemSlot1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
@@ -214,4 +226,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UAnimMontage> WeaponEquipMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UAnimMontage> EvadeNormalMontage;
 };

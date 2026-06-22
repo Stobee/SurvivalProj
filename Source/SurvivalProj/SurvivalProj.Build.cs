@@ -9,7 +9,7 @@ public class SurvivalProj : ModuleRules
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "UMG", "OnlineSubsystem",
-			"OnlineSubsystemUtils", "OnlineSubsystemSteam" });
+			"OnlineSubsystemUtils", "OnlineSubsystemSteam", "Slate", "SlateCore" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 

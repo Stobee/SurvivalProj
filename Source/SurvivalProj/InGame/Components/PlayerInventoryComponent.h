@@ -9,9 +9,10 @@
 #include "PlayerInventoryComponent.generated.h"
 
 class APlayerCharacter;
+class AInGamePlayerController;
 class UPlayerEquipmentComponent;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWidgetReferenceRegistered, UPlayerInventoryWidget*, WidgetRef);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInventoryWidgetReferenceRegistered, UPlayerInventoryWidget*, WidgetRef);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SURVIVALPROJ_API UPlayerInventoryComponent : public UActorComponent
@@ -40,8 +41,11 @@ public:
 	
 	bool bIsInventorySlotFull();
 
+	// 플레이어가 트리거하여 위젯 Visible 조정
+	void VisibleInventoryWidget();
+
 	UPROPERTY(BlueprintAssignable, Category = "UI")
-	FOnWidgetReferenceRegistered OnWidgetReferenceRegistered;
+	FOnInventoryWidgetReferenceRegistered OnInventoryWidgetReferenceRegistered;
 
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	void RegisterWidgetReference(UPlayerInventoryWidget* WidgetRef);
@@ -50,7 +54,10 @@ protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY()
-	UPlayerInventoryWidget* CachedQuickSlotWidget = nullptr;
+	UPlayerInventoryWidget* CachedInventoryWidget = nullptr;
+
+	UPROPERTY()
+	AInGamePlayerController* CachedPlayerController = nullptr;
 
 	UPROPERTY(Replicated)
 	TArray<UItemInstance*> InventorySlots;
