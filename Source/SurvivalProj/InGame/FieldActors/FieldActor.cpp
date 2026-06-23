@@ -2,12 +2,23 @@
 
 
 #include "FieldActor.h"
+#include "Components/BoxComponent.h"
+#include "Components/StaticMeshComponent.h"
 
 // Sets default values
 AFieldActor::AFieldActor()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
+	
+	bReplicates = true;
+
+	Box = CreateDefaultSubobject<UBoxComponent>(TEXT("Box"));
+	RootComponent = Box;
+
+	FieldActorMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("FieldActorMesh"));
+	FieldActorMesh->SetupAttachment(Box);
+	
 
 }
 

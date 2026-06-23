@@ -65,6 +65,8 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ItemState")
 	EItemType ItemType = EItemType::None;
 
+	
+
 
 public:	
 	// Called every frame
