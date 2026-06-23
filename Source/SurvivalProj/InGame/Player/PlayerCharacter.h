@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "InputActionValue.h"
 #include "SurvivalProj/InGame/Interfaces/AttackNotifyInterface.h"
+#include "SurvivalProj/InGame/Interfaces/EvadeInterface.h"
 #include "SurvivalProj/InGame/MainCharacter.h"
 #include "SurvivalProj/Data/Enums/EPlayerActState.h"
 #include "SurvivalProj/Data/Enums/EWeaponEquipState.h"
@@ -23,7 +24,7 @@ class UAnimMontage;
  * 
  */
 UCLASS()
-class SURVIVALPROJ_API APlayerCharacter : public AMainCharacter, public IAttackNotifyInterface
+class SURVIVALPROJ_API APlayerCharacter : public AMainCharacter, public IAttackNotifyInterface, public IEvadeInterface
 {
 	GENERATED_BODY()
 	
@@ -69,6 +70,12 @@ public:
 
 	// Add Evade later
 	void Evade();
+
+	UFUNCTION(Server, Reliable)
+	void ServerEvade();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastEvade();
 
 	// 휠로 카메라 거리 조절
 	void Zoom(FInputActionValue const& Value);
@@ -134,6 +141,9 @@ public:
 
 	// reset Hit Actors
 	virtual void ClearHitRegistry() override;
+
+	// player Evade
+	virtual void SetPlayerOnInvincible(bool bIsOn) override;
 
 	// Interact Other Actors
 	//virtual void StartInteract_Implementation(AActor* InteractCauser) const override;

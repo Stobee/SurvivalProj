@@ -16,7 +16,7 @@ class SURVIVALPROJ_API UAttackAnimNotifyState : public UAnimNotifyState
 	GENERATED_BODY()
 	
 public:
-    // 💡 네이티브 노티파이 스테이트의 3대 마스터 인터페이스 오버라이드
+    // 네이티브 노티파이 스테이트의 3대 마스터 인터페이스 오버라이드
     virtual void NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration, const FAnimNotifyEventReference& EventReference) override;
     virtual void NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime, const FAnimNotifyEventReference& EventReference) override;
     virtual void NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override;

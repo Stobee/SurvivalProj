@@ -250,6 +250,25 @@ void APlayerCharacter::MulticastJumpWithAnim_Implementation()
 
 void APlayerCharacter::Evade()
 {
+	if (IsLocallyControlled())
+	{
+		ServerEvade();
+	}
+}
+
+void APlayerCharacter::ServerEvade_Implementation()
+{
+	MulticastEvade();
+}
+
+void APlayerCharacter::MulticastEvade_Implementation()
+{
+	
+	if (EvadeNormalMontage)
+	{
+		PlayAnimMontage(EvadeNormalMontage, 1.0f, TEXT("EvadeStart"));
+		
+	}
 }
 
 void APlayerCharacter::Zoom(FInputActionValue const& Value)
@@ -297,6 +316,7 @@ void APlayerCharacter::OpenInventoryWidget()
 {
 	if (!Inventory) return;
 	Inventory->VisibleInventoryWidget();
+	
 }
 
 void APlayerCharacter::SetComboWindowRegistry(bool bIsOpen)
@@ -352,6 +372,11 @@ void APlayerCharacter::ExecuteShortAttackTrace()
 
 void APlayerCharacter::ClearHitRegistry()
 {
+}
+
+void APlayerCharacter::SetPlayerOnInvincible(bool bIsOn)
+{
+	SetCanBeDamaged(bIsOn);
 }
 
 //void APlayerCharacter::StartInteract_Implementation(AActor* InteractCauser) const

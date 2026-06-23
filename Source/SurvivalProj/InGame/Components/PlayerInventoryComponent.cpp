@@ -110,6 +110,8 @@ void UPlayerInventoryComponent::VisibleInventoryWidget()
 
 				// UI 입력 모드 구조체 (기본 값)
 				FInputModeGameAndUI InputModeData;
+
+				InputModeData.SetHideCursorDuringCapture(false);
 				
 				CachedPlayerController->SetInputMode(InputModeData);
 
