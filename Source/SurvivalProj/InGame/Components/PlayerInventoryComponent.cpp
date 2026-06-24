@@ -65,11 +65,24 @@ void UPlayerInventoryComponent::ServerRegisterWeaponToEmptySlot_Implementation(F
 
 void UPlayerInventoryComponent::ClientNotifyWeaponRegistered_Implementation(int32 SlotIndex, FName Id)
 {
+	if (CachedInventoryWidget)
+	{
+		FItemSlotData UpdatePacket;
+		FWeaponItemStruct* ItemRow = WeaponTable->FindRow<FWeaponItemStruct>(Id, TEXT("WeaponItemInit"));
+		UpdatePacket.IconTexture = ItemRow->ItemIconTexture;
+		UpdatePacket.Quantity = 1;
+		UpdatePacket.ItemId = Id;
+		UpdatePacket.SlotNumber = SlotIndex;
+		UpdatePacket.ItemType = EItemType::Weapon;
+
+		CachedInventoryWidget->UpdateItemSlot(SlotIndex, UpdatePacket);
+	}
 
 }
 
 void UPlayerInventoryComponent::RegisterWeaponToEmptySlot(FName WeaponId)
 {
+	ServerRegisterWeaponToEmptySlot(WeaponId);
 
 }
 
@@ -86,6 +99,37 @@ void UPlayerInventoryComponent::RegisterResourceToEmptySlot(FName ResourceId, in
 void UPlayerInventoryComponent::RegisterPotionToEmptySlot(FName PotionId, int32 Quantity)
 {
 
+}
+
+void UPlayerInventoryComponent::RemoveSlotItem(int32 SlotIndex)
+{
+	ServerRemoveSlotItem(SlotIndex);
+}
+
+void UPlayerInventoryComponent::ServerRemoveSlotItem_Implementation(int32 SlotIndex)
+{
+	RemoveReplicatedSubObject(InventorySlots[SlotIndex]);
+
+	// 가비지 컬렉터에 등록
+	// TArray의 Remove는 사용금지
+	UObject* TargetObject = InventorySlots[SlotIndex];
+	if (TargetObject)
+	{
+		TargetObject->MarkAsGarbage();
+	}
+
+
+	InventorySlots[SlotIndex] = nullptr;
+
+	ClientNotifySlotItemRemoved(SlotIndex);
+}
+
+void UPlayerInventoryComponent::ClientNotifySlotItemRemoved_Implementation(int32 SlotIndex)
+{
+	if (CachedInventoryWidget)
+	{
+
+	}
 }
 
 bool UPlayerInventoryComponent::bIsInventorySlotFull()

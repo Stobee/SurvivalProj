@@ -396,7 +396,7 @@ bool APlayerCharacter::GetFieldItem(FName ItemId, int32 ItemQuantity, EItemType 
 		} break;
 		case (EItemType::Weapon):
 		{
-			
+			Inventory->RegisterWeaponToEmptySlot(ItemId);
 		} break;
 		case (EItemType::Resource):
 		{
@@ -431,6 +431,78 @@ bool APlayerCharacter::GetFieldItem(FName ItemId, int32 ItemQuantity, EItemType 
 		}
 	}
 	return true;
+}
+
+void APlayerCharacter::MoveItem(int32 SlotNum, FName ItemId, EItemType SlotItemType, bool bTargetIsQuickSlot)
+{
+	if (HasAuthority())
+	{
+		ServerMoveItem(SlotNum, ItemId, SlotItemType, bTargetIsQuickSlot);
+	}
+}
+
+void APlayerCharacter::ServerMoveItem_Implementation(int32 SlotNum, FName ItemId, EItemType SlotItemType, bool bTargetIsQuickSlot)
+{
+	if (bTargetIsQuickSlot)
+	{
+		if (!QuickSlot->bIsQuickSlotFull())
+		{
+			switch (SlotItemType)
+			{
+			case (EItemType::Armor):
+			{
+
+			} break;
+			case (EItemType::Weapon):
+			{
+				QuickSlot->RegisterWeaponToEmptySlot(ItemId);
+			} break;
+			case (EItemType::Resource):
+			{
+
+			} break;
+			case (EItemType::Potion):
+			{
+
+			} break;
+			}
+
+			Inventory->RemoveSlotItem(SlotNum);
+		}
+		else
+		{
+			// 변경 실패 시 위젯 출력
+			return;
+		}
+
+		
+	}
+	else
+	{
+		if (!Inventory->bIsInventorySlotFull())
+		{
+			switch (SlotItemType)
+			{
+			case (EItemType::Armor):
+			{
+
+			} break;
+			case (EItemType::Weapon):
+			{
+				Inventory->RegisterWeaponToEmptySlot(ItemId);
+			} break;
+			case (EItemType::Resource):
+			{
+
+			} break;
+			case (EItemType::Potion):
+			{
+
+			} break;
+			}
+		}
+		QuickSlot->RemoveSlotItem(SlotNum);
+	}
 }
 
 void APlayerCharacter::OnCapsuleBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)

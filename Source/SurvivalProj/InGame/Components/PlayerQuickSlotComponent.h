@@ -40,6 +40,14 @@ public:
 
 	void ExecuteSlotAction(int32 SlotIndex);
 
+	void RemoveSlotItem(int32 SlotIndex);
+
+	UFUNCTION(Server, Reliable)
+	void ServerRemoveSlotItem(int32 SlotIndex);
+
+	UFUNCTION(Client, Reliable)
+	void ClientNotifySlotItemRemoved(int32 SlotIndex);
+
 	UFUNCTION(Server, Reliable)
 	void ServerEquipWeapon(FName WeaponId);
 

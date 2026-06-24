@@ -14,6 +14,11 @@ void UPlayerInventoryWidget::UpdateItemSlot(int32 IndexNum, const FItemSlotData&
 	CachedSlots[IndexNum]->SlotUpdate(ItemSlotData);
 }
 
+void UPlayerInventoryWidget::RemoveItemSlot(int32 IndexNum)
+{
+	CachedSlots[IndexNum]->SlotRemove();
+}
+
 
 void UPlayerInventoryWidget::NativeConstruct()
 {

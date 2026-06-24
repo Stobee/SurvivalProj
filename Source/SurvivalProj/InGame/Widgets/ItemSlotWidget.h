@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "SurvivalProj/InGame/Item/ItemWidgetStruct.h"
+#include "SurvivalProj/Data/Enums/EItemType.h"
 #include "Input/Reply.h"
 #include "Layout/Geometry.h"
 #include "Input/Events.h"
@@ -25,9 +26,15 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Slot")
 	int32 SlotIndex = 0;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Slot")
 	FName ItemId = NAME_None;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Slot")
+	EItemType ItemType = EItemType::None;
+
 	void SlotUpdate(FItemSlotData SlotData);
+
+	void SlotRemove();
 	
 protected:
 

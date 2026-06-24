@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "SurvivalProj/Data/Enums/EItemType.h"
 #include "ItemWidgetStruct.generated.h"
 
 
@@ -21,8 +22,14 @@ struct FItemSlotData
 	FName ItemId = NAME_None;
 
 	UPROPERTY(BlueprintReadOnly)
+	EItemType ItemType = EItemType::None;
+
+	UPROPERTY(BlueprintReadOnly)
 	TObjectPtr<UTexture2D> IconTexture = nullptr;
 
 	UPROPERTY(BlueprintReadOnly)
 	int32 Quantity = 0;
+
+	UPROPERTY(BlueprintReadOnly)
+	int32 SlotNumber = 0;
 };

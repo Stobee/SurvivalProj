@@ -106,6 +106,10 @@ public:
 	// 필드 아이템과 상호작용 시 호출
 	bool GetFieldItem(FName ItemId, int32 ItemQuantity, EItemType ItemType);
 
+	void MoveItem(int32 SlotNum, FName ItemId, EItemType SlotItemType, bool bTargetIsQuickSlot);
+
+	UFUNCTION(Server, Reliable)
+	void ServerMoveItem(int32 SlotNum, FName ItemId, EItemType SlotItemType, bool bTargetIsQuickSlot);
 
 	UFUNCTION()
 	void OnCapsuleBeginOverlap(

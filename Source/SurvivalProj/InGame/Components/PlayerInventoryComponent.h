@@ -39,6 +39,14 @@ public:
 
 	void RegisterPotionToEmptySlot(FName PotionId, int32 Quantity);
 	
+	void RemoveSlotItem(int32 SlotIndex);
+
+	UFUNCTION(Server, Reliable)
+	void ServerRemoveSlotItem(int32 SlotIndex);
+
+	UFUNCTION(Client, Reliable)
+	void ClientNotifySlotItemRemoved(int32 SlotIndex);
+
 	bool bIsInventorySlotFull();
 
 	// 플레이어가 트리거하여 위젯 Visible 조정

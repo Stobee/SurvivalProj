@@ -16,6 +16,21 @@ void UItemSlotWidget::SlotUpdate(FItemSlotData SlotData)
 	ItemId = SlotData.ItemId;
 	ItemImage->SetVisibility(ESlateVisibility::Visible);
 	ItemQuantityText->SetVisibility(ESlateVisibility::Visible);
+	SlotIndex = SlotData.SlotNumber;
+	ItemType = SlotData.ItemType;
+
+}
+
+void UItemSlotWidget::SlotRemove()
+{
+	ItemImage->SetVisibility(ESlateVisibility::Collapsed);
+	ItemQuantityText->SetVisibility(ESlateVisibility::Collapsed);
+
+	ItemImage->SetBrushFromTexture(nullptr);
+	ItemQuantityText->SetText(FText::GetEmpty());
+
+	ItemId = NAME_None;
+	SlotIndex = 0;
 
 }
 
@@ -30,8 +45,8 @@ void UItemSlotWidget::NativeOnInitialized()
 
 	if (ItemImage)
 	{
-		ItemImage->SetVisibility(ESlateVisibility::Hidden);
-		ItemQuantityText->SetVisibility(ESlateVisibility::Hidden);
+		ItemImage->SetVisibility(ESlateVisibility::Collapsed);
+		ItemQuantityText->SetVisibility(ESlateVisibility::Collapsed);
 	}
 }
 

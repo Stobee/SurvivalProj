@@ -97,6 +97,8 @@ void UPlayerQuickSlotComponent::ClientNotifyWeaponRegistered_Implementation(int3
 		UpdatePacket.IconTexture = ItemRow->ItemIconTexture;
 		UpdatePacket.Quantity = 1;
 		UpdatePacket.ItemId = Id;
+		UpdatePacket.SlotNumber = SlotIndex;
+		UpdatePacket.ItemType = EItemType::Weapon;
 
 		CachedQuickSlotWidget->UpdateItemSlot(SlotIndex, UpdatePacket);
 	}
@@ -170,6 +172,37 @@ void UPlayerQuickSlotComponent::ExecuteSlotAction(int32 SlotIndex)
 		break;
 	}
 	}
+}
+
+void UPlayerQuickSlotComponent::RemoveSlotItem(int32 SlotIndex)
+{
+	ServerRemoveSlotItem(SlotIndex);
+}
+
+void UPlayerQuickSlotComponent::ClientNotifySlotItemRemoved_Implementation(int32 SlotIndex)
+{
+	if (CachedQuickSlotWidget)
+	{
+		CachedQuickSlotWidget->RemoveItemSlot(SlotIndex);
+	}
+}
+
+void UPlayerQuickSlotComponent::ServerRemoveSlotItem_Implementation(int32 SlotIndex)
+{
+	RemoveReplicatedSubObject(QuickSlots[SlotIndex]);
+
+	// 가비지 컬렉터에 등록
+	// TArray의 Remove는 사용금지
+	UObject* TargetObject = QuickSlots[SlotIndex];
+	if (TargetObject)
+	{
+		TargetObject->MarkAsGarbage();
+	}
+
+	
+	QuickSlots[SlotIndex] = nullptr;
+
+	ClientNotifySlotItemRemoved(SlotIndex);
 }
 
 void UPlayerQuickSlotComponent::ServerEquipWeapon_Implementation(FName WeaponId)

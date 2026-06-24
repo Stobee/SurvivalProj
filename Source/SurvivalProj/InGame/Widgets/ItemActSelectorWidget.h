@@ -4,10 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "SurvivalProj/Data/Enums/EItemType.h"
 #include "ItemActSelectorWidget.generated.h"
 
 class UButton;
 class UTextBlock;
+class APlayerCharacter;
+
 /**
  * 
  */
@@ -17,6 +20,14 @@ class SURVIVALPROJ_API UItemActSelectorWidget : public UUserWidget
 	GENERATED_BODY()
 	
 public:
+
+protected:
+
+	UFUNCTION()
+	void MoveToOtherComponent(int32 SlotNum, FName ItemId, EItemType SlotItemType, bool bTargetIsQuickSlot);
+
+	UFUNCTION(BlueprintCallable)
+	void SetItemInfo(int32 SlotIndex, FName ItemId, EItemType SlotItemType);
 
 protected:
 
@@ -37,6 +48,22 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> DropItemButtonText;
+
+	UPROPERTY()
+	TObjectPtr<APlayerCharacter> PlayerRef;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ItemInfo")
+	FName ItemID;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ItemInfo")
+	int32 ItemSlotIndex;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ItemInfo")
+	EItemType ItemType;
+
+
+
+	
 
 	virtual void NativeConstruct() override;
 

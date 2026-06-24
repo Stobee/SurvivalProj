@@ -23,6 +23,8 @@ public:
 
 	void UpdateItemSlot(int32 IndexNum, const FItemSlotData& ItemSlotData);
 
+	void RemoveItemSlot(int32 IndexNum);
+
 protected:
 
 	UPROPERTY(meta = (BindWidget))
