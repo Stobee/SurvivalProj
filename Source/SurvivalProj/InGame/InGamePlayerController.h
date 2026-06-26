@@ -8,6 +8,7 @@
 
 
 class UInputMappingContext;
+
 /**
  * 
  */
@@ -16,8 +17,7 @@ class SURVIVALPROJ_API AInGamePlayerController : public APlayerController
 {
 	GENERATED_BODY()
 	
-	UPROPERTY(EditAnywhere, Category = "Input")
-	TObjectPtr<UInputMappingContext> IMC_Default;
+public:
 
 	// 서버용 컨트롤러 할당
 	virtual void OnPossess(APawn* aPawn) override;
@@ -26,4 +26,16 @@ class SURVIVALPROJ_API AInGamePlayerController : public APlayerController
 	virtual void AcknowledgePossession(APawn* InPawn) override;
 
 	virtual void OnUnPossess() override;
+
+	
+
+
+protected:
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	TObjectPtr<UInputMappingContext> IMC_Default;
+
+
+	
+
 };

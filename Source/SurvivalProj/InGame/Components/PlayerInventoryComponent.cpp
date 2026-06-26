@@ -146,7 +146,7 @@ void UPlayerInventoryComponent::VisibleInventoryWidget()
 
 		if (bIsFlip)
 		{
-			CachedInventoryWidget->SetVisibility(ESlateVisibility::Visible);
+			CachedInventoryWidget->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
 
 			if (CachedPlayerController)
 			{

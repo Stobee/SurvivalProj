@@ -3,6 +3,7 @@
 
 #include "InGamePlayerController.h"
 #include "EnhancedInputSubsystems.h"
+#include "SurvivalProj/InGame/InGameHUD.h"
 
 void AInGamePlayerController::OnPossess(APawn* aPawn)
 {
@@ -57,3 +58,7 @@ void AInGamePlayerController::OnUnPossess()
 		}
 	}
 }
+
+
+
+

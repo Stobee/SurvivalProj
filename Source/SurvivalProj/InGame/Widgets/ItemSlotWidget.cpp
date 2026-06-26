@@ -34,6 +34,29 @@ void UItemSlotWidget::SlotRemove()
 
 }
 
+void UItemSlotWidget::SpawnActPopup()
+{
+	/*AMyPlayerController* PC = Cast<AMyPlayerController>(GetOwningPlayer());
+	if (!PC || !PopupClass) return;
+
+	// 1. 단일 싱글톤 팝업 사출 공정 가동 (앞서 마감한 HUD의 단일 생성 포트 타격)
+	AMyHUD* MyHUD = Cast<AMyHUD>(PC->GetHUD());
+	if (!MyHUD) return;
+
+	// 2. 팝업창 인스턴스를 우선 청정 구체화
+	UItemActSelector* NewPopup = CreateWidget<UItemActSelector>(PC, PopupClass);
+
+	if (NewPopup)
+	{
+		]
+		// 생성된 팝업창의 장부를 열고 "너의 소유자는 나(this)다!"라고 주소록 포인터를 강제 기입!
+		NewPopup->OwningSlotWidget = this;
+
+		// 3. 주권 결착이 완료된 청정 팝업 위젯을 HUD 사령탑을 통해 뷰포트에 최종 안착
+		MyHUD->RegisterAndDisplayPopup(NewPopup);
+	}*/
+}
+
 void UItemSlotWidget::NativeConstruct()
 {
 	Super::NativeConstruct();

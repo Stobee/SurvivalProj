@@ -10,6 +10,7 @@
 class UButton;
 class UTextBlock;
 class APlayerCharacter;
+class UItemSlotWidget;
 
 /**
  * 
@@ -23,11 +24,11 @@ public:
 
 protected:
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	void MoveToOtherComponent(int32 SlotNum, FName ItemId, EItemType SlotItemType, bool bTargetIsQuickSlot);
 
 	UFUNCTION(BlueprintCallable)
-	void SetItemInfo(int32 SlotIndex, FName ItemId, EItemType SlotItemType);
+	void SetItemInfo(UItemSlotWidget* SlotWidget);
 
 protected:
 
@@ -52,15 +53,17 @@ protected:
 	UPROPERTY()
 	TObjectPtr<APlayerCharacter> PlayerRef;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ItemInfo")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ItemInfo")
 	FName ItemID;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ItemInfo")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ItemInfo")
 	int32 ItemSlotIndex;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ItemInfo")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ItemInfo")
 	EItemType ItemType;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ItemInfo")
+	UItemSlotWidget* OwningSlotWidget;
 
 
 	

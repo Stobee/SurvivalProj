@@ -35,6 +35,9 @@ public:
 	void SlotUpdate(FItemSlotData SlotData);
 
 	void SlotRemove();
+
+	UFUNCTION(BlueprintCallable)
+	void SpawnActPopup();
 	
 protected:
 
