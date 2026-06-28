@@ -65,6 +65,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ItemInfo")
 	UItemSlotWidget* OwningSlotWidget;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ItemInfo")
+	bool bTargetIsQuickSlot = true;
+
 
 	
 

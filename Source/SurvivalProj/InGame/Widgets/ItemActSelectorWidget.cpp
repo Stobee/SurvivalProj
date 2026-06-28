@@ -6,6 +6,7 @@
 #include "Components/TextBlock.h"
 #include "SurvivalProj/InGame/Player/PlayerCharacter.h"
 #include "SurvivalProj/InGame/Widgets/ItemSlotWidget.h"
+#include "SurvivalProj/InGame/Widgets/PlayerQuickSlotWidget.h"
 
 
 void UItemActSelectorWidget::MoveToOtherComponent(int32 SlotNum, FName ItemId, EItemType SlotItemType, bool bTargetIsQuickSlot)
@@ -18,7 +19,6 @@ void UItemActSelectorWidget::MoveToOtherComponent(int32 SlotNum, FName ItemId, E
 	}
 }
 
-// 슬롯 위젯에서 해당 슬롯의 부모 가져와야함
 void UItemActSelectorWidget::SetItemInfo(UItemSlotWidget* SlotWidget)
 {
 	if (SlotWidget)
@@ -27,6 +27,14 @@ void UItemActSelectorWidget::SetItemInfo(UItemSlotWidget* SlotWidget)
 		ItemID = SlotWidget->ItemId;
 		ItemSlotIndex = SlotWidget->SlotIndex;
 		ItemType = SlotWidget->ItemType;
+
+		UPlayerQuickSlotWidget* QuickSlot = Cast<UPlayerQuickSlotWidget>(SlotWidget->GetOuter());
+
+		// 캐스팅 성공 여부에 따라 분기
+		if (QuickSlot)
+		{
+			bTargetIsQuickSlot = false;
+		}
 	}
 }
 

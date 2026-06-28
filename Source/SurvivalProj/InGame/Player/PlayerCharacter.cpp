@@ -441,6 +441,7 @@ void APlayerCharacter::MoveItem(int32 SlotNum, FName ItemId, EItemType SlotItemT
 	}
 }
 
+// 정상적으로 실행되는지 확인
 void APlayerCharacter::ServerMoveItem_Implementation(int32 SlotNum, FName ItemId, EItemType SlotItemType, bool bTargetIsQuickSlot)
 {
 	if (bTargetIsQuickSlot)
@@ -500,8 +501,10 @@ void APlayerCharacter::ServerMoveItem_Implementation(int32 SlotNum, FName ItemId
 
 			} break;
 			}
+
+			QuickSlot->RemoveSlotItem(SlotNum);
 		}
-		QuickSlot->RemoveSlotItem(SlotNum);
+		
 	}
 }
 
