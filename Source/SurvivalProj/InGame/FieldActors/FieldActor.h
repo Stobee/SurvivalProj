@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
+#include "SurvivalProj/InGame/Item/FieldItem.h"
 #include "FieldActor.generated.h"
 
 class UBoxComponent;
@@ -18,6 +18,8 @@ public:
 	// Sets default values for this actor's properties
 	AFieldActor();
 
+	void SetDamage(float Damage);
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -29,7 +31,7 @@ protected:
 	TObjectPtr<UStaticMeshComponent> FieldActorMesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ActorState")
-	float MaxHp = 0.0f;
+	float MaxHp = 10.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ActorState")
 	float CurrentHp = 0.0f;
@@ -40,9 +42,19 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ActorState")
 	int32 DropItemQuantity = 0;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ActorState")
+	FName DropItemId = NAME_None;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ActorState")
+	EItemType DropItemType = EItemType::None;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "FieldActor|Data")
-	TSubclassOf<AActor> DropItemClass;
-	
+	TSubclassOf<AFieldItem> DropItemClass;
+
+	bool DropItems();
+
+	FVector SetOnFloor();
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
