@@ -4,6 +4,7 @@
 #include "AttackAnimNotify.h"
 #include "SurvivalProj/InGame/Interfaces/AttackNotifyInterface.h"
 
+// 정상 작동 확인 후 무기 전용 노티파이 추가
 void UAttackAnimNotify::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
     Super::Notify(MeshComp, Animation, EventReference);
