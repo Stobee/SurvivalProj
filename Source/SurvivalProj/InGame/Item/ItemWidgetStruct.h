@@ -32,4 +32,13 @@ struct FItemSlotData
 
 	UPROPERTY(BlueprintReadOnly)
 	int32 SlotNumber = 0;
+
+	UPROPERTY(BlueprintReadOnly)
+	float CurrentDuravility = 100.0f;
+
+	UPROPERTY(BlueprintReadOnly)
+	int32 EnhencementLevel = 0;
+
+	UPROPERTY(BlueprintReadOnly)
+	float AttackPoint = 0.0f;
 };

@@ -14,6 +14,7 @@ class UPlayerEquipmentComponent;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInventoryWidgetReferenceRegistered, UPlayerInventoryWidget*, WidgetRef);
 
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SURVIVALPROJ_API UPlayerInventoryComponent : public UActorComponent
 {
@@ -25,13 +26,10 @@ public:
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-	UFUNCTION(Server, Reliable)
-	void ServerRegisterWeaponToEmptySlot(FName WeaponID);
-
 	UFUNCTION(Client, Reliable)
 	void ClientNotifyWeaponRegistered(int32 SlotIndex, FName Id);
 
-	void RegisterWeaponToEmptySlot(FName WeaponId);
+	bool RegisterWeaponToEmptySlot(FName WeaponId);
 
 	void RegisterArmorToEmptySlot(FName ArmorId);
 
@@ -57,6 +55,15 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	void RegisterWidgetReference(UPlayerInventoryWidget* WidgetRef);
+
+	void UseItem(int32 SlotNum);
+
+	UFUNCTION(Server, Reliable)
+	void ServerEquipWeapon(FName WeaponId);
+
+	bool DropItem(int32 SlotNum, FVector DropLocation);
+	 
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;

@@ -32,6 +32,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Slot")
 	EItemType ItemType = EItemType::None;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Slot")
+	UUserWidget* ParentWidget = nullptr;
+
 	void SlotUpdate(FItemSlotData SlotData);
 
 	void SlotRemove();

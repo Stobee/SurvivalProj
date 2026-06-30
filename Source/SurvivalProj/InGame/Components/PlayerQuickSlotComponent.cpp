@@ -12,6 +12,7 @@
 #include "SurvivalProj/InGame/Item/WeaponItem.h"
 #include "SurvivalProj/InGame/Item/ItemWidgetStruct.h"
 #include "SurvivalProj/InGame/Item/EquipWeapon.h"
+#include "SurvivalProj/InGame/Item/FieldItem.h"
 
 
 
@@ -38,7 +39,7 @@ void UPlayerQuickSlotComponent::GetLifetimeReplicatedProps(TArray<FLifetimePrope
 }
 
 
-bool UPlayerQuickSlotComponent::ServerRegisterWeaponToEmptySlot_Validate(FName WeaponId)
+/*bool UPlayerQuickSlotComponent::ServerRegisterWeaponToEmptySlot_Validate(FName WeaponId)
 {
 	// 예시 코드 이후 수정 필요
 	// 1. 하드웨어 데이터테이블 누수 선제 수사
@@ -56,37 +57,10 @@ bool UPlayerQuickSlotComponent::ServerRegisterWeaponToEmptySlot_Validate(FName W
 	// 장부에 없는 가짜 ID일 경우 false
 	// 언리얼 엔진 커널이 해당 패킷을 차단하고 위조범 클라이언트를 즉시 가상 세계에서 강제 영구 철거(Kick)한다.
 	return ItemRow != nullptr;
-}
+}*/
 
-void UPlayerQuickSlotComponent::ServerRegisterWeaponToEmptySlot_Implementation(FName WeaponID)
-{
-	if (WeaponTable == nullptr)
-	{
-		UE_LOG(LogTemp, Error, TEXT("[테이블 파열] WeaponTable 자산이 바인딩되지 않았습니다."));
-		return;
-	}
 
-	// 비어있는 슬롯에 아이템 추가
-	for (int i = 0; i < QuickSlots.Num(); i++)
-	{
 
-		if (QuickSlots[i] == nullptr)
-		{
-
-			UWeaponItem* NewWeapon = NewObject<UWeaponItem>(this);
-			NewWeapon->InitItem(WeaponTable, WeaponID);
-			QuickSlots[i] = NewWeapon;
-
-			// 새로 만든 서브오브젝트를 Replicated 등록
-			AddReplicatedSubObject(NewWeapon);
-
-			ClientNotifyWeaponRegistered(i, WeaponID);
-
-			break;
-
-		}
-	}
-}
 
 void UPlayerQuickSlotComponent::ClientNotifyWeaponRegistered_Implementation(int32 SlotIndex, FName Id)
 {
@@ -104,9 +78,35 @@ void UPlayerQuickSlotComponent::ClientNotifyWeaponRegistered_Implementation(int3
 	}
 }
 
-void UPlayerQuickSlotComponent::RegisterWeaponToEmptySlot(FName WeaponID)
+bool UPlayerQuickSlotComponent::RegisterWeaponToEmptySlot(FName WeaponID)
 {
-	ServerRegisterWeaponToEmptySlot(WeaponID);
+	if (WeaponTable == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[테이블 파열] WeaponTable 자산이 바인딩되지 않았습니다."));
+		return false;
+	}
+
+	// 비어있는 슬롯에 아이템 추가
+	for (int i = 0; i < QuickSlots.Num(); i++)
+	{
+
+		if (QuickSlots[i] == nullptr)
+		{
+			UWeaponItem* NewWeapon = NewObject<UWeaponItem>(this);
+			NewWeapon->InitItem(WeaponTable, WeaponID);
+			QuickSlots[i] = NewWeapon;
+
+			// 새로 만든 서브오브젝트를 Replicated 등록
+			AddReplicatedSubObject(NewWeapon);
+
+			ClientNotifyWeaponRegistered(i, WeaponID);
+
+			return true;
+
+		}
+	}
+
+	return false;
 }
 
 
@@ -235,6 +235,59 @@ void UPlayerQuickSlotComponent::RegisterWidgetReference(UPlayerQuickSlotWidget* 
 	}
 
 	CachedQuickSlotWidget = WidgetRef;
+}
+
+bool UPlayerQuickSlotComponent::DropItem(int32 SlotNum, FVector DropLocation)
+{
+	UItemInstance* TargetItem = QuickSlots[SlotNum];
+
+	switch (TargetItem->GetItemType())
+	{
+	case (EItemType::Weapon):
+	{
+		if (!WeaponTable) return false;
+		FWeaponItemStruct* ItemRow = WeaponTable->FindRow<FWeaponItemStruct>(TargetItem->GetItemID(), TEXT("WeaponItemDrop"));
+
+		UWeaponItem* TargetWeapon = Cast<UWeaponItem>(TargetItem);
+
+		// 아이템 스폰 로직
+
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+		SpawnParams.Owner = nullptr;
+
+		AFieldItem* DropFieldItem = GetWorld()->SpawnActor<AFieldItem>(ItemRow->FieldWeaponActor, DropLocation, FRotator::ZeroRotator, SpawnParams);
+
+		FItemSlotData UpdatePacket;
+
+		UpdatePacket.ItemId = TargetItem->GetItemID();
+		UpdatePacket.ItemType = EItemType::Weapon;
+		UpdatePacket.Quantity = TargetItem->GetQuantity();
+		UpdatePacket.AttackPoint = TargetWeapon->GetWeaponAP();
+		UpdatePacket.CurrentDuravility = TargetWeapon->GetWeaponDuravility();
+		UpdatePacket.EnhencementLevel = TargetWeapon->GetWeaponEnhencementLevel();
+		
+		DropFieldItem->SetItemState(UpdatePacket);
+
+		return true;
+
+		break;
+	}
+	case (EItemType::Armor):
+	{
+		break;
+	}
+	case (EItemType::Potion):
+	{
+		break;
+	}
+	case (EItemType::Resource):
+	{
+		break;
+	}
+	}
+
+	return false;
 }
 
 // Called when the game starts

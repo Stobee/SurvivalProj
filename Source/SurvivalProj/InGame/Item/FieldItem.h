@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "SurvivalProj/Data/Enums/EItemType.h"
+#include "SurvivalProj/InGame/Item/ItemWidgetStruct.h"
 #include "SurvivalProj/InGame/Interfaces/InteractiveInterface.h"
 #include "GameFramework/Actor.h"
 #include "FieldItem.generated.h"
@@ -24,6 +25,9 @@ public:
 
 	void SetMeshOutlineActive(bool bActive);
 
+	void SetItemState(const FItemSlotData& ItemStruct);
+
+	EItemType GetItemType() { return ItemStateStruct.ItemType; }
 
 	UFUNCTION() 
 	void OnBoxBeginOverlap(
@@ -56,16 +60,17 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Component")
 	TObjectPtr<UStaticMeshComponent> StaticMesh;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ItemState")
-	FName ItemID;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ItemState")
+	//FName ItemID;
+
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ItemState")
+	//int32 ItemQuantity = 1;
+
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ItemState")
+	//EItemType ItemType = EItemType::None;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ItemState")
-	int32 ItemQuantity = 1;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ItemState")
-	EItemType ItemType = EItemType::None;
-
-	
+	FItemSlotData ItemStateStruct;
 
 
 public:	

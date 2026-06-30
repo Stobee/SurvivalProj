@@ -40,6 +40,7 @@ void UPlayerInventoryWidget::NativeOnInitialized()
 				UItemSlotWidget* InventorySlot = CreateWidget<UItemSlotWidget>(this, SlotWidget);
 				if (InventorySlot != nullptr)
 				{
+					InventorySlot->ParentWidget = this;
 					// 2. 유니폼 그리드 패널의 0행, i열 자리에 강제 각인 배치
 					UUniformGridSlot* GridSlot = InventoryGrid->AddChildToUniformGrid(InventorySlot, i, j);
 

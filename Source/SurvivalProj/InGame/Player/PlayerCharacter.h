@@ -111,6 +111,18 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ServerMoveItem(int32 SlotNum, FName ItemId, EItemType SlotItemType, bool bTargetIsQuickSlot);
 
+	// 위젯 단계에서 아이템 사용
+	void UseItem(int32 SlotNum, bool bIsQuickSlot);
+
+	UFUNCTION(Server, Reliable)
+	void ServerUseItem(int32 SlotNum, bool bTargetIsQuickSlot);
+
+	// 아이템 드롭
+	void DropItem(int32 SlotNum, bool bIsQuickSlot);
+
+	UFUNCTION(Server, Reliable)
+	void ServerDropItem(int32 SlotNum, bool bTargetIsQuickSlot);
+
 	UFUNCTION()
 	void OnCapsuleBeginOverlap(
 		UPrimitiveComponent* OverlappedComponent,

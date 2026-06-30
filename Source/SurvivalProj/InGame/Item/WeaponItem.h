@@ -23,6 +23,8 @@ public:
 
 	float GetWeaponAP() const { return AttackPoint; }
 
+	float GetWeaponEnhencementLevel() const { return EnhencementLevel; }
+
 	virtual void InitItem(UDataTable* DataTable, FName ID) override;
 
 protected:

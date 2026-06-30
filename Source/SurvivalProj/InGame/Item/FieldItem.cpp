@@ -76,8 +76,11 @@ void AFieldItem::StartInteract_Implementation(AActor* InteractCauser)
 	
 	// 플레이어의 인벤토리에 아이템을 추가하고 액터 삭제
 	APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(InteractCauser);
-	bool SaveSuccess = PlayerCharacter->GetFieldItem(ItemID, ItemQuantity, ItemType);
+
+	if (ItemStateStruct.ItemId == NAME_None || ItemStateStruct.Quantity == 0 || ItemStateStruct.ItemType == EItemType::None) return;
 	
+	bool SaveSuccess = PlayerCharacter->GetFieldItem(ItemStateStruct.ItemId, ItemStateStruct.Quantity, ItemStateStruct.ItemType);
+
 	if (SaveSuccess)
 	{
 		// 서버에서 메모리해제를 알림
@@ -96,6 +99,14 @@ void AFieldItem::BeginPlay()
 	{
 		Box->OnComponentBeginOverlap.AddDynamic(this, &AFieldItem::OnBoxBeginOverlap);
 		Box->OnComponentEndOverlap.AddDynamic(this, &AFieldItem::OnBoxEndOverlap);
+	}
+}
+
+void AFieldItem::SetItemState(const FItemSlotData &ItemStruct)
+{
+	if (ItemStruct.ItemId != NAME_None)
+	{
+		ItemStateStruct = ItemStruct;
 	}
 }
 

@@ -327,8 +327,11 @@ void APlayerCharacter::SetComboWindowRegistry(bool bIsOpen)
 
 void APlayerCharacter::SetCharacterAttackEnd()
 {
-	ActState = EPlayerActState::Movable;
-	AttackComboState = 0;
+	if (ActState == EPlayerActState::Attack)
+	{
+		ActState = EPlayerActState::Movable;
+		AttackComboState = 0;
+	}
 }
 
 void APlayerCharacter::ExecuteShortAttackTrace()
@@ -435,19 +438,19 @@ bool APlayerCharacter::GetFieldItem(FName ItemId, int32 ItemQuantity, EItemType 
 
 void APlayerCharacter::MoveItem(int32 SlotNum, FName ItemId, EItemType SlotItemType, bool bTargetIsQuickSlot)
 {
-	if (HasAuthority())
-	{
-		ServerMoveItem(SlotNum, ItemId, SlotItemType, bTargetIsQuickSlot);
-	}
+	ServerMoveItem(SlotNum, ItemId, SlotItemType, bTargetIsQuickSlot);
 }
 
-// 정상적으로 실행되는지 확인
+
 void APlayerCharacter::ServerMoveItem_Implementation(int32 SlotNum, FName ItemId, EItemType SlotItemType, bool bTargetIsQuickSlot)
 {
+	if (!HasAuthority())return;
+
 	if (bTargetIsQuickSlot)
 	{
 		if (!QuickSlot->bIsQuickSlotFull())
 		{
+			bool TaskCompleted = false;
 			switch (SlotItemType)
 			{
 			case (EItemType::Armor):
@@ -456,7 +459,7 @@ void APlayerCharacter::ServerMoveItem_Implementation(int32 SlotNum, FName ItemId
 			} break;
 			case (EItemType::Weapon):
 			{
-				QuickSlot->RegisterWeaponToEmptySlot(ItemId);
+				TaskCompleted = QuickSlot->RegisterWeaponToEmptySlot(ItemId);
 			} break;
 			case (EItemType::Resource):
 			{
@@ -468,20 +471,22 @@ void APlayerCharacter::ServerMoveItem_Implementation(int32 SlotNum, FName ItemId
 			} break;
 			}
 
-			Inventory->RemoveSlotItem(SlotNum);
+			if (TaskCompleted)
+			{
+				Inventory->RemoveSlotItem(SlotNum);
+			}
 		}
 		else
 		{
 			// 변경 실패 시 위젯 출력
 			return;
 		}
-
-		
 	}
 	else
 	{
 		if (!Inventory->bIsInventorySlotFull())
 		{
+			bool TaskCompleted = false;
 			switch (SlotItemType)
 			{
 			case (EItemType::Armor):
@@ -490,7 +495,7 @@ void APlayerCharacter::ServerMoveItem_Implementation(int32 SlotNum, FName ItemId
 			} break;
 			case (EItemType::Weapon):
 			{
-				Inventory->RegisterWeaponToEmptySlot(ItemId);
+				TaskCompleted = Inventory->RegisterWeaponToEmptySlot(ItemId);
 			} break;
 			case (EItemType::Resource):
 			{
@@ -502,9 +507,64 @@ void APlayerCharacter::ServerMoveItem_Implementation(int32 SlotNum, FName ItemId
 			} break;
 			}
 
-			QuickSlot->RemoveSlotItem(SlotNum);
+			if (TaskCompleted)
+			{
+				QuickSlot->RemoveSlotItem(SlotNum);
+			}
 		}
 		
+	}
+}
+
+void APlayerCharacter::UseItem(int32 SlotNum, bool bIsQuickSlot)
+{
+	ServerUseItem(SlotNum, bIsQuickSlot);
+}
+
+void APlayerCharacter::ServerUseItem_Implementation(int32 SlotNum, bool bTargetIsQuickSlot)
+{
+	if (!HasAuthority()) return;
+
+	if (bTargetIsQuickSlot)
+	{
+		QuickSlot->ExecuteSlotAction(SlotNum);
+	}
+	else
+	{
+		Inventory->UseItem(SlotNum);
+	}
+}
+
+void APlayerCharacter::DropItem(int32 SlotNum, bool bIsQuickSlot)
+{
+	ServerDropItem(SlotNum, bIsQuickSlot);
+}
+
+void APlayerCharacter::ServerDropItem_Implementation(int32 SlotNum, bool bTargetIsQuickSlot)
+{
+	if (!HasAuthority()) return;
+
+	FVector DropLocation = GetActorLocation() + (GetActorForwardVector() * 150.0f);
+
+	bool TaskCompleted = false;
+
+	if (bTargetIsQuickSlot)
+	{
+		TaskCompleted = QuickSlot->DropItem(SlotNum, DropLocation);
+
+		if (TaskCompleted)
+		{
+			QuickSlot->RemoveSlotItem(SlotNum);
+		}
+	}
+	else
+	{
+		TaskCompleted = Inventory->DropItem(SlotNum, DropLocation);
+
+		if (TaskCompleted)
+		{
+			Inventory->RemoveSlotItem(SlotNum);
+		}
 	}
 }
 

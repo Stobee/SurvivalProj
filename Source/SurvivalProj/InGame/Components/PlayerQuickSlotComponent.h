@@ -24,13 +24,10 @@ public:
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-	UFUNCTION(Server, Reliable, WithValidation)
-	void ServerRegisterWeaponToEmptySlot(FName WeaponID);
-
 	UFUNCTION(Client, Reliable)
 	void ClientNotifyWeaponRegistered(int32 SlotIndex, FName Id);
 
-	void RegisterWeaponToEmptySlot(FName WeaponId);
+	bool RegisterWeaponToEmptySlot(FName WeaponId);
 
 	void RegisterArmorToEmptySlot(FName ArmorId);
 
@@ -59,6 +56,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	void RegisterWidgetReference(UPlayerQuickSlotWidget* WidgetRef);
+
+	bool DropItem(int32 SlotNum, FVector DropLocation);
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;

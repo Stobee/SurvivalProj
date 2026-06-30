@@ -41,6 +41,7 @@ void UPlayerQuickSlotWidget::NativeOnInitialized()
 			UItemSlotWidget* QuickSlot = CreateWidget<UItemSlotWidget>(this, SlotWidget);
 			if (QuickSlot != nullptr)
 			{
+				QuickSlot->ParentWidget = this;
 				// 2. 유니폼 그리드 패널의 0행, i열 자리에 강제 각인 배치
 				UUniformGridSlot* GridSlot = QuickSlotGrid->AddChildToUniformGrid(QuickSlot, 0, i);
 

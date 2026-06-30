@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h" // 데이터 테이블 가동을 위한 필수 헤더 인입
 #include "SurvivalProj/InGame/Item/EquipWeapon.h"
+#include "SurvivalProj/InGame/Item/FieldItem.h"
 #include "SurvivalProj/Data/Enums/EWeaponEquipState.h"
 #include "WeaponItemStruct.generated.h"
 
@@ -32,15 +33,19 @@ public:
 
 	//아이템 최대 내구도
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")
-	float MaxDurability = 100.f;
+	float MaxDurability = 100.0f;
 
 	//아이템 아이콘
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")
 	UTexture2D* ItemIconTexture = nullptr;
 
-	//아이템 메시
+	//장착 아이템 메시
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")
 	TSubclassOf<AEquipWeapon> EquipWeaponActor = nullptr;
+
+	//필드 아이템 메시
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")
+	TSubclassOf<AFieldItem> FieldWeaponActor = nullptr;
 
 	//아이템 설명 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")

@@ -25,10 +25,16 @@ public:
 protected:
 
 	UFUNCTION(BlueprintCallable)
-	void MoveToOtherComponent(int32 SlotNum, FName ItemId, EItemType SlotItemType, bool bTargetIsQuickSlot);
+	void MoveToOtherComponent();
 
 	UFUNCTION(BlueprintCallable)
 	void SetItemInfo(UItemSlotWidget* SlotWidget);
+
+	UFUNCTION(BlueprintCallable)
+	void UseItem();
+
+	UFUNCTION(BlueprintCallable)
+	void DropItem();
 
 protected:
 
@@ -54,7 +60,7 @@ protected:
 	TObjectPtr<APlayerCharacter> PlayerRef;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ItemInfo")
-	FName ItemID;
+	FName ItemID = NAME_None;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ItemInfo")
 	int32 ItemSlotIndex;
@@ -63,7 +69,10 @@ protected:
 	EItemType ItemType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ItemInfo")
-	UItemSlotWidget* OwningSlotWidget;
+	UItemSlotWidget* OwningSlotWidget = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ItemInfo")
+	UUserWidget* ParentWidget = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ItemInfo")
 	bool bTargetIsQuickSlot = true;

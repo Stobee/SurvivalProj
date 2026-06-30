@@ -12,6 +12,7 @@
 #include "SurvivalProj/InGame/Item/WeaponItem.h"
 #include "SurvivalProj/InGame/Item/ItemWidgetStruct.h"
 #include "SurvivalProj/InGame/Item/EquipWeapon.h"
+#include "SurvivalProj/InGame/Item/FieldItem.h"
 
 // Sets default values for this component's properties
 UPlayerInventoryComponent::UPlayerInventoryComponent()
@@ -32,36 +33,6 @@ void UPlayerInventoryComponent::GetLifetimeReplicatedProps(TArray<FLifetimePrope
 	DOREPLIFETIME_CONDITION(UPlayerInventoryComponent, InventorySlots, COND_OwnerOnly);
 }
 
-void UPlayerInventoryComponent::ServerRegisterWeaponToEmptySlot_Implementation(FName WeaponID)
-{
-	if (WeaponTable == nullptr)
-	{
-		UE_LOG(LogTemp, Error, TEXT("[테이블 파열] WeaponTable 자산이 바인딩되지 않았습니다."));
-		return;
-	}
-
-	// 비어있는 슬롯에 아이템 추가
-	for (int i = 0; i < InventorySlots.Num(); i++)
-	{
-
-		if (InventorySlots[i] == nullptr)
-		{
-
-			UWeaponItem* NewWeapon = NewObject<UWeaponItem>(this);
-			NewWeapon->InitItem(WeaponTable, WeaponID);
-			InventorySlots[i] = NewWeapon;
-
-			// 새로 만든 서브오브젝트를 Replicated 등록
-			AddReplicatedSubObject(NewWeapon);
-
-			ClientNotifyWeaponRegistered(i, WeaponID);
-
-			break;
-
-		}
-	}
-}
-
 
 void UPlayerInventoryComponent::ClientNotifyWeaponRegistered_Implementation(int32 SlotIndex, FName Id)
 {
@@ -80,10 +51,35 @@ void UPlayerInventoryComponent::ClientNotifyWeaponRegistered_Implementation(int3
 
 }
 
-void UPlayerInventoryComponent::RegisterWeaponToEmptySlot(FName WeaponId)
+bool UPlayerInventoryComponent::RegisterWeaponToEmptySlot(FName WeaponId)
 {
-	ServerRegisterWeaponToEmptySlot(WeaponId);
+	if (WeaponTable == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[테이블 파열] WeaponTable 자산이 바인딩되지 않았습니다."));
+		return false;
+	}
 
+	// 비어있는 슬롯에 아이템 추가
+	for (int i = 0; i < InventorySlots.Num(); i++)
+	{
+
+		if (InventorySlots[i] == nullptr)
+		{
+			UWeaponItem* NewWeapon = NewObject<UWeaponItem>(this);
+			NewWeapon->InitItem(WeaponTable, WeaponId);
+			InventorySlots[i] = NewWeapon;
+
+			// 새로 만든 서브오브젝트를 Replicated 등록
+			AddReplicatedSubObject(NewWeapon);
+
+			ClientNotifyWeaponRegistered(i, WeaponId);
+
+			return true;
+
+		}
+	}
+
+	return false;
 }
 
 void UPlayerInventoryComponent::RegisterArmorToEmptySlot(FName ArmorId)
@@ -128,14 +124,20 @@ void UPlayerInventoryComponent::ClientNotifySlotItemRemoved_Implementation(int32
 {
 	if (CachedInventoryWidget)
 	{
-
+		CachedInventoryWidget->RemoveItemSlot(SlotIndex);
 	}
 }
 
 bool UPlayerInventoryComponent::bIsInventorySlotFull()
 {
-	if (InventorySlots.Num() == MaxSlotCount) return true;
-	return false;
+	for (auto& slot : InventorySlots)
+	{
+		if (slot == nullptr)
+		{
+			return false;
+		}
+	}
+	return true;
 }
 
 void UPlayerInventoryComponent::VisibleInventoryWidget()
@@ -196,6 +198,105 @@ void UPlayerInventoryComponent::RegisterWidgetReference(UPlayerInventoryWidget* 
 	}
 
 	CachedInventoryWidget = WidgetRef;
+}
+
+void UPlayerInventoryComponent::UseItem(int32 SlotNum)
+{
+	// 널 포인터 접근을 차단
+	if (!InventorySlots[SlotNum]) return;
+
+	switch (InventorySlots[SlotNum]->GetItemType())
+	{
+	case (EItemType::Weapon):
+	{
+		ServerEquipWeapon(InventorySlots[SlotNum]->GetItemID());
+
+		break;
+	}
+	case (EItemType::Armor):
+	{
+
+		break;
+	}
+	case (EItemType::Potion):
+	{
+
+		break;
+	}
+
+	case (EItemType::Resource):
+	{
+
+		break;
+	}
+	case (EItemType::None):
+	{
+		break;
+	}
+	}
+}
+
+void UPlayerInventoryComponent::ServerEquipWeapon_Implementation(FName WeaponId)
+{
+	if (OwnerCharacter->HasAuthority())
+	{
+		EquipmentComponent->UpdateWeaponSlot(WeaponId);
+
+		OwnerCharacter->MulticastPlayEquipWeaponMontage();
+	}
+}
+
+bool UPlayerInventoryComponent::DropItem(int32 SlotNum, FVector DropLocation)
+{
+	UItemInstance* TargetItem = InventorySlots[SlotNum];
+
+	switch (TargetItem->GetItemType())
+	{
+	case (EItemType::Weapon):
+	{
+		if (!WeaponTable) return false;
+		FWeaponItemStruct* ItemRow = WeaponTable->FindRow<FWeaponItemStruct>(TargetItem->GetItemID(), TEXT("WeaponItemDrop"));
+
+		UWeaponItem* TargetWeapon = Cast<UWeaponItem>(TargetItem);
+
+		// 아이템 스폰 로직
+
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+		SpawnParams.Owner = nullptr;
+
+		AFieldItem* DropFieldItem = GetWorld()->SpawnActor<AFieldItem>(ItemRow->FieldWeaponActor, DropLocation, FRotator::ZeroRotator, SpawnParams);
+
+		FItemSlotData UpdatePacket;
+
+		UpdatePacket.ItemId = TargetItem->GetItemID();
+		UpdatePacket.ItemType = EItemType::Weapon;
+		UpdatePacket.Quantity = TargetItem->GetQuantity();
+		UpdatePacket.AttackPoint = TargetWeapon->GetWeaponAP();
+		UpdatePacket.CurrentDuravility = TargetWeapon->GetWeaponDuravility();
+		UpdatePacket.EnhencementLevel = TargetWeapon->GetWeaponEnhencementLevel();
+
+		DropFieldItem->SetItemState(UpdatePacket);
+
+		return true;
+
+		break;
+	}
+	case (EItemType::Armor):
+	{
+		break;
+	}
+	case (EItemType::Potion):
+	{
+		break;
+	}
+	case (EItemType::Resource):
+	{
+		break;
+	}
+	}
+
+	return false;
 }
 
 // Called when the game starts
