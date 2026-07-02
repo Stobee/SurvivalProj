@@ -6,6 +6,8 @@
 #include "GameFramework/Character.h"
 #include "MainCharacter.generated.h"
 
+class UCharacterStatComponent;
+
 UCLASS()
 class SURVIVALPROJ_API AMainCharacter : public ACharacter
 {
@@ -18,6 +20,13 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+// Character Stat
+protected:
+
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "StatComp", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UCharacterStatComponent> Stats;
+	
 
 public:	
 	// Called every frame

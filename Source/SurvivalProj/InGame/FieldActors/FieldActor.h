@@ -8,6 +8,7 @@
 
 class UBoxComponent;
 class UStaticMeshComponent;
+class UCharacterStatComponent;
 
 UCLASS()
 class SURVIVALPROJ_API AFieldActor : public AActor
@@ -29,6 +30,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UStaticMeshComponent> FieldActorMesh;
+
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "StatComp", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UCharacterStatComponent> Stats;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ActorState")
 	float MaxHp = 10.0f;

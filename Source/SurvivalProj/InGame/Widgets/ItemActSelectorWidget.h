@@ -69,6 +69,9 @@ protected:
 	EItemType ItemType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ItemInfo")
+	int32 ItemQuantity;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ItemInfo")
 	UItemSlotWidget* OwningSlotWidget = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ItemInfo")

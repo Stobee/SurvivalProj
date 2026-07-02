@@ -21,6 +21,8 @@ AFieldActor::AFieldActor()
 
 	FieldActorMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("FieldActorMesh"));
 	FieldActorMesh->SetupAttachment(Box);
+
+	Stats = CreateDefaultSubobject<UCharacterStatComponent>(TEXT("Stats"));
 	
 
 }
@@ -47,17 +49,9 @@ void AFieldActor::BeginPlay()
 {
 	Super::BeginPlay();
 
-	CurrentHp = MaxHp;
 
 	bool TaskCompleted = DropItems();
 
-	if (TaskCompleted)
-	{
-		TearOff();
-
-		Destroy();
-	}
-	
 }
 
 bool AFieldActor::DropItems()
@@ -77,7 +71,7 @@ bool AFieldActor::DropItems()
 	{
 		// 원점(SpawnLocation) 기준으로 반경 100유닛 이내의 '안전한 바닥 네비메쉬 좌표'를 수색!
 		FNavLocation NavResult;
-		bool bFoundRandPoint = NavSys->GetRandomPointInNavigableRadius(SpawnLocation, 100.0f, NavResult);
+		bool bFoundRandPoint = NavSys->GetRandomPointInNavigableRadius(SpawnLocation, 150.0f, NavResult);
 
 		if (bFoundRandPoint)
 		{

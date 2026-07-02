@@ -9,6 +9,7 @@
 #include "SurvivalProj/InGame/Interfaces/InteractiveInterface.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
@@ -359,9 +360,21 @@ void APlayerCharacter::ExecuteAttackTrace()
 	switch (WeaponEquipState)
 	{
 	case (EWeaponEquipState::Unarmed):
-	{// 캐릭터 전방 1미터 지정
-		FVector StartLocation = GetActorLocation();
-		FVector EndLocation = StartLocation + (GetActorForwardVector() * 100.0f);
+	{
+		FVector SocketLocation;
+		if (AttackComboState == 2)
+		{
+			SocketLocation = GetMesh()->GetSocketLocation(TEXT("S_Right_Foot"));
+		}
+		else if (AttackComboState == 1)
+		{
+			SocketLocation = GetMesh()->GetSocketLocation(TEXT("S_Left_Hand"));
+		}
+		else
+		{
+			SocketLocation = GetMesh()->GetSocketLocation(TEXT("S_Weapon_r"));
+		}
+		//FVector EndLocation = StartLocation + (GetActorForwardVector() * 100.0f);
 
 		// 멀티 트레이스에 Hit된 액터를 담을 배열
 		TArray<FHitResult> OutHits;
@@ -372,7 +385,7 @@ void APlayerCharacter::ExecuteAttackTrace()
 
 
 		// 근접 공격 채널 ECC_GameTraceChannel1
-		bool bIsHit = UKismetSystemLibrary::SphereTraceMulti(this, StartLocation, EndLocation, 30.0f, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1), false,
+		bool bIsHit = UKismetSystemLibrary::SphereTraceMulti(this, SocketLocation, SocketLocation, 30.0f, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1), false,
 			ActorsToIgnore, EDrawDebugTrace::ForDuration, OutHits, true);
 
 		if (bIsHit)
@@ -391,7 +404,7 @@ void APlayerCharacter::ExecuteAttackTrace()
 					AlreadyHitActors.Add(HitActor);
 					if (IsLocallyControlled())
 					{
-						ServerApplyDamage(HitActor);
+						ServerApplyDamage(HitActor, Hit);
 					}
 
 				}
@@ -401,27 +414,116 @@ void APlayerCharacter::ExecuteAttackTrace()
 		}
 	case (EWeaponEquipState::OneHanded) :
 	{
-
-		break;
-	}
-	case (EWeaponEquipState::TwoHanded) :
-	{
 		FVector SocketLocation = Equipment->GetEquipWeaponActorSocketLocation();
 
 		TArray<FHitResult> OutHits;
 
 		TArray<AActor*> ActorsToIgnore;
+		ActorsToIgnore.Add(this);
 
 		bool bIsHit = UKismetSystemLibrary::SphereTraceMulti(this, SocketLocation, SocketLocation, 30.0f, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1), false,
 			ActorsToIgnore, EDrawDebugTrace::ForDuration, OutHits, true);
 
+		if (bIsHit)
+		{
+			for (const FHitResult& Hit : OutHits)
+			{
+
+				AActor* HitActor = Hit.GetActor();
+				if (HitActor != nullptr)
+				{
+					if (AlreadyHitActors.Contains(HitActor))
+					{
+						continue;
+					}
+
+					AlreadyHitActors.Add(HitActor);
+					if (IsLocallyControlled())
+					{
+						ServerApplyDamage(HitActor, Hit);
+					}
+
+				}
+			}
+		}
+		break;
+	}
+	case (EWeaponEquipState::TwoHanded) :
+	{
+		FVector SocketLocation;
+		if (AttackComboState == 1)
+		{
+			SocketLocation = Equipment->GetEquipWeaponActorSocketLocation(true);
+		}
+		else
+		{
+			SocketLocation = Equipment->GetEquipWeaponActorSocketLocation();
+		}
+
+		TArray<FHitResult> OutHits;
+
+		TArray<AActor*> ActorsToIgnore;
+		ActorsToIgnore.Add(this);
+
+		bool bIsHit = UKismetSystemLibrary::SphereTraceMulti(this, SocketLocation, SocketLocation, 30.0f, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1), false,
+			ActorsToIgnore, EDrawDebugTrace::ForDuration, OutHits, true);
+
+		if (bIsHit)
+		{
+			for (const FHitResult& Hit : OutHits)
+			{
+
+				AActor* HitActor = Hit.GetActor();
+				if (HitActor != nullptr)
+				{
+					if (AlreadyHitActors.Contains(HitActor))
+					{
+						continue;
+					}
+
+					AlreadyHitActors.Add(HitActor);
+					if (IsLocallyControlled())
+					{
+						ServerApplyDamage(HitActor, Hit);
+					}
+
+				}
+			}
+		}
 		break;
 	}
 	}
 }
 
-void APlayerCharacter::ServerApplyDamage_Implementation(AActor* TargetActor)
+void APlayerCharacter::ServerApplyDamage_Implementation(AActor* TargetActor, const FHitResult& HitResult)
 {
+	if (TargetActor == nullptr || TargetActor->IsPendingKillPending()) return;
+
+	if (!HasAuthority()) return;
+
+	FVector ClientHitLocation = HitResult.ImpactPoint;
+	FVector MyLocation = GetActorLocation();
+
+	// 내 몸 중심점부터 클라이언트가 주장하는 타격 지점까지의 직선거리를 산출
+	float TraceDistance = FVector::Dist(MyLocation, ClientHitLocation);
+
+	if (TraceDistance > 100.0f)
+	{
+		UE_LOG(LogTemp, Warning, TEXT(" [서버 트레이스 변조 감지]: %s 가 사거리 밖 유령 좌표(%f) 타격을 요청하여 기각함."), *GetName(), TraceDistance);
+		return;
+	}
+
+	
+
+	UGameplayStatics::ApplyPointDamage(
+		TargetActor,
+		1.0f,
+		ClientHitLocation,
+		HitResult,
+		GetController(),
+		this,
+		UDamageType::StaticClass()
+	);
 }
 
 void APlayerCharacter::ClearHitRegistry()
@@ -446,7 +548,7 @@ bool APlayerCharacter::GetFieldItem(FName ItemId, int32 ItemQuantity, EItemType 
 		{
 		case (EItemType::Armor):
 		{
-
+			Inventory->RegisterArmorToEmptySlot(ItemId);
 		} break;
 		case (EItemType::Weapon):
 		{
@@ -454,11 +556,11 @@ bool APlayerCharacter::GetFieldItem(FName ItemId, int32 ItemQuantity, EItemType 
 		} break;
 		case (EItemType::Resource):
 		{
-
+			Inventory->RegisterResourceToEmptySlot(ItemId, ItemQuantity);
 		} break;
 		case (EItemType::Potion):
 		{
-
+			Inventory->RegisterPotionToEmptySlot(ItemId, ItemQuantity);
 		} break;
 		}
 	}
@@ -487,13 +589,13 @@ bool APlayerCharacter::GetFieldItem(FName ItemId, int32 ItemQuantity, EItemType 
 	return true;
 }
 
-void APlayerCharacter::MoveItem(int32 SlotNum, FName ItemId, EItemType SlotItemType, bool bTargetIsQuickSlot)
+void APlayerCharacter::MoveItem(int32 SlotNum, FName ItemId, EItemType SlotItemType, int32 ItemQuantity, bool bTargetIsQuickSlot)
 {
-	ServerMoveItem(SlotNum, ItemId, SlotItemType, bTargetIsQuickSlot);
+	ServerMoveItem(SlotNum, ItemId, SlotItemType, ItemQuantity, bTargetIsQuickSlot);
 }
 
 
-void APlayerCharacter::ServerMoveItem_Implementation(int32 SlotNum, FName ItemId, EItemType SlotItemType, bool bTargetIsQuickSlot)
+void APlayerCharacter::ServerMoveItem_Implementation(int32 SlotNum, FName ItemId, EItemType SlotItemType, int32 ItemQuantity, bool bTargetIsQuickSlot)
 {
 	if (!HasAuthority())return;
 
@@ -506,7 +608,7 @@ void APlayerCharacter::ServerMoveItem_Implementation(int32 SlotNum, FName ItemId
 			{
 			case (EItemType::Armor):
 			{
-
+				TaskCompleted = QuickSlot->RegisterArmorToEmptySlot(ItemId);
 			} break;
 			case (EItemType::Weapon):
 			{
@@ -514,11 +616,11 @@ void APlayerCharacter::ServerMoveItem_Implementation(int32 SlotNum, FName ItemId
 			} break;
 			case (EItemType::Resource):
 			{
-
+				TaskCompleted = QuickSlot->RegisterResourceToEmptySlot(ItemId, ItemQuantity);
 			} break;
 			case (EItemType::Potion):
 			{
-
+				TaskCompleted = QuickSlot->RegisterPotionToEmptySlot(ItemId, ItemQuantity);
 			} break;
 			}
 
@@ -542,7 +644,7 @@ void APlayerCharacter::ServerMoveItem_Implementation(int32 SlotNum, FName ItemId
 			{
 			case (EItemType::Armor):
 			{
-
+				TaskCompleted = Inventory->RegisterArmorToEmptySlot(ItemId);
 			} break;
 			case (EItemType::Weapon):
 			{
@@ -550,11 +652,11 @@ void APlayerCharacter::ServerMoveItem_Implementation(int32 SlotNum, FName ItemId
 			} break;
 			case (EItemType::Resource):
 			{
-
+				TaskCompleted = Inventory->RegisterResourceToEmptySlot(ItemId, ItemQuantity);
 			} break;
 			case (EItemType::Potion):
 			{
-
+				TaskCompleted = Inventory->RegisterPotionToEmptySlot(ItemId, ItemQuantity);
 			} break;
 			}
 

@@ -26,6 +26,7 @@ void UPlayerEquipmentComponent::GetLifetimeReplicatedProps(TArray<FLifetimePrope
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME_CONDITION(UPlayerEquipmentComponent, WeaponSlot, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(UPlayerEquipmentComponent, EquipWeaponActor, COND_OwnerOnly);
 }
 
 // Add Or Delete WeaponSlot
@@ -101,11 +102,20 @@ void UPlayerEquipmentComponent::ChangeStats(EItemType ItemType, bool bIsAdd)
 	}
 }
 
-FVector UPlayerEquipmentComponent::GetEquipWeaponActorSocketLocation()
+FVector UPlayerEquipmentComponent::GetEquipWeaponActorSocketLocation(bool bIsDifferentSocket)
 {
 	if (EquipWeaponActor)
 	{
-		FVector SocketLocation = EquipWeaponActor->GetWeaponMeshComp()->GetSocketLocation(TEXT("AttackTraceSocket"));
+		FVector SocketLocation;
+
+		if (bIsDifferentSocket)
+		{
+			SocketLocation = EquipWeaponActor->GetWeaponMeshComp()->GetSocketLocation(TEXT("AttackComboTrace"));
+		}
+		else
+		{
+			SocketLocation = EquipWeaponActor->GetWeaponMeshComp()->GetSocketLocation(TEXT("AttackTraceSocket"));
+		}
 
 		return SocketLocation;
 	}

@@ -39,7 +39,7 @@ void AEquipWeapon::SetWeaponCollisionActivate(bool bActivate)
 
 UStaticMeshComponent* AEquipWeapon::GetWeaponMeshComp()
 {
-	UStaticMeshComponent* Mesh;
+	UStaticMeshComponent* Mesh = nullptr;
 
 	if (StaticMesh)
 	{

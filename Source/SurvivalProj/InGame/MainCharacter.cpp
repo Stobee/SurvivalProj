@@ -3,6 +3,7 @@
 
 #include "MainCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "SurvivalProj/InGame/Components/CharacterStatComponent.h"
 
 // Sets default values
 AMainCharacter::AMainCharacter()
@@ -11,6 +12,8 @@ AMainCharacter::AMainCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 
 	bReplicates = true;
+
+	Stats = CreateDefaultSubobject<UCharacterStatComponent>(TEXT("Stats"));
 
 }
 

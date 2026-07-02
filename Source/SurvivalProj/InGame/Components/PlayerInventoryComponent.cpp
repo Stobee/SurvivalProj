@@ -7,9 +7,16 @@
 #include "SurvivalProj/InGame/Components/PlayerEquipmentComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "SurvivalProj/Data/DataTableStructs/WeaponItemStruct.h"
+#include "SurvivalProj/Data/DataTableStructs/ArmorItemStruct.h"
+#include "SurvivalProj/Data/DataTableStructs/ResourceItemStruct.h"
+#include "SurvivalProj/Data/DataTableStructs/PotionItemStruct.h"
 #include "SurvivalProj/Data/Enums/EWeaponEquipState.h"
 #include "SurvivalProj/InGame/InGameHUD.h"
 #include "SurvivalProj/InGame/Item/WeaponItem.h"
+#include "SurvivalProj/InGame/Item/ArmorItem.h"
+#include "SurvivalProj/InGame/Item/ResourceItem.h"
+#include "SurvivalProj/InGame/Item/PotionItem.h"
+#include "SurvivalProj/InGame/Item/EquipArmor.h"
 #include "SurvivalProj/InGame/Item/ItemWidgetStruct.h"
 #include "SurvivalProj/InGame/Item/EquipWeapon.h"
 #include "SurvivalProj/InGame/Item/FieldItem.h"
@@ -34,17 +41,59 @@ void UPlayerInventoryComponent::GetLifetimeReplicatedProps(TArray<FLifetimePrope
 }
 
 
-void UPlayerInventoryComponent::ClientNotifyWeaponRegistered_Implementation(int32 SlotIndex, FName Id)
+void UPlayerInventoryComponent::ClientNotifyItemRegistered_Implementation(int32 SlotIndex, FName Id, EItemType Type, int32 Quantity = 1)
 {
 	if (CachedInventoryWidget)
 	{
 		FItemSlotData UpdatePacket;
-		FWeaponItemStruct* ItemRow = WeaponTable->FindRow<FWeaponItemStruct>(Id, TEXT("WeaponItemInit"));
-		UpdatePacket.IconTexture = ItemRow->ItemIconTexture;
-		UpdatePacket.Quantity = 1;
-		UpdatePacket.ItemId = Id;
-		UpdatePacket.SlotNumber = SlotIndex;
-		UpdatePacket.ItemType = EItemType::Weapon;
+
+		switch (Type)
+		{
+		case (EItemType::Weapon):
+		{
+			FWeaponItemStruct* ItemRow = WeaponTable->FindRow<FWeaponItemStruct>(Id, TEXT("WeaponItemInit"));
+			UpdatePacket.IconTexture = ItemRow->ItemIconTexture;
+			UpdatePacket.Quantity = Quantity;
+			UpdatePacket.ItemId = Id;
+			UpdatePacket.SlotNumber = SlotIndex;
+			UpdatePacket.ItemType = EItemType::Weapon;
+
+			break;
+		}
+		case (EItemType::Armor):
+		{
+			FArmorItemStruct* ItemRow = ArmorTable->FindRow<FArmorItemStruct>(Id, TEXT("ArmorItemInit"));
+			UpdatePacket.IconTexture = ItemRow->ItemIconTexture;
+			UpdatePacket.Quantity = Quantity;
+			UpdatePacket.ItemId = Id;
+			UpdatePacket.SlotNumber = SlotIndex;
+			UpdatePacket.ItemType = EItemType::Armor;
+
+			break;
+		}
+		case (EItemType::Resource):
+		{
+			FResourceItemStruct* ItemRow = ResourceTable->FindRow<FResourceItemStruct>(Id, TEXT("ResourceItemInit"));
+			UpdatePacket.IconTexture = ItemRow->ItemIconTexture;
+			UpdatePacket.Quantity = Quantity;
+			UpdatePacket.ItemId = Id;
+			UpdatePacket.SlotNumber = SlotIndex;
+			UpdatePacket.ItemType = EItemType::Resource;
+
+			break;
+		}
+		case (EItemType::Potion):
+		{
+			FPotionItemStruct* ItemRow = PotionTable->FindRow<FPotionItemStruct>(Id, TEXT("PotionItemInit"));
+			UpdatePacket.IconTexture = ItemRow->ItemIconTexture;
+			UpdatePacket.Quantity = Quantity;
+			UpdatePacket.ItemId = Id;
+			UpdatePacket.SlotNumber = SlotIndex;
+			UpdatePacket.ItemType = EItemType::Potion;
+
+			break;
+		}
+		}
 
 		CachedInventoryWidget->UpdateItemSlot(SlotIndex, UpdatePacket);
 	}
@@ -72,7 +121,7 @@ bool UPlayerInventoryComponent::RegisterWeaponToEmptySlot(FName WeaponId)
 			// 새로 만든 서브오브젝트를 Replicated 등록
 			AddReplicatedSubObject(NewWeapon);
 
-			ClientNotifyWeaponRegistered(i, WeaponId);
+			ClientNotifyItemRegistered(i, WeaponId, EItemType::Weapon);
 
 			return true;
 
@@ -82,19 +131,95 @@ bool UPlayerInventoryComponent::RegisterWeaponToEmptySlot(FName WeaponId)
 	return false;
 }
 
-void UPlayerInventoryComponent::RegisterArmorToEmptySlot(FName ArmorId)
+bool UPlayerInventoryComponent::RegisterArmorToEmptySlot(FName ArmorId)
 {
+	if (ArmorTable == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[테이블 파열] ArmorTable 자산이 바인딩되지 않았습니다."));
+		return false;
+	}
 
+	for (int i = 0; i < InventorySlots.Num(); i++)
+	{
+
+		if (InventorySlots[i] == nullptr)
+		{
+			UArmorItem* NewArmor = NewObject<UArmorItem>(this);
+			NewArmor->InitItem(ArmorTable, ArmorId);
+			InventorySlots[i] = NewArmor;
+
+			// 새로 만든 서브오브젝트를 Replicated 등록
+			AddReplicatedSubObject(NewArmor);
+
+			ClientNotifyItemRegistered(i, ArmorId, EItemType::Armor);
+
+			return true;
+
+		}
+	}
+
+	return false;
 }
 
-void UPlayerInventoryComponent::RegisterResourceToEmptySlot(FName ResourceId, int32 Quantity)
+bool UPlayerInventoryComponent::RegisterResourceToEmptySlot(FName ResourceId, int32 Quantity)
 { 
+	if (ResourceTable == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[테이블 파열] ResourceTable 자산이 바인딩되지 않았습니다."));
+		return false;
+	}
+
+	for (int i = 0; i < InventorySlots.Num(); i++)
+	{
+
+		if (InventorySlots[i] == nullptr)
+		{
+			UResourceItem* NewResource = NewObject<UResourceItem>(this);
+			NewResource->InitItem(ResourceTable, ResourceId);
+			InventorySlots[i] = NewResource;
+
+			// 새로 만든 서브오브젝트를 Replicated 등록
+			AddReplicatedSubObject(NewResource);
+
+			ClientNotifyItemRegistered(i, ResourceId, EItemType::Resource, Quantity);
+
+			return true;
+
+		}
+	}
+
+	return false;
 
 }
 
-void UPlayerInventoryComponent::RegisterPotionToEmptySlot(FName PotionId, int32 Quantity)
+bool UPlayerInventoryComponent::RegisterPotionToEmptySlot(FName PotionId, int32 Quantity)
 {
+	if (PotionTable == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[테이블 파열] PotionTable 자산이 바인딩되지 않았습니다."));
+		return false;
+	}
 
+	for (int i = 0; i < InventorySlots.Num(); i++)
+	{
+
+		if (InventorySlots[i] == nullptr)
+		{
+			UPotionItem* NewPotion = NewObject<UPotionItem>(this);
+			NewPotion->InitItem(PotionTable, PotionId);
+			InventorySlots[i] = NewPotion;
+
+			// 새로 만든 서브오브젝트를 Replicated 등록
+			AddReplicatedSubObject(NewPotion);
+
+			ClientNotifyItemRegistered(i, PotionId, EItemType::Potion, Quantity);
+
+			return true;
+
+		}
+	}
+
+	return false;
 }
 
 void UPlayerInventoryComponent::RemoveSlotItem(int32 SlotIndex)
@@ -104,6 +229,12 @@ void UPlayerInventoryComponent::RemoveSlotItem(int32 SlotIndex)
 
 void UPlayerInventoryComponent::ServerRemoveSlotItem_Implementation(int32 SlotIndex)
 {
+	if (!InventorySlots[SlotIndex]) return;
+
+	if (InventorySlots[SlotIndex]->GetItemType() == EItemType::Weapon)
+	{
+		EquipmentComponent->UpdateWeaponSlot(InventorySlots[SlotIndex]->GetItemID());
+	}
 	RemoveReplicatedSubObject(InventorySlots[SlotIndex]);
 
 	// 가비지 컬렉터에 등록
@@ -111,6 +242,7 @@ void UPlayerInventoryComponent::ServerRemoveSlotItem_Implementation(int32 SlotIn
 	UObject* TargetObject = InventorySlots[SlotIndex];
 	if (TargetObject)
 	{
+		
 		TargetObject->MarkAsGarbage();
 	}
 

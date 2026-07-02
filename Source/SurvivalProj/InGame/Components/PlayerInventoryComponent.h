@@ -27,15 +27,15 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	UFUNCTION(Client, Reliable)
-	void ClientNotifyWeaponRegistered(int32 SlotIndex, FName Id);
+	void ClientNotifyItemRegistered(int32 SlotIndex, FName Id, EItemType Type, int32 Quantity = 1);
 
 	bool RegisterWeaponToEmptySlot(FName WeaponId);
 
-	void RegisterArmorToEmptySlot(FName ArmorId);
+	bool RegisterArmorToEmptySlot(FName ArmorId);
 
-	void RegisterResourceToEmptySlot(FName ResourceId, int32 Quantity);
+	bool RegisterResourceToEmptySlot(FName ResourceId, int32 Quantity);
 
-	void RegisterPotionToEmptySlot(FName PotionId, int32 Quantity);
+	bool RegisterPotionToEmptySlot(FName PotionId, int32 Quantity);
 	
 	void RemoveSlotItem(int32 SlotIndex);
 

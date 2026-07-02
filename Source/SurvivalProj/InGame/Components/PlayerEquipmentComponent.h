@@ -27,7 +27,7 @@ public:
 
 	void ChangeStats(EItemType ItemType, bool bIsAdd);
 
-	FVector GetEquipWeaponActorSocketLocation();
+	FVector GetEquipWeaponActorSocketLocation(bool bIsDifferentSocket = false);
 	
 protected:
 	// Called when the game starts
@@ -48,7 +48,7 @@ protected:
 	UPROPERTY(Transient)
 	TSubclassOf<AEquipWeapon> EquipWeaponClass = nullptr;
 
-	UPROPERTY(Transient)
+	UPROPERTY(Replicated, Transient)
 	TObjectPtr<AEquipWeapon> EquipWeaponActor = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")

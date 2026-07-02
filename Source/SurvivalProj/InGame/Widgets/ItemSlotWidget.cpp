@@ -16,6 +16,7 @@ void UItemSlotWidget::SlotUpdate(FItemSlotData SlotData)
 	ItemId = SlotData.ItemId;
 	ItemImage->SetVisibility(ESlateVisibility::Visible);
 	ItemQuantityText->SetVisibility(ESlateVisibility::Visible);
+	ItemQuantity = SlotData.Quantity;
 	SlotIndex = SlotData.SlotNumber;
 	ItemType = SlotData.ItemType;
 

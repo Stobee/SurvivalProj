@@ -108,10 +108,10 @@ public:
 	// 필드 아이템과 상호작용 시 호출
 	bool GetFieldItem(FName ItemId, int32 ItemQuantity, EItemType ItemType);
 
-	void MoveItem(int32 SlotNum, FName ItemId, EItemType SlotItemType, bool bTargetIsQuickSlot);
+	void MoveItem(int32 SlotNum, FName ItemId, EItemType SlotItemType, int32 ItemQuantity, bool bTargetIsQuickSlot);
 
 	UFUNCTION(Server, Reliable)
-	void ServerMoveItem(int32 SlotNum, FName ItemId, EItemType SlotItemType, bool bTargetIsQuickSlot);
+	void ServerMoveItem(int32 SlotNum, FName ItemId, EItemType SlotItemType, int32 ItemQuantity, bool bTargetIsQuickSlot);
 
 	// 위젯 단계에서 아이템 사용
 	void UseItem(int32 SlotNum, bool bIsQuickSlot);
@@ -155,7 +155,7 @@ public:
 
 	// Actor Hit 시 데미지 적용
 	UFUNCTION(Server, Reliable)
-	void ServerApplyDamage(AActor* TargetActor);
+	void ServerApplyDamage(AActor* TargetActor, const FHitResult& HitResult);
 
 	UPROPERTY()
 	TArray<TObjectPtr<AActor>> AlreadyHitActors;
@@ -190,6 +190,8 @@ private:
 	void Input_UseSlot5() { UseItemFromQuickSlot(5); }
 
 	float SetOnFloor();
+
+
 	
 // 컴포넌트
 protected:

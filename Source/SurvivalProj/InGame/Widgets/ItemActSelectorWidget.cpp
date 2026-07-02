@@ -15,7 +15,7 @@ void UItemActSelectorWidget::MoveToOtherComponent()
 
 	if (PlayerRef)
 	{
-		PlayerRef->MoveItem(ItemSlotIndex, ItemID, ItemType, bTargetIsQuickSlot);
+		PlayerRef->MoveItem(ItemSlotIndex, ItemID, ItemType, ItemQuantity, bTargetIsQuickSlot);
 	}
 
 	RemoveFromParent();
@@ -29,6 +29,7 @@ void UItemActSelectorWidget::SetItemInfo(UItemSlotWidget* SlotWidget)
 		ItemID = SlotWidget->ItemId;
 		ItemSlotIndex = SlotWidget->SlotIndex;
 		ItemType = SlotWidget->ItemType;
+		ItemQuantity = SlotWidget->ItemQuantity;
 		ParentWidget = SlotWidget->ParentWidget;
 
 		UPlayerQuickSlotWidget* QuickSlot = Cast<UPlayerQuickSlotWidget>(ParentWidget);
