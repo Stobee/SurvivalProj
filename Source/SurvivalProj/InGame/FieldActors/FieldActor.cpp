@@ -4,9 +4,12 @@
 #include "FieldActor.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/WidgetComponent.h"
+#include "SurvivalProj/InGame/Components/CharacterStatComponent.h"
 #include "NavigationSystem.h"
 #include "Kismet/GameplayStatics.h"
 #include "Math/UnrealMathUtility.h"
+
 
 // Sets default values
 AFieldActor::AFieldActor()
@@ -21,6 +24,13 @@ AFieldActor::AFieldActor()
 
 	FieldActorMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("FieldActorMesh"));
 	FieldActorMesh->SetupAttachment(Box);
+
+	HPWidget = CreateDefaultSubobject<UWidgetComponent>((TEXT("HPWidget")));
+	HPWidget->SetupAttachment(Box);
+
+	HPWidget->SetWidgetSpace(EWidgetSpace::Screen);
+	HPWidget->SetDrawSize(FVector2D(150.f, 30.f));
+	
 
 	Stats = CreateDefaultSubobject<UCharacterStatComponent>(TEXT("Stats"));
 	

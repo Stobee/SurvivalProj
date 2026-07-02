@@ -535,9 +535,7 @@ void APlayerCharacter::SetPlayerOnInvincible(bool bIsOn)
 	SetCanBeDamaged(bIsOn);
 }
 
-//void APlayerCharacter::StartInteract_Implementation(AActor* InteractCauser) const
-//{
-//}
+
 
 bool APlayerCharacter::GetFieldItem(FName ItemId, int32 ItemQuantity, EItemType ItemType)
 {

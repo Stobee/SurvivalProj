@@ -60,12 +60,3 @@ void AInGameHUD::BeginPlay()
 	}
 }
 
-/*UPlayerQuickSlotWidget* AInGameHUD::GetPlayerQuickSlotWidgetRef() const
-{
-	if (CachedQuickSlotWidget == nullptr)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("CachedQuickSlotWidget is nullptr. Return is nullptr."));
-		return nullptr;
-	}
-	return CachedQuickSlotWidget;
-}*/

@@ -21,8 +21,13 @@ void UCharacterStatComponent::GetLifetimeReplicatedProps(TArray<FLifetimePropert
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(UAttributeComponent, CurrentHP);
-	DOREPLIFETIME(UAttributeComponent, bIsDead);
+	DOREPLIFETIME(UCharacterStatComponent, CurrentHP);
+	DOREPLIFETIME(UCharacterStatComponent, bIsDead);
+}
+
+void UCharacterStatComponent::TakeDamage(float Damage)
+{
+
 }
 
 

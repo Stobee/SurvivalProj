@@ -17,8 +17,11 @@ class SURVIVALPROJ_API UCharacterStatComponent : public UActorComponent
 public:	
 	// Sets default values for this component's properties
 	UCharacterStatComponent();
-
+	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	void TakeDamage(float Damage);
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;

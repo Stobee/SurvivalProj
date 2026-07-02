@@ -9,6 +9,7 @@
 class UBoxComponent;
 class UStaticMeshComponent;
 class UCharacterStatComponent;
+class UWidgetComponent;
 
 UCLASS()
 class SURVIVALPROJ_API AFieldActor : public AActor
@@ -31,7 +32,10 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UStaticMeshComponent> FieldActorMesh;
 
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "StatComp", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<UWidgetComponent> HPWidget;
+
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UCharacterStatComponent> Stats;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ActorState")
