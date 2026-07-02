@@ -20,6 +20,8 @@ public:
 	AEquipWeapon();
 
 	void SetWeaponCollisionActivate(bool bActivate);
+	
+	UStaticMeshComponent* GetWeaponMeshComp();
 
 protected:
 	// Called when the game starts or when spawned

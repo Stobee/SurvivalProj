@@ -15,7 +15,7 @@ void UAttackAnimNotify::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBa
     IAttackNotifyInterface* CombatActor = Cast<IAttackNotifyInterface>(MeshComp->GetOwner());
     if (CombatActor != nullptr)
     {
-       CombatActor->ExecuteShortAttackTrace();
+      // CombatActor->ExecuteShortAttackTrace();
 
     }
     

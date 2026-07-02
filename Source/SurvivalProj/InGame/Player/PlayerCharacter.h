@@ -32,6 +32,8 @@ public:
 	// 플레이어 생성자
 	APlayerCharacter();
 
+	virtual void Tick(float DeltaTime) override;
+
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	// 플레이어 인풋
@@ -145,6 +147,19 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Input")
 	AActor* OverlappedActor = nullptr;
 
+	// 공격 시 멀티 트레이스 발사
+	void ExecuteAttackTrace();
+
+	// true 변경 시 트레이스 사용
+	bool bIsOnAttackTrace = false;
+
+	// Actor Hit 시 데미지 적용
+	UFUNCTION(Server, Reliable)
+	void ServerApplyDamage(AActor* TargetActor);
+
+	UPROPERTY()
+	TArray<TObjectPtr<AActor>> AlreadyHitActors;
+
 	// 인터페이스 함수
 	// set bCanUseCombo
 	virtual void SetComboWindowRegistry(bool bIsOpen) override;
@@ -153,7 +168,7 @@ public:
 	virtual void SetCharacterAttackEnd() override;
 
 	// use sphere multiTrace by AnimNotify
-	virtual void ExecuteShortAttackTrace() override;
+	virtual void SetAttackTraceActive(bool bActive) override;
 
 	// reset Hit Actors
 	virtual void ClearHitRegistry() override;
@@ -163,6 +178,8 @@ public:
 
 	// Interact Other Actors
 	//virtual void StartInteract_Implementation(AActor* InteractCauser) const override;
+
+
 	
 private:
 
@@ -171,6 +188,8 @@ private:
 	void Input_UseSlot3() { UseItemFromQuickSlot(3); }
 	void Input_UseSlot4() { UseItemFromQuickSlot(4); }
 	void Input_UseSlot5() { UseItemFromQuickSlot(5); }
+
+	float SetOnFloor();
 	
 // 컴포넌트
 protected:

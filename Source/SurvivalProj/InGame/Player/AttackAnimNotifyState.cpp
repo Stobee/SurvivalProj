@@ -15,8 +15,7 @@ void UAttackAnimNotifyState::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnim
         IAttackNotifyInterface* CombatActor = Cast<IAttackNotifyInterface>(MeshComp->GetOwner());
         if (CombatActor != nullptr)
         {
-            // 창을 열어줌과 동시에, 다음 목적지 섹션 이름까지 묶어서 원격 전송!
-            CombatActor->SetComboWindowRegistry(true);
+            CombatActor->SetAttackTraceActive(true);
 
         }
     }
@@ -38,14 +37,12 @@ void UAttackAnimNotifyState::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSe
     if (MeshComp && MeshComp->GetOwner())
     {
         IAttackNotifyInterface* CombatActor = Cast<IAttackNotifyInterface>(MeshComp->GetOwner());
+
         if (CombatActor != nullptr)
         {
-            // 콤보 입력 취소
-            
-            CombatActor->SetComboWindowRegistry(false);
-            
-
+            CombatActor->SetAttackTraceActive(false);
         }
+        
     }
 }
 

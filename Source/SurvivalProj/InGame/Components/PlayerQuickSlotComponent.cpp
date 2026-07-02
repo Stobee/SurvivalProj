@@ -290,6 +290,7 @@ bool UPlayerQuickSlotComponent::DropItem(int32 SlotNum, FVector DropLocation)
 	return false;
 }
 
+
 // Called when the game starts
 void UPlayerQuickSlotComponent::BeginPlay()
 {

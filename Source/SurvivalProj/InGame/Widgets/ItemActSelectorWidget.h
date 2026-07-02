@@ -75,7 +75,7 @@ protected:
 	UUserWidget* ParentWidget = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ItemInfo")
-	bool bTargetIsQuickSlot = true;
+	bool bTargetIsQuickSlot = false;
 
 
 	

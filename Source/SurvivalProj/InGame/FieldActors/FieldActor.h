@@ -53,7 +53,7 @@ protected:
 
 	bool DropItems();
 
-	FVector SetOnFloor();
+	float SetOnFloor();
 
 public:	
 	// Called every frame

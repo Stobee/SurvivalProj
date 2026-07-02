@@ -30,9 +30,9 @@ public:
 	// 공격 종료 시 캐릭터의 콤보 관련 변수 초기화
 	virtual void SetCharacterAttackEnd() = 0;
 
-	// 맨손 또는 단검 등
-	virtual void ExecuteShortAttackTrace() = 0;
+	// 공격 시 트레이스 발사 허가
+	virtual void SetAttackTraceActive(bool bActive) = 0;
+	//virtual void ExecuteAttackTrace() = 0; 
 
-	// 범위가 넓은 노티파이 스테이트용
 	virtual void ClearHitRegistry() = 0;
 };

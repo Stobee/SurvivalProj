@@ -36,7 +36,7 @@ void UItemActSelectorWidget::SetItemInfo(UItemSlotWidget* SlotWidget)
 		// 캐스팅 성공 여부에 따라 분기
 		if (QuickSlot)
 		{
-			bTargetIsQuickSlot = false;
+			bTargetIsQuickSlot = true;
 		}
 	}
 }

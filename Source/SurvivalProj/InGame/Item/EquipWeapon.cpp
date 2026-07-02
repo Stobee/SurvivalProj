@@ -37,6 +37,18 @@ void AEquipWeapon::SetWeaponCollisionActivate(bool bActivate)
 	}
 }
 
+UStaticMeshComponent* AEquipWeapon::GetWeaponMeshComp()
+{
+	UStaticMeshComponent* Mesh;
+
+	if (StaticMesh)
+	{
+		Mesh = StaticMesh;
+	}
+
+	return Mesh;
+}
+
 // Called when the game starts or when spawned
 void AEquipWeapon::BeginPlay()
 {

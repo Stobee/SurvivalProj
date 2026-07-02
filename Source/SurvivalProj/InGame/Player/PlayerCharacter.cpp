@@ -49,6 +49,16 @@ APlayerCharacter::APlayerCharacter()
     
 }
 
+void APlayerCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	if (bIsOnAttackTrace)
+	{
+		ExecuteAttackTrace();
+	}
+}
+
 void APlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -319,6 +329,7 @@ void APlayerCharacter::OpenInventoryWidget()
 	
 }
 
+
 void APlayerCharacter::SetComboWindowRegistry(bool bIsOpen)
 {
 	bCanUseCombo = bIsOpen;
@@ -334,43 +345,83 @@ void APlayerCharacter::SetCharacterAttackEnd()
 	}
 }
 
-void APlayerCharacter::ExecuteShortAttackTrace()
+void APlayerCharacter::SetAttackTraceActive(bool bActive)
 {
-	// 서버 가드
-	if (!HasAuthority()) return;
+	AlreadyHitActors.Empty();
+	bIsOnAttackTrace = bActive;
+}
 
+void APlayerCharacter::ExecuteAttackTrace()
+{
 	// 캐릭터 널 가드
 	if (GetMesh() == nullptr) return;
 
-	// 캐릭터 전방 1미터 지정
-	FVector StartLocation = GetActorLocation();
-	FVector EndLocation = StartLocation + (GetActorForwardVector() * 100.0f);
-
-	// 멀티 트레이스에 Hit된 액터를 담을 배열
-	TArray<FHitResult> OutHits;
-
-	// 무시할 액터 배열
-	TArray<AActor*> ActorsToIgnore;
-
-
-	// 근접 공격 채널 ECC_GameTraceChannel1
-	bool bIsHit = UKismetSystemLibrary::SphereTraceMulti(this, StartLocation, EndLocation,30.0f, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1),false,
-		ActorsToIgnore,EDrawDebugTrace::ForDuration, OutHits,true);
-
-	if (bIsHit)
+	switch (WeaponEquipState)
 	{
-		for (const FHitResult& Hit : OutHits)
-		{
-			AActor* HitActor = Hit.GetActor();
-			if (HitActor != nullptr)
-			{
-				// [무결성 노선] 단발성이므로 중복 체크 배열 수색 없이 즉시 데미지 주입 마감!
-				UGameplayStatics::ApplyDamage(HitActor, 5, GetController(), this, UDamageType::StaticClass());
+	case (EWeaponEquipState::Unarmed):
+	{// 캐릭터 전방 1미터 지정
+		FVector StartLocation = GetActorLocation();
+		FVector EndLocation = StartLocation + (GetActorForwardVector() * 100.0f);
 
-				
+		// 멀티 트레이스에 Hit된 액터를 담을 배열
+		TArray<FHitResult> OutHits;
+
+		// 무시할 액터 배열
+		TArray<AActor*> ActorsToIgnore;
+		ActorsToIgnore.Add(this);
+
+
+		// 근접 공격 채널 ECC_GameTraceChannel1
+		bool bIsHit = UKismetSystemLibrary::SphereTraceMulti(this, StartLocation, EndLocation, 30.0f, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1), false,
+			ActorsToIgnore, EDrawDebugTrace::ForDuration, OutHits, true);
+
+		if (bIsHit)
+		{
+			for (const FHitResult& Hit : OutHits)
+			{
+
+				AActor* HitActor = Hit.GetActor();
+				if (HitActor != nullptr)
+				{
+					if (AlreadyHitActors.Contains(HitActor))
+					{
+						continue;
+					}
+
+					AlreadyHitActors.Add(HitActor);
+					if (IsLocallyControlled())
+					{
+						ServerApplyDamage(HitActor);
+					}
+
+				}
 			}
 		}
+		break;
+		}
+	case (EWeaponEquipState::OneHanded) :
+	{
+
+		break;
 	}
+	case (EWeaponEquipState::TwoHanded) :
+	{
+		FVector SocketLocation = Equipment->GetEquipWeaponActorSocketLocation();
+
+		TArray<FHitResult> OutHits;
+
+		TArray<AActor*> ActorsToIgnore;
+
+		bool bIsHit = UKismetSystemLibrary::SphereTraceMulti(this, SocketLocation, SocketLocation, 30.0f, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1), false,
+			ActorsToIgnore, EDrawDebugTrace::ForDuration, OutHits, true);
+
+		break;
+	}
+	}
+}
+
+void APlayerCharacter::ServerApplyDamage_Implementation(AActor* TargetActor)
+{
 }
 
 void APlayerCharacter::ClearHitRegistry()
@@ -446,7 +497,7 @@ void APlayerCharacter::ServerMoveItem_Implementation(int32 SlotNum, FName ItemId
 {
 	if (!HasAuthority())return;
 
-	if (bTargetIsQuickSlot)
+	if (!bTargetIsQuickSlot)
 	{
 		if (!QuickSlot->bIsQuickSlotFull())
 		{
@@ -546,6 +597,8 @@ void APlayerCharacter::ServerDropItem_Implementation(int32 SlotNum, bool bTarget
 
 	FVector DropLocation = GetActorLocation() + (GetActorForwardVector() * 150.0f);
 
+	DropLocation.Z = SetOnFloor();
+
 	bool TaskCompleted = false;
 
 	if (bTargetIsQuickSlot)
@@ -566,6 +619,30 @@ void APlayerCharacter::ServerDropItem_Implementation(int32 SlotNum, bool bTarget
 			Inventory->RemoveSlotItem(SlotNum);
 		}
 	}
+}
+
+float APlayerCharacter::SetOnFloor()
+{
+	FVector TraceStart = GetActorLocation() + FVector(0.0f, 0.0f, 50.0f);
+	// 끝점: 캐릭터 고도에서 지하 바닥을 향해 500.0f 유닛만큼 레이저를 길게 사출
+	FVector TraceEnd = GetActorLocation() + FVector(0.0f, 0.0f, -500.0f);
+
+	FHitResult HitResult;
+	FCollisionQueryParams TraceParams;
+	TraceParams.bTraceComplex = true;
+	TraceParams.AddIgnoredActor(this); // 나 자신은 검문 제외
+
+
+	bool bHitGround = GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_WorldStatic, TraceParams);
+
+	if (bHitGround)
+	{
+		// 레이저가 지형 바닥에 닿은 정확한 3D 임팩트 좌표 수령
+		return HitResult.Location.Z;
+	}
+
+	// 레이저가 맞지 않으면 액터 위치
+	return GetActorLocation().Z;
 }
 
 void APlayerCharacter::OnCapsuleBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)

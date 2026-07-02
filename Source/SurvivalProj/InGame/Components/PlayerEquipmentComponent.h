@@ -26,6 +26,8 @@ public:
 	void UpdateWeaponSlot(FName WeaponId);
 
 	void ChangeStats(EItemType ItemType, bool bIsAdd);
+
+	FVector GetEquipWeaponActorSocketLocation();
 	
 protected:
 	// Called when the game starts

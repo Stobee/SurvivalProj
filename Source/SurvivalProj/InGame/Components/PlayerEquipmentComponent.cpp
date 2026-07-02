@@ -8,6 +8,7 @@
 #include "SurvivalProj/InGame/Player/PlayerCharacter.h"
 
 
+
 // Sets default values for this component's properties
 UPlayerEquipmentComponent::UPlayerEquipmentComponent()
 {
@@ -98,6 +99,17 @@ void UPlayerEquipmentComponent::ChangeStats(EItemType ItemType, bool bIsAdd)
 		break;
 	}
 	}
+}
+
+FVector UPlayerEquipmentComponent::GetEquipWeaponActorSocketLocation()
+{
+	if (EquipWeaponActor)
+	{
+		FVector SocketLocation = EquipWeaponActor->GetWeaponMeshComp()->GetSocketLocation(TEXT("AttackTraceSocket"));
+
+		return SocketLocation;
+	}
+	return FVector(0.0f, 0.0f, 0.0f);
 }
 
 

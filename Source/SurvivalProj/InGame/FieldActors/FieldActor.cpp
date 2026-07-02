@@ -69,7 +69,7 @@ bool AFieldActor::DropItems()
 
 	DropItemQuantity = FMath::RandRange(1, 5);
 
-	FVector SpawnLocation = SetOnFloor(); // 액터의 바닥 기준 지정
+	FVector SpawnLocation = GetActorLocation(); // 액터의 바닥 기준 지정
 
 	
 
@@ -84,15 +84,16 @@ bool AFieldActor::DropItems()
 			SpawnLocation = NavResult.Location;
 		}
 
+		SpawnLocation.Z = SetOnFloor();
 		FActorSpawnParameters SpawnParams;
 		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 		SpawnParams.Owner = nullptr;
 
-		AFieldItem* DropFieldItem = GetWorld()->SpawnActor<AFieldItem>(DropItemClass, SpawnLocation, FRotator::ZeroRotator, SpawnParams);
+		AFieldItem* DropFieldItem = GetWorld()->SpawnActor<AFieldItem>(DropItemClass, SpawnLocation, FRotator(0.0f, FMath::RandRange(0.0f, 360.0f),0.0f), SpawnParams);
 
-		FVector FinalDropLocation = SetOnFloor(); // 액터의 바닥 기준 지정
+		//FVector FinalDropLocation = SetOnFloor(); // 액터의 바닥 기준 지정
 
-		DropFieldItem->SetActorLocation(FinalDropLocation);
+		//DropFieldItem->SetActorLocation(FinalDropLocation);
 
 		FItemSlotData UpdatePacket;
 
@@ -106,7 +107,7 @@ bool AFieldActor::DropItems()
 	return true;
 }
 
-FVector AFieldActor::SetOnFloor()
+float AFieldActor::SetOnFloor()
 {
 	FVector TraceStart = GetActorLocation() + FVector(0.0f, 0.0f, 50.0f);
 	// 끝점: 캐릭터 고도에서 지하 바닥을 향해 500.0f 유닛만큼 레이저를 길게 사출
@@ -115,7 +116,7 @@ FVector AFieldActor::SetOnFloor()
 	FHitResult HitResult;
 	FCollisionQueryParams TraceParams;
 	TraceParams.bTraceComplex = true;
-	if (GetOwner()) TraceParams.AddIgnoredActor(GetOwner()); // 나 자신은 검문 제외
+	TraceParams.AddIgnoredActor(this); // 나 자신은 검문 제외
 
 	
 	bool bHitGround = GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_WorldStatic, TraceParams);
@@ -123,11 +124,11 @@ FVector AFieldActor::SetOnFloor()
 	if (bHitGround)
 	{
 		// 레이저가 지형 바닥에 닿은 정확한 3D 임팩트 좌표 수령
-		return HitResult.Location;
+		return HitResult.Location.Z;
 	}
 
 	// 레이저가 맞지 않으면 액터 위치
-	return GetActorLocation();
+	return GetActorLocation().Z;
 }
 
 // Called every frame
