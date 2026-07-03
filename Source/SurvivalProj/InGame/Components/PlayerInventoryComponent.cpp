@@ -427,6 +427,27 @@ bool UPlayerInventoryComponent::DropItem(int32 SlotNum, FVector DropLocation)
 	}
 	case (EItemType::Resource):
 	{
+		if (!ResourceTable) return false;
+		FResourceItemStruct* ItemRow = ResourceTable->FindRow<FResourceItemStruct>(TargetItem->GetItemID(), TEXT("ResourceItemDrop"));
+
+		UResourceItem* TargetResource = Cast<UResourceItem>(TargetItem);
+
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+		SpawnParams.Owner = nullptr;
+
+		AFieldItem* DropFieldItem = GetWorld()->SpawnActor<AFieldItem>(ItemRow->FieldResourceActor, DropLocation, FRotator::ZeroRotator, SpawnParams);
+
+		FItemSlotData UpdatePacket;
+
+		UpdatePacket.ItemId = TargetItem->GetItemID();
+		UpdatePacket.ItemType = EItemType::Resource;
+		UpdatePacket.Quantity = TargetItem->GetQuantity();
+
+		DropFieldItem->SetItemState(UpdatePacket);
+
+		return true;
+
 		break;
 	}
 	}

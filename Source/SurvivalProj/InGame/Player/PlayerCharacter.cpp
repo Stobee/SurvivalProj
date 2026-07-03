@@ -31,7 +31,7 @@ APlayerCharacter::APlayerCharacter()
 	Capsule->OnComponentEndOverlap.AddDynamic(this, &APlayerCharacter::OnCapsuleEndOverlap);
 
 	USkeletalMeshComponent* SkeletalMesh = GetMesh();
-	
+	SkeletalMesh->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
 
 	Inventory = CreateDefaultSubobject<UPlayerInventoryComponent>(TEXT("Inventory"));
 	QuickSlot = CreateDefaultSubobject<UPlayerQuickSlotComponent>(TEXT("QuickSlot"));
