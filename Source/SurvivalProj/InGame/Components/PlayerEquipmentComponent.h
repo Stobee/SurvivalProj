@@ -28,6 +28,8 @@ public:
 	void ChangeStats(EItemType ItemType, bool bIsAdd);
 
 	FVector GetEquipWeaponActorSocketLocation(bool bIsDifferentSocket = false);
+
+	bool bIsWeaponSlotNotEmpty();
 	
 protected:
 	// Called when the game starts

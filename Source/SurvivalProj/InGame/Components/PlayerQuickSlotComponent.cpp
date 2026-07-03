@@ -305,7 +305,10 @@ void UPlayerQuickSlotComponent::ServerRemoveSlotItem_Implementation(int32 SlotIn
 
 	if (QuickSlots[SlotIndex]->GetItemType() == EItemType::Weapon)
 	{
-		EquipmentComponent->UpdateWeaponSlot(QuickSlots[SlotIndex]->GetItemID());
+		if (EquipmentComponent->bIsWeaponSlotNotEmpty())
+		{
+			EquipmentComponent->UpdateWeaponSlot(QuickSlots[SlotIndex]->GetItemID());
+		}
 	}
 	RemoveReplicatedSubObject(QuickSlots[SlotIndex]);
 

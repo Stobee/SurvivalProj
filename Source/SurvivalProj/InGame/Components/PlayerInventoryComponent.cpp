@@ -233,7 +233,10 @@ void UPlayerInventoryComponent::ServerRemoveSlotItem_Implementation(int32 SlotIn
 
 	if (InventorySlots[SlotIndex]->GetItemType() == EItemType::Weapon)
 	{
-		EquipmentComponent->UpdateWeaponSlot(InventorySlots[SlotIndex]->GetItemID());
+		if (EquipmentComponent->bIsWeaponSlotNotEmpty())
+		{
+			EquipmentComponent->UpdateWeaponSlot(InventorySlots[SlotIndex]->GetItemID());
+		}
 	}
 	RemoveReplicatedSubObject(InventorySlots[SlotIndex]);
 

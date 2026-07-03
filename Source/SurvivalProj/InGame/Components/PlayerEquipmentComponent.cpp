@@ -122,6 +122,13 @@ FVector UPlayerEquipmentComponent::GetEquipWeaponActorSocketLocation(bool bIsDif
 	return FVector(0.0f, 0.0f, 0.0f);
 }
 
+bool UPlayerEquipmentComponent::bIsWeaponSlotNotEmpty()
+{
+	if (WeaponSlot) return true;
+	
+	return false;
+}
+
 
 // Called when the game starts
 void UPlayerEquipmentComponent::BeginPlay()
