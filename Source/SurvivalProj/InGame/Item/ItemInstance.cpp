@@ -13,7 +13,7 @@ void UItemInstance::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 	DOREPLIFETIME(UItemInstance, ItemType);
 }
 
-void UItemInstance::InitItem(UDataTable* DataTable, FName ID)
+void UItemInstance::InitItem(UDataTable* DataTable, FName ID, int32 ItemQuantity)
 {
 
 }

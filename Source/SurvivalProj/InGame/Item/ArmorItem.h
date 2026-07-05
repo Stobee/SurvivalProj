@@ -25,7 +25,7 @@ public:
 
 	float GetArmorEnhencementLevel() const { return EnhencementLevel; }
 
-	virtual void InitItem(UDataTable* DataTable, FName ID) override;
+	virtual void InitItem(UDataTable* DataTable, FName ID, int32 ItemQuantity = 1) override;
 
 protected:
 

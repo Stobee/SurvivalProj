@@ -18,7 +18,7 @@ void UWeaponItem::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 	DOREPLIFETIME(UWeaponItem, WeaponType);
 }
 
-void UWeaponItem::InitItem(UDataTable* DataTable, FName ID)
+void UWeaponItem::InitItem(UDataTable* DataTable, FName ID, int32 ItemQuantity)
 {
 	if (DataTable != nullptr && ID.IsValid())
 	{

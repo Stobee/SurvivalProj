@@ -175,7 +175,7 @@ bool UPlayerInventoryComponent::RegisterResourceToEmptySlot(FName ResourceId, in
 		if (InventorySlots[i] == nullptr)
 		{
 			UResourceItem* NewResource = NewObject<UResourceItem>(this);
-			NewResource->InitItem(ResourceTable, ResourceId);
+			NewResource->InitItem(ResourceTable, ResourceId, Quantity);
 			InventorySlots[i] = NewResource;
 
 			// 새로 만든 서브오브젝트를 Replicated 등록
@@ -206,7 +206,7 @@ bool UPlayerInventoryComponent::RegisterPotionToEmptySlot(FName PotionId, int32 
 		if (InventorySlots[i] == nullptr)
 		{
 			UPotionItem* NewPotion = NewObject<UPotionItem>(this);
-			NewPotion->InitItem(PotionTable, PotionId);
+			NewPotion->InitItem(PotionTable, PotionId, Quantity);
 			InventorySlots[i] = NewPotion;
 
 			// 새로 만든 서브오브젝트를 Replicated 등록
@@ -423,6 +423,27 @@ bool UPlayerInventoryComponent::DropItem(int32 SlotNum, FVector DropLocation)
 	}
 	case (EItemType::Potion):
 	{
+		if (!PotionTable) return false;
+		FPotionItemStruct* ItemRow = PotionTable->FindRow<FPotionItemStruct>(TargetItem->GetItemID(), TEXT("PotionItemDrop"));
+
+		UPotionItem* TargetPotion = Cast<UPotionItem>(TargetItem);
+
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+		SpawnParams.Owner = nullptr;
+
+		AFieldItem* DropFieldItem = GetWorld()->SpawnActor<AFieldItem>(ItemRow->FieldPotionActor, DropLocation, FRotator::ZeroRotator, SpawnParams);
+
+		FItemSlotData UpdatePacket;
+
+		UpdatePacket.ItemId = TargetItem->GetItemID();
+		UpdatePacket.ItemType = EItemType::Potion;
+		UpdatePacket.Quantity = TargetItem->GetQuantity();
+
+		DropFieldItem->SetItemState(UpdatePacket);
+
+		return true;
+
 		break;
 	}
 	case (EItemType::Resource):

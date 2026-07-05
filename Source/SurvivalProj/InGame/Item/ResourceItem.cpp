@@ -3,7 +3,7 @@
 
 #include "ResourceItem.h"
 
-void UResourceItem::InitItem(UDataTable* DataTable, FName ID)
+void UResourceItem::InitItem(UDataTable* DataTable, FName ID, int32 ItemQuantity)
 {
 	if (DataTable != nullptr && ID.IsValid())
 	{
@@ -13,6 +13,7 @@ void UResourceItem::InitItem(UDataTable* DataTable, FName ID)
 
 		ItemName = ItemRow->ItemName;
 		ItemType = EItemType::Resource;
+		Quantity = ItemQuantity;
 
 	}
 }

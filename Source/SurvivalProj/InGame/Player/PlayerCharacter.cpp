@@ -385,7 +385,7 @@ void APlayerCharacter::ExecuteAttackTrace()
 
 
 		// 근접 공격 채널 ECC_GameTraceChannel1
-		bool bIsHit = UKismetSystemLibrary::SphereTraceMulti(this, SocketLocation, SocketLocation, 30.0f, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1), false,
+		bool bIsHit = UKismetSystemLibrary::SphereTraceMulti(this, SocketLocation, SocketLocation + (GetActorForwardVector() * 1.0f), 30.0f, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1), false,
 			ActorsToIgnore, EDrawDebugTrace::ForDuration, OutHits, true);
 
 		if (bIsHit)

@@ -13,7 +13,7 @@ void UPotionItem::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 	DOREPLIFETIME(UPotionItem, PotionType);
 }
 
-void UPotionItem::InitItem(UDataTable* DataTable, FName ID)
+void UPotionItem::InitItem(UDataTable* DataTable, FName ID, int32 ItemQuantity)
 {
 	if (DataTable != nullptr && ID.IsValid())
 	{
@@ -23,6 +23,8 @@ void UPotionItem::InitItem(UDataTable* DataTable, FName ID)
 
 		ItemName = ItemRow->ItemName;
 		IncreasePoint = ItemRow->IncreaseStatPoint;
+		Quantity = ItemQuantity;
+		
 		
 		ItemType = EItemType::Potion;
 		PotionType = ItemRow->PotionType;

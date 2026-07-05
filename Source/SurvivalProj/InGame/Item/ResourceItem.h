@@ -17,7 +17,7 @@ class SURVIVALPROJ_API UResourceItem : public UItemInstance
 	
 public:
 
-	virtual void InitItem(UDataTable* DataTable, FName ID) override;
+	virtual void InitItem(UDataTable* DataTable, FName ID, int32 ItemQuantity = 1) override;
 
 protected:
 

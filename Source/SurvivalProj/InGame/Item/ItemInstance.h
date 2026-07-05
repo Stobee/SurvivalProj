@@ -29,7 +29,7 @@ public:
 	
 	void AddQuantity(int32 Amount) { Quantity += Amount; }
 
-	virtual void InitItem(UDataTable* DataTable, FName ID);
+	virtual void InitItem(UDataTable* DataTable, FName ID, int32 ItemQuantity = 1);
 
 	// 자식 아이템(포션, 장비)들이 독단적으로 재정의할 연산 가교
 	virtual void UseItem(class ACharacter* UserCharacter);
