@@ -198,7 +198,6 @@ void APlayerCharacter::ServerAttack_Implementation(FName SectionName)
 // 최종적으로 몽타주 실행
 void APlayerCharacter::MulticastAttack_Implementation(FName SectionName)
 {
-	
 	switch (WeaponEquipState)
 	{
 		case (EWeaponEquipState::Unarmed):
