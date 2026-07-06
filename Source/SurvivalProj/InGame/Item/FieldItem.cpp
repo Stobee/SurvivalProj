@@ -32,10 +32,10 @@ void AFieldItem::SetMeshOutlineActive(bool bActive)
 	if (StaticMesh == nullptr) return;
 
 	StaticMesh->bRenderCustomDepth = bActive;
+
 	// 렌더 쓰레드 새로고침 강제화 하는 명령어
 	StaticMesh->MarkRenderStateDirty();
 }
-
 
 void AFieldItem::OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, 
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)

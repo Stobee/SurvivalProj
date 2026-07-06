@@ -185,15 +185,12 @@ void UPlayerEquipmentComponent::AttachWeapon(FName WeaponId)
 			EquipWeaponActor->SetActorRelativeLocation(ItemRow->WeaponSocketOffset);
 
 			OwnerCharacter->WeaponEquipState = ItemRow->WeaponType;
-
 		}
 	}
 }
 
 void UPlayerEquipmentComponent::DettachWeapon()
 {
-
-
 	if (EquipWeaponActor)
 	{
 		// Dettach 옵션 구조체

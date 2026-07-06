@@ -6,8 +6,9 @@
 #include "Components/ActorComponent.h"
 #include "CharacterStatComponent.generated.h"
 
-class AMainCharacter;
+class APlayerCharacter;
 class UHPBarWidget;
+class AFieldActor;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SURVIVALPROJ_API UCharacterStatComponent : public UActorComponent
@@ -20,7 +21,13 @@ public:
 	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
+	bool GetIsDead() { return bIsDead; }
+
 	void TakeDamage(float Damage);
+
+	float GetMaxHP() { return MaxHP; }
+
+	float GetCurrentHP() { return CurrentHP; }
 
 protected:
 	// Called when the game starts
@@ -42,14 +49,17 @@ protected:
 	float CurrentDefencePoint = 0.0f;
 
 	UPROPERTY(Transient)
-	TObjectPtr<AMainCharacter> OwnerCharacter = nullptr;
+	TObjectPtr<APlayerCharacter> OwnerCharacter = nullptr;
+
+	UPROPERTY(Transient)
+	TObjectPtr<AFieldActor> OwnerFieldActor = nullptr;
 
 	UPROPERTY(Transient)
 	TObjectPtr<UHPBarWidget> HPWidgt = nullptr;
 
 // OnRep ÇÔ¼ö
 	UFUNCTION()
-	void OnRep_CurrentHP(float OldHP);
+	void OnRep_CurrentHP();
 
 	UFUNCTION()
 	void OnRep_bIsDead();

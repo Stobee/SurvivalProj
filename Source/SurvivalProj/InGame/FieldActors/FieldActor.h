@@ -10,6 +10,7 @@ class UBoxComponent;
 class UStaticMeshComponent;
 class UCharacterStatComponent;
 class UWidgetComponent;
+class UHPBarWidget;
 
 UCLASS()
 class SURVIVALPROJ_API AFieldActor : public AActor
@@ -20,11 +21,26 @@ public:
 	// Sets default values for this actor's properties
 	AFieldActor();
 
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 	void SetDamage(float Damage);
+
+	void HPBarUpdate();
+
+	float GetMaxHp() { return MaxHp; }
+
+	float GetDefPoint() { return ActorDef; }
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	virtual float TakeDamage(
+		float DamageAmount, 
+		struct FDamageEvent const& DamageEvent, 
+		AController* EventInstigator, 
+		AActor* DamageCauser
+	) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UBoxComponent> Box;
@@ -40,9 +56,6 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ActorState")
 	float MaxHp = 10.0f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ActorState")
-	float CurrentHp = 0.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ActorState")
 	float ActorDef = 0.0f;
@@ -62,6 +75,29 @@ protected:
 	bool DropItems();
 
 	float SetOnFloor();
+
+	UPROPERTY(Transient)
+	TObjectPtr<UHPBarWidget> HPBarWidget;
+
+	bool bIsShaking = false;
+
+	float ShakeTimer = 0.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "FX|Shake")
+	float ShakeDuration = 0.25f; // Èçµé¸± ÃÑ ½Ã°£
+
+	UPROPERTY(EditDefaultsOnly, Category = "FX|Shake")
+	float ShakeFrequency = 50.0f; // Èçµé¸² ¼Óµµ (ÁÖÆÄ¼ö)
+
+	UPROPERTY(EditDefaultsOnly, Category = "FX|Shake")
+	float ShakeAmplitude = 15.0f; // Èçµé¸² ¹Ý°æ (ÇÈ¼¿/¼¾Æ¼¹ÌÅÍ)
+
+	UPROPERTY(ReplicatedUsing = OnRep_bIsAttacked)
+	bool bIsAttacked = false;
+
+	UFUNCTION()
+	void OnRep_bIsAttacked();
+
 
 public:	
 	// Called every frame

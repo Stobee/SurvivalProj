@@ -148,7 +148,7 @@ public:
 	AActor* OverlappedActor = nullptr;
 
 	// 공격 시 멀티 트레이스 발사
-	void ExecuteAttackTrace();
+	void ExecuteAttackTrace(FName SocketName);
 
 	// true 변경 시 트레이스 사용
 	bool bIsOnAttackTrace = false;
@@ -190,6 +190,13 @@ private:
 	void Input_UseSlot5() { UseItemFromQuickSlot(5); }
 
 	float SetOnFloor();
+	
+	void SetSocketName(FName SocketName) { TraceSocketName = SocketName; }
+
+// 내부 프로퍼티
+protected:
+
+	FName TraceSocketName = NAME_None;
 
 	
 // 컴포넌트

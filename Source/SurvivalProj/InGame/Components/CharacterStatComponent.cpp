@@ -3,7 +3,9 @@
 
 #include "CharacterStatComponent.h"
 #include "Net/UnrealNetwork.h"
-#include "SurvivalProj/InGame/MainCharacter.h"
+#include "SurvivalProj/InGame/Player/PlayerCharacter.h"
+#include "SurvivalProj/InGame/Player/InGamePlayerState.h"
+#include "SurvivalProj/InGame/FieldActors/FieldActor.h"
 
 // Sets default values for this component's properties
 UCharacterStatComponent::UCharacterStatComponent()
@@ -27,7 +29,15 @@ void UCharacterStatComponent::GetLifetimeReplicatedProps(TArray<FLifetimePropert
 
 void UCharacterStatComponent::TakeDamage(float Damage)
 {
+	// 최소 대미지 1
+	CurrentHP -= FMath::Max(1,Damage - CurrentDefencePoint);
 
+	OnRep_CurrentHP();
+
+	if (CurrentHP <= 0)
+	{
+		bIsDead = true;
+	}
 }
 
 
@@ -36,11 +46,31 @@ void UCharacterStatComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	OwnerCharacter = Cast<AMainCharacter>(GetOwner());
+	OwnerCharacter = Cast<APlayerCharacter>(GetOwner());
 
 	if (OwnerCharacter)
 	{
-		
+		AInGamePlayerState* PlayerState = Cast<AInGamePlayerState>(OwnerCharacter->GetPlayerState());
+
+		if (PlayerState)
+		{
+			MaxHP = PlayerState->GetMaxHp();
+			CurrentAttackPoint = PlayerState->GetAttackPoint();
+			CurrentDefencePoint = PlayerState->GetDefencePoint();
+
+			CurrentHP = (PlayerState->GetCurrentHp() == 0.0f) ? PlayerState->GetMaxHp() : PlayerState->GetCurrentHp();
+		}
+	}
+	else
+	{
+		OwnerFieldActor = Cast<AFieldActor>(GetOwner());
+
+		if (OwnerFieldActor)
+		{
+			MaxHP = OwnerFieldActor->GetMaxHp();
+			CurrentHP = MaxHP;
+			CurrentDefencePoint = OwnerFieldActor->GetDefPoint();
+		}
 	}
 
 	// ...
@@ -48,8 +78,19 @@ void UCharacterStatComponent::BeginPlay()
 }
 
 
-void UCharacterStatComponent::OnRep_CurrentHP(float OldHP)
+void UCharacterStatComponent::OnRep_CurrentHP()
 {
+	if (OwnerCharacter)
+	{
+
+	}
+	else
+	{
+		if (OwnerFieldActor)
+		{
+			OwnerFieldActor->HPBarUpdate();
+		}
+	}
 }
 
 void UCharacterStatComponent::OnRep_bIsDead()

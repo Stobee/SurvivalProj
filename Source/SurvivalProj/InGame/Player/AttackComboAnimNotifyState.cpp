@@ -4,7 +4,8 @@
 #include "AttackComboAnimNotifyState.h"
 #include "SurvivalProj/InGame/Interfaces/AttackNotifyInterface.h"
 
-void UAttackComboAnimNotifyState::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration, const FAnimNotifyEventReference& EventReference)
+void UAttackComboAnimNotifyState::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, 
+    float TotalDuration, const FAnimNotifyEventReference& EventReference)
 {
     Super::NotifyBegin(MeshComp, Animation, TotalDuration, EventReference);
 
@@ -15,9 +16,7 @@ void UAttackComboAnimNotifyState::NotifyBegin(USkeletalMeshComponent* MeshComp, 
         IAttackNotifyInterface* CombatActor = Cast<IAttackNotifyInterface>(MeshComp->GetOwner());
         if (CombatActor != nullptr)
         {
-            // 창을 열어줌과 동시에, 다음 목적지 섹션 이름까지 묶어서 원격 전송!
             CombatActor->SetComboWindowRegistry(true);
-
         }
     }
 

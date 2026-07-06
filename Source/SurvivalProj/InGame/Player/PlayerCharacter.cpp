@@ -56,7 +56,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 
 	if (bIsOnAttackTrace)
 	{
-		ExecuteAttackTrace();
+		ExecuteAttackTrace(TraceSocketName);
 	}
 }
 
@@ -129,10 +129,8 @@ void APlayerCharacter::ServerInteract_Implementation(AActor* TargetActor)
 
 	if (TargetActor->GetClass()->ImplementsInterface(UInteractiveInterface::StaticClass()))
 	{
-	
 		IInteractiveInterface::Execute_StartInteract(TargetActor, this);
 		OverlappedActor = nullptr;
-		
 	}
 }
 
@@ -350,9 +348,22 @@ void APlayerCharacter::SetAttackTraceActive(bool bActive)
 {
 	AlreadyHitActors.Empty();
 	bIsOnAttackTrace = bActive;
+
+	if (AttackComboState == 2)
+	{
+		SetSocketName(TEXT("S_Right_Foot"));
+	}
+	else if (AttackComboState == 1)
+	{
+		SetSocketName(TEXT("S_Left_Hand"));
+	}
+	else
+	{
+		SetSocketName(TEXT("S_Weapon_r"));
+	}
 }
 
-void APlayerCharacter::ExecuteAttackTrace()
+void APlayerCharacter::ExecuteAttackTrace(FName SocketName)
 {
 	// 캐릭터 널 가드
 	if (GetMesh() == nullptr) return;
@@ -361,20 +372,11 @@ void APlayerCharacter::ExecuteAttackTrace()
 	{
 	case (EWeaponEquipState::Unarmed):
 	{
-		FVector SocketLocation;
-		if (AttackComboState == 2)
-		{
-			SocketLocation = GetMesh()->GetSocketLocation(TEXT("S_Right_Foot"));
-		}
-		else if (AttackComboState == 1)
-		{
-			SocketLocation = GetMesh()->GetSocketLocation(TEXT("S_Left_Hand"));
-		}
-		else
-		{
-			SocketLocation = GetMesh()->GetSocketLocation(TEXT("S_Weapon_r"));
-		}
-		//FVector EndLocation = StartLocation + (GetActorForwardVector() * 100.0f);
+		if (SocketName == NAME_None) return;
+
+		FVector SocketLocation = GetMesh()->GetSocketLocation(SocketName);
+		
+		UE_LOG(LogTemp, Log, TEXT("Current Active Socket Name: %s"), *SocketName.ToString());
 
 		// 멀티 트레이스에 Hit된 액터를 담을 배열
 		TArray<FHitResult> OutHits;
@@ -421,7 +423,7 @@ void APlayerCharacter::ExecuteAttackTrace()
 		TArray<AActor*> ActorsToIgnore;
 		ActorsToIgnore.Add(this);
 
-		bool bIsHit = UKismetSystemLibrary::SphereTraceMulti(this, SocketLocation, SocketLocation, 30.0f, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1), false,
+		bool bIsHit = UKismetSystemLibrary::SphereTraceMulti(this, SocketLocation, SocketLocation, 40.0f, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1), false,
 			ActorsToIgnore, EDrawDebugTrace::ForDuration, OutHits, true);
 
 		if (bIsHit)
@@ -465,7 +467,7 @@ void APlayerCharacter::ExecuteAttackTrace()
 		TArray<AActor*> ActorsToIgnore;
 		ActorsToIgnore.Add(this);
 
-		bool bIsHit = UKismetSystemLibrary::SphereTraceMulti(this, SocketLocation, SocketLocation, 30.0f, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1), false,
+		bool bIsHit = UKismetSystemLibrary::SphereTraceMulti(this, SocketLocation, SocketLocation, 40.0f, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1), false,
 			ActorsToIgnore, EDrawDebugTrace::ForDuration, OutHits, true);
 
 		if (bIsHit)
@@ -512,8 +514,6 @@ void APlayerCharacter::ServerApplyDamage_Implementation(AActor* TargetActor, con
 		UE_LOG(LogTemp, Warning, TEXT(" [서버 트레이스 변조 감지]: %s 가 사거리 밖 유령 좌표(%f) 타격을 요청하여 기각함."), *GetName(), TraceDistance);
 		return;
 	}
-
-	
 
 	UGameplayStatics::ApplyPointDamage(
 		TargetActor,

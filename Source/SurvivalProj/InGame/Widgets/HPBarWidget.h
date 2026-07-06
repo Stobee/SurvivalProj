@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "HPBarWidget.generated.h"
 
+class UProgressBar;
 /**
  * 
  */
@@ -13,5 +14,18 @@ UCLASS()
 class SURVIVALPROJ_API UHPBarWidget : public UUserWidget
 {
 	GENERATED_BODY()
+
 	
+public:
+	
+	void HPBarUpdate(float MaxHp, float CurrentHp);
+	
+protected:
+	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UProgressBar> HPProgressBar;
+
+	virtual void NativeConstruct() override;
+
+	virtual void NativeOnInitialized() override;
 };
