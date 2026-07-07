@@ -9,6 +9,9 @@
 class APlayerCharacter;
 class UHPBarWidget;
 class AFieldActor;
+class UPlayerHpWidget;
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerHpWidgetReferenceRegistered, UPlayerHpWidget*, WidgetRef);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SURVIVALPROJ_API UCharacterStatComponent : public UActorComponent
@@ -25,13 +28,24 @@ public:
 
 	void TakeDamage(float Damage);
 
+	void HealHP(float Point);
+
 	float GetMaxHP() { return MaxHP; }
 
 	float GetCurrentHP() { return CurrentHP; }
 
+	UPROPERTY(BlueprintAssignable, Category = "UI")
+	FOnPlayerHpWidgetReferenceRegistered OnPlayerHpWidgetReferenceRegistered;
+
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void RegisterWidgetReference(UPlayerHpWidget* WidgetRef);
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
+
+	UPROPERTY()
+	UPlayerHpWidget* CachedPlayerHpWidget = nullptr;
 
 	UPROPERTY(ReplicatedUsing = OnRep_CurrentHP, BlueprintReadOnly, Category = "Attributes")
 	float CurrentHP = 0.0f;

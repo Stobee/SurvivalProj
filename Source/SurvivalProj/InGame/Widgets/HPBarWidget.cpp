@@ -4,6 +4,7 @@
 #include "HPBarWidget.h"
 #include "Components/ProgressBar.h"
 
+
 void UHPBarWidget::HPBarUpdate(float MaxHp, float CurrentHp)
 {
 	// MaxHp가 0 이하일 경우 나누기 연산(Divide by Zero) 크래시가 터지므로 원천 차단
@@ -20,6 +21,7 @@ void UHPBarWidget::HPBarUpdate(float MaxHp, float CurrentHp)
 	HPProgressBar->SetPercent(HPPercent);
 
 }
+
 
 void UHPBarWidget::NativeConstruct()
 {

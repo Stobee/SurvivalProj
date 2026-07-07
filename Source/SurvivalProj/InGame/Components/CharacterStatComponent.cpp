@@ -6,6 +6,7 @@
 #include "SurvivalProj/InGame/Player/PlayerCharacter.h"
 #include "SurvivalProj/InGame/Player/InGamePlayerState.h"
 #include "SurvivalProj/InGame/FieldActors/FieldActor.h"
+#include "SurvivalProj/InGame/Widgets/PlayerHpWidget.h"
 
 // Sets default values for this component's properties
 UCharacterStatComponent::UCharacterStatComponent()
@@ -40,6 +41,26 @@ void UCharacterStatComponent::TakeDamage(float Damage)
 	}
 }
 
+void UCharacterStatComponent::HealHP(float Point)
+{
+	CurrentHP += Point;
+
+	if (CurrentHP > MaxHP)
+	{
+		CurrentHP = MaxHP;
+	}
+}
+
+
+void UCharacterStatComponent::RegisterWidgetReference(UPlayerHpWidget* WidgetRef)
+{
+	if (WidgetRef == nullptr)
+	{
+		return;
+	}
+
+	CachedPlayerHpWidget = WidgetRef;
+}
 
 // Called when the game starts
 void UCharacterStatComponent::BeginPlay()
@@ -82,7 +103,10 @@ void UCharacterStatComponent::OnRep_CurrentHP()
 {
 	if (OwnerCharacter)
 	{
-
+		if (CachedPlayerHpWidget)
+		{
+			CachedPlayerHpWidget->HPBarUpdate(MaxHP, CurrentHP);
+		}
 	}
 	else
 	{

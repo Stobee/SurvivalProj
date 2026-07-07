@@ -8,6 +8,8 @@
 
 class UPlayerQuickSlotWidget;
 class UPlayerInventoryWidget;
+class UPlayerHpWidget;
+class UBossHpWidget;
 
 /**
  * 
@@ -24,6 +26,12 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "UI Config")
 	TSubclassOf<UPlayerInventoryWidget> InventoryWidgetClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "UI Config")
+	TSubclassOf<UPlayerHpWidget> PlayerHPWidgetClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "UI Config")
+	TSubclassOf<UBossHpWidget> BossHPWidgetClass;
 
 	virtual void BeginPlay() override;
 

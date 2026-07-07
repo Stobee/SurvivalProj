@@ -5,6 +5,7 @@
 #include "GameFramework/PlayerController.h"
 #include "SurvivalProj/InGame/Player/PlayerCharacter.h"
 #include "SurvivalProj/InGame/Components/PlayerEquipmentComponent.h"
+#include "SurvivalProj/InGame/Components/CharacterStatComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "SurvivalProj/Data/DataTableStructs/WeaponItemStruct.h"
 #include "SurvivalProj/Data/DataTableStructs/ArmorItemStruct.h"
@@ -29,12 +30,10 @@
 // Sets default values for this component's properties
 UPlayerQuickSlotComponent::UPlayerQuickSlotComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = false;
 	SetIsReplicatedByDefault(true);
 	bReplicateUsingRegisteredSubObjectList = true;
-	// ...
+	
 }
 
 void UPlayerQuickSlotComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -310,6 +309,7 @@ void UPlayerQuickSlotComponent::ServerRemoveSlotItem_Implementation(int32 SlotIn
 			EquipmentComponent->UpdateWeaponSlot(QuickSlots[SlotIndex]->GetItemID());
 		}
 	}
+
 	RemoveReplicatedSubObject(QuickSlots[SlotIndex]);
 
 	// 가비지 컬렉터에 등록
@@ -452,6 +452,31 @@ bool UPlayerQuickSlotComponent::DropItem(int32 SlotNum, FVector DropLocation)
 	return false;
 }
 
+void UPlayerQuickSlotComponent::ExecutePotionItem(EPotionType Type, int32 SlotIndex)
+{
+	UPotionItem* TargetItem = Cast<UPotionItem>(QuickSlots[SlotIndex]);
+
+	if (TargetItem)
+	{
+		switch (Type)
+		{
+		case EPotionType::None:
+			break;
+		case EPotionType::HP:
+
+			StatComponent->HealHP(TargetItem->GetIncreasePoint());
+
+			break;
+		case EPotionType::MP:
+			break;
+		case EPotionType::AP:
+			break;
+		case EPotionType::Stamina:
+			break;
+		}
+	}
+}
+
 
 // Called when the game starts
 void UPlayerQuickSlotComponent::BeginPlay()
@@ -465,6 +490,8 @@ void UPlayerQuickSlotComponent::BeginPlay()
 	OwnerCharacter = Cast<APlayerCharacter>(GetOwner());
 
 	EquipmentComponent = OwnerCharacter->GetComponentByClass<UPlayerEquipmentComponent>();
+
+	StatComponent = OwnerCharacter->GetComponentByClass<UCharacterStatComponent>();
 }
 
 // Called every frame

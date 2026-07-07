@@ -387,7 +387,7 @@ void APlayerCharacter::ExecuteAttackTrace(FName SocketName)
 
 		// 근접 공격 채널 ECC_GameTraceChannel1
 		bool bIsHit = UKismetSystemLibrary::SphereTraceMulti(this, SocketLocation, SocketLocation + (GetActorForwardVector() * 1.0f), 30.0f, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1), false,
-			ActorsToIgnore, EDrawDebugTrace::ForDuration, OutHits, true);
+			ActorsToIgnore, EDrawDebugTrace::None, OutHits, true);
 
 		if (bIsHit)
 		{
@@ -423,7 +423,7 @@ void APlayerCharacter::ExecuteAttackTrace(FName SocketName)
 		ActorsToIgnore.Add(this);
 
 		bool bIsHit = UKismetSystemLibrary::SphereTraceMulti(this, SocketLocation, SocketLocation, 40.0f, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1), false,
-			ActorsToIgnore, EDrawDebugTrace::ForDuration, OutHits, true);
+			ActorsToIgnore, EDrawDebugTrace::None, OutHits, true);
 
 		if (bIsHit)
 		{
@@ -467,7 +467,7 @@ void APlayerCharacter::ExecuteAttackTrace(FName SocketName)
 		ActorsToIgnore.Add(this);
 
 		bool bIsHit = UKismetSystemLibrary::SphereTraceMulti(this, SocketLocation, SocketLocation, 40.0f, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1), false,
-			ActorsToIgnore, EDrawDebugTrace::ForDuration, OutHits, true);
+			ActorsToIgnore, EDrawDebugTrace::None, OutHits, true);
 
 		if (bIsHit)
 		{

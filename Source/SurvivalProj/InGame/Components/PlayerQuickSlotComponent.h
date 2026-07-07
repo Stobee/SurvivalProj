@@ -10,6 +10,8 @@
 
 class APlayerCharacter;
 class UPlayerEquipmentComponent;
+class UCharacterStatComponent;
+enum class EPotionType : uint8;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnQuickSlotWidgetReferenceRegistered, UPlayerQuickSlotWidget*, WidgetRef);
 
@@ -60,6 +62,10 @@ public:
 	bool DropItem(int32 SlotNum, FVector DropLocation);
 
 protected:
+
+	void ExecutePotionItem(EPotionType Type, int32 SlotIndex);
+
+protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 	
@@ -88,6 +94,9 @@ protected:
 
 	UPROPERTY(Transient)
 	TObjectPtr<UPlayerEquipmentComponent> EquipmentComponent;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UCharacterStatComponent> StatComponent;
 
 
 public:	

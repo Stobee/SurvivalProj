@@ -4,6 +4,9 @@
 #include "InGameHUD.h"
 #include "SurvivalProj/InGame/Widgets/PlayerQuickSlotWidget.h"
 #include "SurvivalProj/InGame/Widgets/PlayerInventoryWidget.h"
+#include "SurvivalProj/InGame/Widgets/PlayerHpWidget.h"
+#include "SurvivalProj/InGame/Widgets/BossHpWidget.h"
+#include "SurvivalProj/InGame/Components/CharacterStatComponent.h"
 #include "SurvivalProj/InGame/Components/PlayerQuickSlotComponent.h"
 #include "SurvivalProj/InGame/Components/PlayerInventoryComponent.h"
 
@@ -56,6 +59,26 @@ void AInGameHUD::BeginPlay()
 			InventoryComp->OnInventoryWidgetReferenceRegistered.AddDynamic(InventoryComp, &UPlayerInventoryComponent::RegisterWidgetReference);
 
 			InventoryComp->OnInventoryWidgetReferenceRegistered.Broadcast(NewInventoryUI);
+		}
+	}
+
+	// Create PlayerHPWidget
+	if (PlayerHPWidgetClass != nullptr)
+	{
+		UPlayerHpWidget* NewHpUI = CreateWidget<UPlayerHpWidget>(PC, PlayerHPWidgetClass);
+		if (NewHpUI != nullptr)
+		{
+
+			NewHpUI->AddToViewport();
+
+			NewHpUI->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+
+			UCharacterStatComponent* StatComp = PlayerPawn->GetComponentByClass<UCharacterStatComponent>();
+			if (!StatComp) return;
+
+			StatComp->OnPlayerHpWidgetReferenceRegistered.AddDynamic(StatComp, &UCharacterStatComponent::RegisterWidgetReference);
+
+			StatComp->OnPlayerHpWidgetReferenceRegistered.Broadcast(NewHpUI);
 		}
 	}
 }
