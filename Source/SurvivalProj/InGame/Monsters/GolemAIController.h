@@ -6,7 +6,7 @@
 #include "AIController.h"
 #include "GolemAIController.generated.h"
 
-
+class APlayerCharacter;
 
 /**
  * 
@@ -23,5 +23,8 @@ public:
 protected:
 
 	virtual void OnPossess(APawn* InPawn) override;
+
+	UPROPERTY(BlueprintReadOnly)
+	TArray<APlayerCharacter*> LoginPlayers;
 
 };

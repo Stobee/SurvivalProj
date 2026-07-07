@@ -32,6 +32,8 @@ public:
 	// 플레이어 생성자
 	APlayerCharacter();
 
+	virtual void BeginPlay() override;
+
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;

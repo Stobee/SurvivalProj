@@ -4,6 +4,7 @@
 #include "GolemAIController.h"
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "SurvivalProj/MainGameMode.h"
 #include "SurvivalProj/InGame/Monsters/Golem.h"
 #include "SurvivalProj/InGame/Player/PlayerCharacter.h"
 
@@ -26,7 +27,12 @@ void AGolemAIController::OnPossess(APawn* InPawn)
 		{
 			RunBehaviorTree(BTAsset);
 
-			
+			AMainGameMode* GameMode = Cast<AMainGameMode>(GetWorld()->GetAuthGameMode());
+
+			if (GameMode)
+			{
+				LoginPlayers = GameMode->GetPlayers();
+			}
 		}
 	}
 }

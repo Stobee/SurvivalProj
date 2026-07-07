@@ -7,6 +7,7 @@
 #include "SurvivalProj/InGame/Components/PlayerInventoryComponent.h"
 #include "SurvivalProj/InGame/Components/PlayerEquipmentComponent.h"
 #include "SurvivalProj/InGame/Interfaces/InteractiveInterface.h"
+#include "SurvivalProj/MainGameMode.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -48,6 +49,21 @@ APlayerCharacter::APlayerCharacter()
     Camera->bConstrainAspectRatio = false;
 	
     
+}
+
+void APlayerCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (HasAuthority())
+	{
+		AMainGameMode* GameMode = Cast<AMainGameMode>(GetWorld()->GetAuthGameMode());
+		if (GameMode)
+		{
+			GameMode->RegisterPlayer(this);
+		}
+	}
+
 }
 
 void APlayerCharacter::Tick(float DeltaTime)
