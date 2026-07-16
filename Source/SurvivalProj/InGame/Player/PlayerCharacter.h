@@ -10,6 +10,7 @@
 #include "SurvivalProj/Data/Enums/EPlayerActState.h"
 #include "SurvivalProj/Data/Enums/EWeaponEquipState.h"
 #include "SurvivalProj/Data/Enums/EItemType.h"
+#include "SurvivalProj/InGame/Item/ItemWidgetStruct.h"
 #include "PlayerCharacter.generated.h"
 
 class UTopDownSpringArmComponent;
@@ -108,7 +109,7 @@ public:
 	EWeaponEquipState WeaponEquipState = EWeaponEquipState::Unarmed;
 
 	// 필드 아이템과 상호작용 시 호출
-	bool GetFieldItem(FName ItemId, int32 ItemQuantity, EItemType ItemType);
+	bool GetFieldItem(FItemSlotData SlotData);
 
 	void MoveItem(int32 SlotNum, FName ItemId, EItemType SlotItemType, int32 ItemQuantity, bool bTargetIsQuickSlot);
 
@@ -116,16 +117,16 @@ public:
 	void ServerMoveItem(int32 SlotNum, FName ItemId, EItemType SlotItemType, int32 ItemQuantity, bool bTargetIsQuickSlot);
 
 	// 위젯 단계에서 아이템 사용
-	void UseItem(int32 SlotNum, bool bIsQuickSlot);
+	void UseItem(int32 SlotNum);
 
 	UFUNCTION(Server, Reliable)
-	void ServerUseItem(int32 SlotNum, bool bTargetIsQuickSlot);
+	void ServerUseItem(int32 SlotNum);
 
 	// 아이템 드롭
-	void DropItem(int32 SlotNum, bool bIsQuickSlot);
+	void DropItem(int32 SlotNum);
 
 	UFUNCTION(Server, Reliable)
-	void ServerDropItem(int32 SlotNum, bool bTargetIsQuickSlot);
+	void ServerDropItem(int32 SlotNum);
 
 	UFUNCTION()
 	void OnCapsuleBeginOverlap(

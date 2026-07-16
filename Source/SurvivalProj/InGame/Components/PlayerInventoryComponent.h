@@ -5,14 +5,18 @@
 #include "CoreMinimal.h"
 #include "SurvivalProj/InGame/Item/ItemInstance.h"
 #include "SurvivalProj/InGame/Widgets/PlayerInventoryWidget.h"
+#include "SurvivalProj/InGame/Widgets/PlayerQuickSlotWidget.h"
+#include "SurvivalProj/InGame/Item/ItemWidgetStruct.h"
 #include "Components/ActorComponent.h"
 #include "PlayerInventoryComponent.generated.h"
 
 class APlayerCharacter;
 class AInGamePlayerController;
 class UPlayerEquipmentComponent;
+class UCharacterStatComponent;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInventoryWidgetReferenceRegistered, UPlayerInventoryWidget*, WidgetRef);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnQuickSlotWidgetReferenceRegistered, UPlayerQuickSlotWidget*, WidgetRef);
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -29,15 +33,17 @@ public:
 	UFUNCTION(Client, Reliable)
 	void ClientNotifyItemRegistered(int32 SlotIndex, FName Id, EItemType Type, int32 Quantity = 1);
 
-	bool RegisterWeaponToEmptySlot(FName WeaponId);
+	bool RegisterWeaponToEmptySlot(FName WeaponId, bool bIsQuickSlot = false);
 
-	bool RegisterArmorToEmptySlot(FName ArmorId);
+	bool RegisterArmorToEmptySlot(FName ArmorId, bool bIsQuickSlot = false);
 
-	bool RegisterResourceToEmptySlot(FName ResourceId, int32 Quantity);
+	bool RegisterResourceToEmptySlot(FName ResourceId, FItemSlotData* ItemPacket = nullptr, bool bIsQuickSlot = false);
 
-	bool RegisterPotionToEmptySlot(FName PotionId, int32 Quantity);
+	bool RegisterPotionToEmptySlot(FName PotionId, FItemSlotData* ItemPacket = nullptr, bool bIsQuickSlot = false);
 	
 	void RemoveSlotItem(int32 SlotIndex);
+
+	int32 GetInventorySize() { return MaxInventorySlotCount; }
 
 	UFUNCTION(Server, Reliable)
 	void ServerRemoveSlotItem(int32 SlotIndex);
@@ -47,14 +53,23 @@ public:
 
 	bool bIsInventorySlotFull();
 
+	// Äü ½½·ÔÀÌ ²Ë Ã¡´ÂÁö È®ÀÎ
+	bool bIsQuickSlotFull();
+
 	// ÇÃ·¹ÀÌ¾î°¡ Æ®¸®°ÅÇÏ¿© À§Á¬ Visible Á¶Á¤
 	void VisibleInventoryWidget();
 
 	UPROPERTY(BlueprintAssignable, Category = "UI")
 	FOnInventoryWidgetReferenceRegistered OnInventoryWidgetReferenceRegistered;
 
+	UPROPERTY(BlueprintAssignable, Category = "UI")
+	FOnQuickSlotWidgetReferenceRegistered OnQuickSlotWidgetReferenceRegistered;
+
 	UFUNCTION(BlueprintCallable, Category = "UI")
-	void RegisterWidgetReference(UPlayerInventoryWidget* WidgetRef);
+	void RegisterInventoryWidgetReference(UPlayerInventoryWidget* WidgetRef);
+
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void RegisterQuickSlotWidgetReference(UPlayerQuickSlotWidget* WidgetRef);
 
 	void UseItem(int32 SlotNum);
 
@@ -72,12 +87,19 @@ protected:
 	UPlayerInventoryWidget* CachedInventoryWidget = nullptr;
 
 	UPROPERTY()
+	UPlayerQuickSlotWidget* CachedQuickSlotWidget = nullptr;
+
+	UPROPERTY()
 	AInGamePlayerController* CachedPlayerController = nullptr;
 
+	// Origin Of Inventory & QuickSlot
 	UPROPERTY(Replicated)
 	TArray<UItemInstance*> InventorySlots;
 
-	int32 MaxSlotCount = 32;
+	int32 MaxInventorySlotCount = 32;
+
+	// Äü½½·ÔÀº MaxInventorySlotCount ÀÎµ¦½º ºÎÅÍ
+	int32 MaxQuickSlotCount = 5;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
 	TObjectPtr<UDataTable> WeaponTable = nullptr;
@@ -96,6 +118,9 @@ protected:
 
 	UPROPERTY(Transient)
 	TObjectPtr<UPlayerEquipmentComponent> EquipmentComponent;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UCharacterStatComponent> StatComponent;
 
 public:	
 	// Called every frame

@@ -79,7 +79,7 @@ void AFieldItem::StartInteract_Implementation(AActor* InteractCauser)
 
 	if (ItemStateStruct.ItemId == NAME_None || ItemStateStruct.Quantity == 0 || ItemStateStruct.ItemType == EItemType::None) return;
 	
-	bool SaveSuccess = PlayerCharacter->GetFieldItem(ItemStateStruct.ItemId, ItemStateStruct.Quantity, ItemStateStruct.ItemType);
+	bool SaveSuccess = PlayerCharacter->GetFieldItem(ItemStateStruct);
 
 	if (SaveSuccess)
 	{

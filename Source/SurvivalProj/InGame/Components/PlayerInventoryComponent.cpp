@@ -17,7 +17,6 @@
 #include "SurvivalProj/InGame/Item/ResourceItem.h"
 #include "SurvivalProj/InGame/Item/PotionItem.h"
 #include "SurvivalProj/InGame/Item/EquipArmor.h"
-#include "SurvivalProj/InGame/Item/ItemWidgetStruct.h"
 #include "SurvivalProj/InGame/Item/EquipWeapon.h"
 #include "SurvivalProj/InGame/Item/FieldItem.h"
 
@@ -43,7 +42,7 @@ void UPlayerInventoryComponent::GetLifetimeReplicatedProps(TArray<FLifetimePrope
 
 void UPlayerInventoryComponent::ClientNotifyItemRegistered_Implementation(int32 SlotIndex, FName Id, EItemType Type, int32 Quantity = 1)
 {
-	if (CachedInventoryWidget)
+	if (CachedInventoryWidget && CachedQuickSlotWidget)
 	{
 		FItemSlotData UpdatePacket;
 
@@ -95,12 +94,19 @@ void UPlayerInventoryComponent::ClientNotifyItemRegistered_Implementation(int32 
 		}
 		}
 
-		CachedInventoryWidget->UpdateItemSlot(SlotIndex, UpdatePacket);
+		if (SlotIndex < MaxInventorySlotCount)
+		{
+			CachedInventoryWidget->UpdateItemSlot(SlotIndex, UpdatePacket);
+		}
+		else
+		{
+			CachedQuickSlotWidget->UpdateItemSlot(SlotIndex, UpdatePacket);
+		}
 	}
 
 }
 
-bool UPlayerInventoryComponent::RegisterWeaponToEmptySlot(FName WeaponId)
+bool UPlayerInventoryComponent::RegisterWeaponToEmptySlot(FName WeaponId, bool bIsQuickSlot = false)
 {
 	if (WeaponTable == nullptr)
 	{
@@ -131,7 +137,7 @@ bool UPlayerInventoryComponent::RegisterWeaponToEmptySlot(FName WeaponId)
 	return false;
 }
 
-bool UPlayerInventoryComponent::RegisterArmorToEmptySlot(FName ArmorId)
+bool UPlayerInventoryComponent::RegisterArmorToEmptySlot(FName ArmorId, bool bIsQuickSlot = false)
 {
 	if (ArmorTable == nullptr)
 	{
@@ -161,7 +167,7 @@ bool UPlayerInventoryComponent::RegisterArmorToEmptySlot(FName ArmorId)
 	return false;
 }
 
-bool UPlayerInventoryComponent::RegisterResourceToEmptySlot(FName ResourceId, int32 Quantity)
+bool UPlayerInventoryComponent::RegisterResourceToEmptySlot(FName ResourceId, FItemSlotData* ItemPacket = nullptr, bool bIsQuickSlot = false)
 { 
 	if (ResourceTable == nullptr)
 	{
@@ -169,19 +175,26 @@ bool UPlayerInventoryComponent::RegisterResourceToEmptySlot(FName ResourceId, in
 		return false;
 	}
 
-	for (int i = 0; i < InventorySlots.Num(); i++)
+	for (int i = 0; i < MaxInventorySlotCount; i++)
 	{
 
 		if (InventorySlots[i] == nullptr)
 		{
 			UResourceItem* NewResource = NewObject<UResourceItem>(this);
-			NewResource->InitItem(ResourceTable, ResourceId, Quantity);
+			if (ItemPacket)
+			{
+				NewResource->InitItem(ResourceTable, ResourceId, ItemPacket->Quantity);
+			}
+			else 
+			{ 
+				NewResource->InitItem(ResourceTable, ResourceId);
+			}
 			InventorySlots[i] = NewResource;
 
 			// 새로 만든 서브오브젝트를 Replicated 등록
 			AddReplicatedSubObject(NewResource);
 
-			ClientNotifyItemRegistered(i, ResourceId, EItemType::Resource, Quantity);
+			ClientNotifyItemRegistered(i, ResourceId, EItemType::Resource, NewResource->GetQuantity());
 
 			return true;
 
@@ -192,30 +205,45 @@ bool UPlayerInventoryComponent::RegisterResourceToEmptySlot(FName ResourceId, in
 
 }
 
-bool UPlayerInventoryComponent::RegisterPotionToEmptySlot(FName PotionId, int32 Quantity)
+bool UPlayerInventoryComponent::RegisterPotionToEmptySlot(FName PotionId, FItemSlotData* ItemPacket = nullptr, bool bIsQuickSlot = false)
 {
 	if (PotionTable == nullptr)
 	{
 		UE_LOG(LogTemp, Error, TEXT("[테이블 파열] PotionTable 자산이 바인딩되지 않았습니다."));
 		return false;
 	}
+	
+	int SearchStartNum = 0;
+	int SearchEndNum = MaxInventorySlotCount;
 
-	for (int i = 0; i < InventorySlots.Num(); i++)
+	if (bIsQuickSlot) 
 	{
+		SearchStartNum = MaxInventorySlotCount;
+		SearchEndNum += (MaxQuickSlotCount - 1);
+	}
 
+	for (int i = 0; i < SearchEndNum; i++)
+	{
 		if (InventorySlots[i] == nullptr)
 		{
 			UPotionItem* NewPotion = NewObject<UPotionItem>(this);
-			NewPotion->InitItem(PotionTable, PotionId, Quantity);
+			if (ItemPacket->Quantity > 0)
+			{
+				NewPotion->InitItem(PotionTable, PotionId, ItemPacket->Quantity);
+			}
+			else
+			{
+				NewPotion->InitItem(PotionTable, PotionId);
+			}
+
 			InventorySlots[i] = NewPotion;
 
 			// 새로 만든 서브오브젝트를 Replicated 등록
 			AddReplicatedSubObject(NewPotion);
 
-			ClientNotifyItemRegistered(i, PotionId, EItemType::Potion, Quantity);
+			ClientNotifyItemRegistered(i, PotionId, EItemType::Potion, NewPotion->GetQuantity());
 
 			return true;
-
 		}
 	}
 
@@ -245,7 +273,6 @@ void UPlayerInventoryComponent::ServerRemoveSlotItem_Implementation(int32 SlotIn
 	UObject* TargetObject = InventorySlots[SlotIndex];
 	if (TargetObject)
 	{
-		
 		TargetObject->MarkAsGarbage();
 	}
 
@@ -257,17 +284,43 @@ void UPlayerInventoryComponent::ServerRemoveSlotItem_Implementation(int32 SlotIn
 
 void UPlayerInventoryComponent::ClientNotifySlotItemRemoved_Implementation(int32 SlotIndex)
 {
-	if (CachedInventoryWidget)
+	if (SlotIndex < MaxInventorySlotCount)
 	{
-		CachedInventoryWidget->RemoveItemSlot(SlotIndex);
+		if (CachedInventoryWidget)
+		{
+			CachedInventoryWidget->RemoveItemSlot(SlotIndex);
+		}
+	}
+	else
+	{
+		if (CachedQuickSlotWidget)
+		{
+			CachedQuickSlotWidget->RemoveItemSlot(SlotIndex);
+		}
 	}
 }
 
 bool UPlayerInventoryComponent::bIsInventorySlotFull()
 {
-	for (auto& slot : InventorySlots)
+	for (int i = 0; i < MaxInventorySlotCount; i++)
 	{
-		if (slot == nullptr)
+		UItemInstance* InventoryItem = InventorySlots[i];
+
+		if (InventoryItem == nullptr)
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+bool UPlayerInventoryComponent::bIsQuickSlotFull()
+{
+	for (int i = MaxInventorySlotCount; i < MaxQuickSlotCount; i++)
+	{
+		UItemInstance* QuickSlotItem = InventorySlots[i];
+
+		if (QuickSlotItem == nullptr)
 		{
 			return false;
 		}
@@ -325,7 +378,7 @@ void UPlayerInventoryComponent::VisibleInventoryWidget()
 }
 
 
-void UPlayerInventoryComponent::RegisterWidgetReference(UPlayerInventoryWidget* WidgetRef)
+void UPlayerInventoryComponent::RegisterInventoryWidgetReference(UPlayerInventoryWidget* WidgetRef)
 {
 	if (WidgetRef == nullptr)
 	{
@@ -335,9 +388,18 @@ void UPlayerInventoryComponent::RegisterWidgetReference(UPlayerInventoryWidget* 
 	CachedInventoryWidget = WidgetRef;
 }
 
+void UPlayerInventoryComponent::RegisterQuickSlotWidgetReference(UPlayerQuickSlotWidget* WidgetRef)
+{
+	if (WidgetRef == nullptr)
+	{
+		return;
+	}
+
+	CachedQuickSlotWidget = WidgetRef;
+}
+
 void UPlayerInventoryComponent::UseItem(int32 SlotNum)
 {
-	// 널 포인터 접근을 차단
 	if (!InventorySlots[SlotNum]) return;
 
 	switch (InventorySlots[SlotNum]->GetItemType())
@@ -483,7 +545,7 @@ void UPlayerInventoryComponent::BeginPlay()
 
 	if (InventorySlots.Num() == 0)
 	{
-		InventorySlots.SetNum(MaxSlotCount);
+		InventorySlots.SetNum(MaxInventorySlotCount + MaxQuickSlotCount);
 	}
 	OwnerCharacter = Cast<APlayerCharacter>(GetOwner());
 

@@ -46,7 +46,7 @@ void UItemActSelectorWidget::UseItem()
 {
 	if (ItemID == NAME_None) return;
 
-	PlayerRef->UseItem(ItemSlotIndex, bTargetIsQuickSlot);
+	PlayerRef->UseItem(ItemSlotIndex);
 
 	RemoveFromParent();
 }
@@ -55,7 +55,7 @@ void UItemActSelectorWidget::DropItem()
 {
 	if (ItemID == NAME_None) return;
 
-	PlayerRef->DropItem(ItemSlotIndex, bTargetIsQuickSlot);
+	PlayerRef->DropItem(ItemSlotIndex);
 
 	RemoveFromParent();
 }

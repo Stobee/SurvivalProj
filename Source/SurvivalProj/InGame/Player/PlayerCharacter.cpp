@@ -60,6 +60,7 @@ void APlayerCharacter::BeginPlay()
 		AMainGameMode* GameMode = Cast<AMainGameMode>(GetWorld()->GetAuthGameMode());
 		if (GameMode)
 		{
+			// 게임 시작 시 본인을 등록함
 			GameMode->RegisterPlayer(this);
 		}
 	}
@@ -309,28 +310,28 @@ void APlayerCharacter::UseItemFromQuickSlot(uint8 KeyNum)
 	{
 		case 1:
 		{
-			QuickSlot->ExecuteSlotAction(0);
+			Inventory->UseItem((Inventory->GetInventorySize() - 1) + KeyNum);
 		}
 		break;
 
 		case 2:
 		{
-			QuickSlot->ExecuteSlotAction(1);
+			Inventory->UseItem((Inventory->GetInventorySize() - 1) + KeyNum);
 		}
 		break;
 		case 3:
 		{
-			QuickSlot->ExecuteSlotAction(2);
+			Inventory->UseItem((Inventory->GetInventorySize() - 1) + KeyNum);
 		}
 		break;
 		case 4:
 		{
-			QuickSlot->ExecuteSlotAction(3);
+			Inventory->UseItem((Inventory->GetInventorySize() - 1) + KeyNum);
 		}
 		break;
 		case 5:
 		{
-			QuickSlot->ExecuteSlotAction(4);
+			Inventory->UseItem((Inventory->GetInventorySize() - 1) + KeyNum);
 		}
 		break;
 	}
@@ -552,50 +553,51 @@ void APlayerCharacter::SetPlayerOnInvincible(bool bIsOn)
 
 
 
-bool APlayerCharacter::GetFieldItem(FName ItemId, int32 ItemQuantity, EItemType ItemType)
+bool APlayerCharacter::GetFieldItem(FItemSlotData SlotData)
 {
-	if (QuickSlot->bIsQuickSlotFull())
+	if (Inventory->bIsQuickSlotFull())
 	{
 		if (Inventory->bIsInventorySlotFull()) return false;
-		switch (ItemType)
+		switch (SlotData.ItemType)
 		{
 		case (EItemType::Armor):
 		{
-			Inventory->RegisterArmorToEmptySlot(ItemId);
+			Inventory->RegisterArmorToEmptySlot(SlotData.ItemId);
 		} break;
 		case (EItemType::Weapon):
 		{
-			Inventory->RegisterWeaponToEmptySlot(ItemId);
+			Inventory->RegisterWeaponToEmptySlot(SlotData.ItemId);
 		} break;
 		case (EItemType::Resource):
 		{
-			Inventory->RegisterResourceToEmptySlot(ItemId, ItemQuantity);
+			Inventory->RegisterResourceToEmptySlot(SlotData.ItemId);
 		} break;
 		case (EItemType::Potion):
 		{
-			Inventory->RegisterPotionToEmptySlot(ItemId, ItemQuantity);
+			Inventory->RegisterPotionToEmptySlot(SlotData.ItemId);
 		} break;
 		}
 	}
 	else
 	{
-		switch (ItemType)
+		switch (SlotData.ItemType)
 		{
 		case (EItemType::Armor):
 		{
-			QuickSlot->RegisterArmorToEmptySlot(ItemId);
+			
 		} break;
 		case (EItemType::Weapon):
 		{
-			QuickSlot->RegisterWeaponToEmptySlot(ItemId);
+			
 		} break;
 		case (EItemType::Resource):
 		{
-			QuickSlot->RegisterResourceToEmptySlot(ItemId, ItemQuantity);
+			
 		} break;
 		case (EItemType::Potion):
 		{
-			QuickSlot->RegisterPotionToEmptySlot(ItemId, ItemQuantity);
+			Inventory->RegisterPotionToEmptySlot(SlotData.ItemId, nullptr, true);
+
 		} break;
 		}
 	}
@@ -665,11 +667,11 @@ void APlayerCharacter::ServerMoveItem_Implementation(int32 SlotNum, FName ItemId
 			} break;
 			case (EItemType::Resource):
 			{
-				TaskCompleted = Inventory->RegisterResourceToEmptySlot(ItemId, ItemQuantity);
+				TaskCompleted = Inventory->RegisterResourceToEmptySlot(ItemId);
 			} break;
 			case (EItemType::Potion):
 			{
-				TaskCompleted = Inventory->RegisterPotionToEmptySlot(ItemId, ItemQuantity);
+				TaskCompleted = Inventory->RegisterPotionToEmptySlot(ItemId);
 			} break;
 			}
 
@@ -682,31 +684,24 @@ void APlayerCharacter::ServerMoveItem_Implementation(int32 SlotNum, FName ItemId
 	}
 }
 
-void APlayerCharacter::UseItem(int32 SlotNum, bool bIsQuickSlot)
+void APlayerCharacter::UseItem(int32 SlotNum)
 {
-	ServerUseItem(SlotNum, bIsQuickSlot);
+	ServerUseItem(SlotNum);
 }
 
-void APlayerCharacter::ServerUseItem_Implementation(int32 SlotNum, bool bTargetIsQuickSlot)
+void APlayerCharacter::ServerUseItem_Implementation(int32 SlotNum)
 {
 	if (!HasAuthority()) return;
 
-	if (bTargetIsQuickSlot)
-	{
-		QuickSlot->ExecuteSlotAction(SlotNum);
-	}
-	else
-	{
-		Inventory->UseItem(SlotNum);
-	}
+	Inventory->UseItem(SlotNum);
 }
 
-void APlayerCharacter::DropItem(int32 SlotNum, bool bIsQuickSlot)
+void APlayerCharacter::DropItem(int32 SlotNum)
 {
-	ServerDropItem(SlotNum, bIsQuickSlot);
+	ServerDropItem(SlotNum);
 }
 
-void APlayerCharacter::ServerDropItem_Implementation(int32 SlotNum, bool bTargetIsQuickSlot)
+void APlayerCharacter::ServerDropItem_Implementation(int32 SlotNum)
 {
 	if (!HasAuthority()) return;
 
@@ -716,24 +711,14 @@ void APlayerCharacter::ServerDropItem_Implementation(int32 SlotNum, bool bTarget
 
 	bool TaskCompleted = false;
 
-	if (bTargetIsQuickSlot)
-	{
-		TaskCompleted = QuickSlot->DropItem(SlotNum, DropLocation);
+	
+	TaskCompleted = Inventory->DropItem(SlotNum, DropLocation);
 
-		if (TaskCompleted)
-		{
-			QuickSlot->RemoveSlotItem(SlotNum);
-		}
-	}
-	else
+	if (TaskCompleted)
 	{
-		TaskCompleted = Inventory->DropItem(SlotNum, DropLocation);
-
-		if (TaskCompleted)
-		{
-			Inventory->RemoveSlotItem(SlotNum);
-		}
+		Inventory->RemoveSlotItem(SlotNum);
 	}
+	
 }
 
 float APlayerCharacter::SetOnFloor()

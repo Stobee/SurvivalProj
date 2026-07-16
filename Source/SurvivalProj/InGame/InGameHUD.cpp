@@ -33,12 +33,12 @@ void AInGameHUD::BeginPlay()
 			
 			NewQuickUI->AddToViewport();
 
-			UPlayerQuickSlotComponent* QuickSlotComp = PlayerPawn->GetComponentByClass<UPlayerQuickSlotComponent>();
-			if (!QuickSlotComp) return;
+			UPlayerInventoryComponent* InventoryComp = PlayerPawn->GetComponentByClass<UPlayerInventoryComponent>();
+			if (!InventoryComp) return;
 
-			QuickSlotComp->OnQuickSlotWidgetReferenceRegistered.AddDynamic(QuickSlotComp, &UPlayerQuickSlotComponent::RegisterWidgetReference);
+			InventoryComp->OnQuickSlotWidgetReferenceRegistered.AddDynamic(InventoryComp, &UPlayerInventoryComponent::RegisterQuickSlotWidgetReference);
 
-			QuickSlotComp->OnQuickSlotWidgetReferenceRegistered.Broadcast(NewQuickUI);
+			InventoryComp->OnQuickSlotWidgetReferenceRegistered.Broadcast(NewQuickUI);
 		}
 	}
 
@@ -56,7 +56,7 @@ void AInGameHUD::BeginPlay()
 			UPlayerInventoryComponent* InventoryComp = PlayerPawn->GetComponentByClass<UPlayerInventoryComponent>();
 			if (!InventoryComp) return;
 
-			InventoryComp->OnInventoryWidgetReferenceRegistered.AddDynamic(InventoryComp, &UPlayerInventoryComponent::RegisterWidgetReference);
+			InventoryComp->OnInventoryWidgetReferenceRegistered.AddDynamic(InventoryComp, &UPlayerInventoryComponent::RegisterInventoryWidgetReference);
 
 			InventoryComp->OnInventoryWidgetReferenceRegistered.Broadcast(NewInventoryUI);
 		}

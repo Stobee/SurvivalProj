@@ -114,8 +114,6 @@ bool AFieldActor::DropItems()
 
 	FVector SpawnLocation = GetActorLocation(); // 액터의 바닥 기준 지정
 
-	
-
 	for (int i = 0; i < DropItemQuantity; i++)
 	{
 		FNavLocation NavResult;
@@ -132,10 +130,6 @@ bool AFieldActor::DropItems()
 		SpawnParams.Owner = nullptr;
 
 		AFieldItem* DropFieldItem = GetWorld()->SpawnActor<AFieldItem>(DropItemClass, SpawnLocation, FRotator(0.0f, FMath::RandRange(0.0f, 360.0f),0.0f), SpawnParams);
-
-		//FVector FinalDropLocation = SetOnFloor(); // 액터의 바닥 기준 지정
-
-		//DropFieldItem->SetActorLocation(FinalDropLocation);
 
 		FItemSlotData UpdatePacket;
 
