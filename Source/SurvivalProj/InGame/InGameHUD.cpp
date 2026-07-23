@@ -7,7 +7,6 @@
 #include "SurvivalProj/InGame/Widgets/PlayerHpWidget.h"
 #include "SurvivalProj/InGame/Widgets/BossHpWidget.h"
 #include "SurvivalProj/InGame/Components/CharacterStatComponent.h"
-#include "SurvivalProj/InGame/Components/PlayerQuickSlotComponent.h"
 #include "SurvivalProj/InGame/Components/PlayerInventoryComponent.h"
 
 

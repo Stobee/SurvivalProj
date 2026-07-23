@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "SurvivalProj/Data/DataTableStructs/WeaponItemStruct.h"
 #include "SurvivalProj/InGame/Item/ItemInstance.h"
+#include "ItemWidgetStruct.h"
 #include "WeaponItem.generated.h"
 
 /**
@@ -26,6 +27,8 @@ public:
 	float GetWeaponEnhencementLevel() const { return EnhencementLevel; }
 
 	virtual void InitItem(UDataTable* DataTable, FName ID, int32 ItemQuantity = 1) override;
+
+	void SetUniqueStat(FItemSlotData PacketData);
 
 protected:
 	

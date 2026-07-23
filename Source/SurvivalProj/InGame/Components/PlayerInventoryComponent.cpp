@@ -106,7 +106,7 @@ void UPlayerInventoryComponent::ClientNotifyItemRegistered_Implementation(int32 
 
 }
 
-bool UPlayerInventoryComponent::RegisterWeaponToEmptySlot(FName WeaponId, bool bIsQuickSlot = false)
+bool UPlayerInventoryComponent::RegisterWeaponToEmptySlot(const FItemSlotData& ItemPacket, bool bIsQuickSlot)
 {
 	if (WeaponTable == nullptr)
 	{
@@ -114,20 +114,33 @@ bool UPlayerInventoryComponent::RegisterWeaponToEmptySlot(FName WeaponId, bool b
 		return false;
 	}
 
+	int SearchStartNum = 0;
+	int SearchEndNum = MaxInventorySlotCount;
+
+	if (bIsQuickSlot)
+	{
+		SearchStartNum = MaxInventorySlotCount;
+		SearchEndNum += (MaxQuickSlotCount - 1);
+	}
+
 	// 비어있는 슬롯에 아이템 추가
-	for (int i = 0; i < InventorySlots.Num(); i++)
+	for (int i = SearchStartNum; i < SearchEndNum; i++)
 	{
 
 		if (InventorySlots[i] == nullptr)
 		{
 			UWeaponItem* NewWeapon = NewObject<UWeaponItem>(this);
-			NewWeapon->InitItem(WeaponTable, WeaponId);
+			NewWeapon->InitItem(WeaponTable, ItemPacket.ItemId);
+			if (ItemPacket.bIsUnique)
+			{
+				NewWeapon->SetUniqueStat(ItemPacket);
+			}
 			InventorySlots[i] = NewWeapon;
 
 			// 새로 만든 서브오브젝트를 Replicated 등록
 			AddReplicatedSubObject(NewWeapon);
 
-			ClientNotifyItemRegistered(i, WeaponId, EItemType::Weapon);
+			ClientNotifyItemRegistered(i, ItemPacket.ItemId, EItemType::Weapon);
 
 			return true;
 
@@ -137,7 +150,8 @@ bool UPlayerInventoryComponent::RegisterWeaponToEmptySlot(FName WeaponId, bool b
 	return false;
 }
 
-bool UPlayerInventoryComponent::RegisterArmorToEmptySlot(FName ArmorId, bool bIsQuickSlot = false)
+// Armor Item 추가 후 수정
+bool UPlayerInventoryComponent::RegisterArmorToEmptySlot(const FItemSlotData& ItemPacket, bool bIsQuickSlot)
 {
 	if (ArmorTable == nullptr)
 	{
@@ -145,19 +159,28 @@ bool UPlayerInventoryComponent::RegisterArmorToEmptySlot(FName ArmorId, bool bIs
 		return false;
 	}
 
-	for (int i = 0; i < InventorySlots.Num(); i++)
+	int SearchStartNum = 0;
+	int SearchEndNum = MaxInventorySlotCount;
+
+	if (bIsQuickSlot)
+	{
+		SearchStartNum = MaxInventorySlotCount;
+		SearchEndNum += (MaxQuickSlotCount - 1);
+	}
+
+	for (int i = SearchStartNum; i < SearchEndNum; i++)
 	{
 
 		if (InventorySlots[i] == nullptr)
 		{
 			UArmorItem* NewArmor = NewObject<UArmorItem>(this);
-			NewArmor->InitItem(ArmorTable, ArmorId);
+			NewArmor->InitItem(ArmorTable, ItemPacket.ItemId);
 			InventorySlots[i] = NewArmor;
 
 			// 새로 만든 서브오브젝트를 Replicated 등록
 			AddReplicatedSubObject(NewArmor);
 
-			ClientNotifyItemRegistered(i, ArmorId, EItemType::Armor);
+			ClientNotifyItemRegistered(i, ItemPacket.ItemId, EItemType::Armor);
 
 			return true;
 
@@ -167,7 +190,7 @@ bool UPlayerInventoryComponent::RegisterArmorToEmptySlot(FName ArmorId, bool bIs
 	return false;
 }
 
-bool UPlayerInventoryComponent::RegisterResourceToEmptySlot(FName ResourceId, FItemSlotData* ItemPacket = nullptr, bool bIsQuickSlot = false)
+bool UPlayerInventoryComponent::RegisterResourceToEmptySlot(const FItemSlotData& ItemPacket, bool bIsQuickSlot)
 { 
 	if (ResourceTable == nullptr)
 	{
@@ -175,26 +198,32 @@ bool UPlayerInventoryComponent::RegisterResourceToEmptySlot(FName ResourceId, FI
 		return false;
 	}
 
-	for (int i = 0; i < MaxInventorySlotCount; i++)
+	int SearchStartNum = 0;
+	int SearchEndNum = MaxInventorySlotCount;
+
+	if (bIsQuickSlot)
+	{
+		SearchStartNum = MaxInventorySlotCount;
+		SearchEndNum += (MaxQuickSlotCount - 1);
+	}
+
+	for (int i = SearchStartNum; i < SearchEndNum; i++)
 	{
 
 		if (InventorySlots[i] == nullptr)
 		{
 			UResourceItem* NewResource = NewObject<UResourceItem>(this);
-			if (ItemPacket)
-			{
-				NewResource->InitItem(ResourceTable, ResourceId, ItemPacket->Quantity);
-			}
-			else 
-			{ 
-				NewResource->InitItem(ResourceTable, ResourceId);
-			}
+			
+			
+			NewResource->InitItem(ResourceTable, ItemPacket.ItemId, ItemPacket.Quantity);
+			
+			
 			InventorySlots[i] = NewResource;
 
 			// 새로 만든 서브오브젝트를 Replicated 등록
 			AddReplicatedSubObject(NewResource);
 
-			ClientNotifyItemRegistered(i, ResourceId, EItemType::Resource, NewResource->GetQuantity());
+			ClientNotifyItemRegistered(i, ItemPacket.ItemId, EItemType::Resource, NewResource->GetQuantity());
 
 			return true;
 
@@ -205,7 +234,8 @@ bool UPlayerInventoryComponent::RegisterResourceToEmptySlot(FName ResourceId, FI
 
 }
 
-bool UPlayerInventoryComponent::RegisterPotionToEmptySlot(FName PotionId, FItemSlotData* ItemPacket = nullptr, bool bIsQuickSlot = false)
+// 생성 코드 내부에서 분기
+bool UPlayerInventoryComponent::RegisterPotionToEmptySlot(const FItemSlotData& ItemPacket, bool bIsQuickSlot)
 {
 	if (PotionTable == nullptr)
 	{
@@ -222,26 +252,21 @@ bool UPlayerInventoryComponent::RegisterPotionToEmptySlot(FName PotionId, FItemS
 		SearchEndNum += (MaxQuickSlotCount - 1);
 	}
 
-	for (int i = 0; i < SearchEndNum; i++)
+	for (int i = SearchStartNum; i < SearchEndNum; i++)
 	{
 		if (InventorySlots[i] == nullptr)
 		{
 			UPotionItem* NewPotion = NewObject<UPotionItem>(this);
-			if (ItemPacket->Quantity > 0)
-			{
-				NewPotion->InitItem(PotionTable, PotionId, ItemPacket->Quantity);
-			}
-			else
-			{
-				NewPotion->InitItem(PotionTable, PotionId);
-			}
+			
+			NewPotion->InitItem(PotionTable, ItemPacket.ItemId, ItemPacket.Quantity);
+			
 
 			InventorySlots[i] = NewPotion;
 
 			// 새로 만든 서브오브젝트를 Replicated 등록
 			AddReplicatedSubObject(NewPotion);
 
-			ClientNotifyItemRegistered(i, PotionId, EItemType::Potion, NewPotion->GetQuantity());
+			ClientNotifyItemRegistered(i, ItemPacket.ItemId, EItemType::Potion, NewPotion->GetQuantity());
 
 			return true;
 		}
@@ -472,6 +497,7 @@ bool UPlayerInventoryComponent::DropItem(int32 SlotNum, FVector DropLocation)
 		UpdatePacket.AttackPoint = TargetWeapon->GetWeaponAP();
 		UpdatePacket.CurrentDuravility = TargetWeapon->GetWeaponDuravility();
 		UpdatePacket.EnhencementLevel = TargetWeapon->GetWeaponEnhencementLevel();
+		UpdatePacket.bIsUnique = true;
 
 		DropFieldItem->SetItemState(UpdatePacket);
 

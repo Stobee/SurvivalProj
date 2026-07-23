@@ -4,13 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "SurvivalProj/Data/Enums/EItemType.h"
+#include "SurvivalProj/InGame/Item/ItemWidgetStruct.h"
 #include "ItemActSelectorWidget.generated.h"
 
 class UButton;
 class UTextBlock;
 class APlayerCharacter;
 class UItemSlotWidget;
+
 
 /**
  * 
@@ -60,16 +61,7 @@ protected:
 	TObjectPtr<APlayerCharacter> PlayerRef;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ItemInfo")
-	FName ItemID = NAME_None;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ItemInfo")
-	int32 ItemSlotIndex;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ItemInfo")
-	EItemType ItemType;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ItemInfo")
-	int32 ItemQuantity;
+	FItemSlotData ItemData;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ItemInfo")
 	UItemSlotWidget* OwningSlotWidget = nullptr;
@@ -81,7 +73,6 @@ protected:
 	bool bTargetIsQuickSlot = false;
 
 
-	
 
 	virtual void NativeConstruct() override;
 

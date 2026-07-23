@@ -9,13 +9,14 @@
 #include "SurvivalProj/InGame/Widgets/PlayerQuickSlotWidget.h"
 
 
+
 void UItemActSelectorWidget::MoveToOtherComponent()
 {
-	if (ItemID == NAME_None) return;
+	if (ItemData.ItemId == NAME_None) return;
 
 	if (PlayerRef)
 	{
-		PlayerRef->MoveItem(ItemSlotIndex, ItemID, ItemType, ItemQuantity, bTargetIsQuickSlot);
+		PlayerRef->MoveItem(ItemData, bTargetIsQuickSlot);
 	}
 
 	RemoveFromParent();
@@ -26,10 +27,10 @@ void UItemActSelectorWidget::SetItemInfo(UItemSlotWidget* SlotWidget)
 	if (SlotWidget)
 	{
 		OwningSlotWidget = SlotWidget;
-		ItemID = SlotWidget->ItemId;
-		ItemSlotIndex = SlotWidget->SlotIndex;
-		ItemType = SlotWidget->ItemType;
-		ItemQuantity = SlotWidget->ItemQuantity;
+		ItemData.ItemId = SlotWidget->ItemId;
+		ItemData.SlotNumber = SlotWidget->SlotIndex;
+		ItemData.ItemType = SlotWidget->ItemType;
+		ItemData.Quantity = SlotWidget->ItemQuantity;
 		ParentWidget = SlotWidget->ParentWidget;
 
 		UPlayerQuickSlotWidget* QuickSlot = Cast<UPlayerQuickSlotWidget>(ParentWidget);
@@ -44,18 +45,18 @@ void UItemActSelectorWidget::SetItemInfo(UItemSlotWidget* SlotWidget)
 
 void UItemActSelectorWidget::UseItem()
 {
-	if (ItemID == NAME_None) return;
+	if (ItemData.ItemId == NAME_None) return;
 
-	PlayerRef->UseItem(ItemSlotIndex);
+	PlayerRef->UseItem(ItemData.SlotNumber);
 
 	RemoveFromParent();
 }
 
 void UItemActSelectorWidget::DropItem()
 {
-	if (ItemID == NAME_None) return;
+	if (ItemData.ItemId == NAME_None) return;
 
-	PlayerRef->DropItem(ItemSlotIndex);
+	PlayerRef->DropItem(ItemData.SlotNumber);
 
 	RemoveFromParent();
 }

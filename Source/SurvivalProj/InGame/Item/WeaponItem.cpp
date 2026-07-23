@@ -36,3 +36,13 @@ void UWeaponItem::InitItem(UDataTable* DataTable, FName ID, int32 ItemQuantity)
 	}
 	
 }
+
+void UWeaponItem::SetUniqueStat(FItemSlotData PacketData)
+{
+	if (PacketData.bIsUnique)
+	{
+		CurrentDuravility = PacketData.CurrentDuravility;
+		AttackPoint = PacketData.AttackPoint;
+		EnhencementLevel = PacketData.EnhencementLevel;
+	}
+}

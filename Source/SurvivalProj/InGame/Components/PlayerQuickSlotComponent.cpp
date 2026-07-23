@@ -1,6 +1,6 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
-
+/*
 #include "PlayerQuickSlotComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "SurvivalProj/InGame/Player/PlayerCharacter.h"
@@ -45,7 +45,7 @@ void UPlayerQuickSlotComponent::GetLifetimeReplicatedProps(TArray<FLifetimePrope
 }
 
 
-/*bool UPlayerQuickSlotComponent::ServerRegisterWeaponToEmptySlot_Validate(FName WeaponId)
+bool UPlayerQuickSlotComponent::ServerRegisterWeaponToEmptySlot_Validate(FName WeaponId)
 {
 	// 예시 코드 이후 수정 필요
 	// 1. 하드웨어 데이터테이블 누수 선제 수사
@@ -63,7 +63,7 @@ void UPlayerQuickSlotComponent::GetLifetimeReplicatedProps(TArray<FLifetimePrope
 	// 장부에 없는 가짜 ID일 경우 false
 	// 언리얼 엔진 커널이 해당 패킷을 차단하고 위조범 클라이언트를 즉시 가상 세계에서 강제 영구 철거(Kick)한다.
 	return ItemRow != nullptr;
-}*/
+}
 
 
 
@@ -501,4 +501,4 @@ void UPlayerQuickSlotComponent::TickComponent(float DeltaTime, ELevelTick TickTy
 
 	// ...
 }
-
+*/

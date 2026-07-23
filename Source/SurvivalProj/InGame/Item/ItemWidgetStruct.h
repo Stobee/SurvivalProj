@@ -41,4 +41,11 @@ struct FItemSlotData
 
 	UPROPERTY(BlueprintReadOnly)
 	float AttackPoint = 0.0f;
+
+	UPROPERTY(BlueprintReadOnly)
+	float DefencePoint = 0.0f;
+
+	UPROPERTY(BlueprintReadOnly)
+	bool bIsUnique = false;
+
 };

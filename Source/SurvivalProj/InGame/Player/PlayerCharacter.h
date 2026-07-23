@@ -109,12 +109,12 @@ public:
 	EWeaponEquipState WeaponEquipState = EWeaponEquipState::Unarmed;
 
 	// 필드 아이템과 상호작용 시 호출
-	bool GetFieldItem(FItemSlotData SlotData);
+	bool GetFieldItem(const FItemSlotData& SlotData);
 
-	void MoveItem(int32 SlotNum, FName ItemId, EItemType SlotItemType, int32 ItemQuantity, bool bTargetIsQuickSlot);
+	void MoveItem(FItemSlotData SlotData, bool bTargetIsQuickSlot);
 
 	UFUNCTION(Server, Reliable)
-	void ServerMoveItem(int32 SlotNum, FName ItemId, EItemType SlotItemType, int32 ItemQuantity, bool bTargetIsQuickSlot);
+	void ServerMoveItem(FItemSlotData SlotData, bool bTargetIsQuickSlot);
 
 	// 위젯 단계에서 아이템 사용
 	void UseItem(int32 SlotNum);
@@ -214,9 +214,6 @@ protected:
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UPlayerInventoryComponent>Inventory;
-
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UPlayerQuickSlotComponent>QuickSlot;
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UPlayerEquipmentComponent>Equipment;

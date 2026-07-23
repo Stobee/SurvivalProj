@@ -3,7 +3,6 @@
 
 #include "PlayerCharacter.h"
 #include "SurvivalProj/InGame/Components/TopDownSpringArmComponent.h"
-#include "SurvivalProj/InGame/Components/PlayerQuickSlotComponent.h"
 #include "SurvivalProj/InGame/Components/PlayerInventoryComponent.h"
 #include "SurvivalProj/InGame/Components/PlayerEquipmentComponent.h"
 #include "SurvivalProj/InGame/Interfaces/InteractiveInterface.h"
@@ -35,7 +34,6 @@ APlayerCharacter::APlayerCharacter()
 	SkeletalMesh->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
 
 	Inventory = CreateDefaultSubobject<UPlayerInventoryComponent>(TEXT("Inventory"));
-	QuickSlot = CreateDefaultSubobject<UPlayerQuickSlotComponent>(TEXT("QuickSlot"));
 	Equipment = CreateDefaultSubobject<UPlayerEquipmentComponent>(TEXT("Equipment"));
 	
 	// 나중에 횡스크롤 카메라로 바꾸는 로직 들어가야함
@@ -527,7 +525,7 @@ void APlayerCharacter::ServerApplyDamage_Implementation(AActor* TargetActor, con
 
 	if (TraceDistance > 100.0f)
 	{
-		UE_LOG(LogTemp, Warning, TEXT(" [서버 트레이스 변조 감지]: %s 가 사거리 밖 유령 좌표(%f) 타격을 요청하여 기각함."), *GetName(), TraceDistance);
+		UE_LOG(LogTemp, Warning, TEXT(" [서버 트레이스 변조 감지]: 사거리 밖 유령 좌표 타격을 요청하여 기각함."));
 		return;
 	}
 
@@ -553,7 +551,7 @@ void APlayerCharacter::SetPlayerOnInvincible(bool bIsOn)
 
 
 
-bool APlayerCharacter::GetFieldItem(FItemSlotData SlotData)
+bool APlayerCharacter::GetFieldItem(const FItemSlotData& SlotData)
 {
 	if (Inventory->bIsQuickSlotFull())
 	{
@@ -562,19 +560,19 @@ bool APlayerCharacter::GetFieldItem(FItemSlotData SlotData)
 		{
 		case (EItemType::Armor):
 		{
-			Inventory->RegisterArmorToEmptySlot(SlotData.ItemId);
+			Inventory->RegisterArmorToEmptySlot(SlotData);
 		} break;
 		case (EItemType::Weapon):
 		{
-			Inventory->RegisterWeaponToEmptySlot(SlotData.ItemId);
+			Inventory->RegisterWeaponToEmptySlot(SlotData);
 		} break;
 		case (EItemType::Resource):
 		{
-			Inventory->RegisterResourceToEmptySlot(SlotData.ItemId);
+			Inventory->RegisterResourceToEmptySlot(SlotData);
 		} break;
 		case (EItemType::Potion):
 		{
-			Inventory->RegisterPotionToEmptySlot(SlotData.ItemId);
+			Inventory->RegisterPotionToEmptySlot(SlotData);
 		} break;
 		}
 	}
@@ -584,19 +582,19 @@ bool APlayerCharacter::GetFieldItem(FItemSlotData SlotData)
 		{
 		case (EItemType::Armor):
 		{
-			
+			Inventory->RegisterArmorToEmptySlot(SlotData, true);
 		} break;
 		case (EItemType::Weapon):
 		{
-			
+			Inventory->RegisterWeaponToEmptySlot(SlotData, true);
 		} break;
 		case (EItemType::Resource):
 		{
-			
+			Inventory->RegisterResourceToEmptySlot(SlotData, true);
 		} break;
 		case (EItemType::Potion):
 		{
-			Inventory->RegisterPotionToEmptySlot(SlotData.ItemId, nullptr, true);
+			Inventory->RegisterPotionToEmptySlot(SlotData, true);
 
 		} break;
 		}
@@ -604,44 +602,45 @@ bool APlayerCharacter::GetFieldItem(FItemSlotData SlotData)
 	return true;
 }
 
-void APlayerCharacter::MoveItem(int32 SlotNum, FName ItemId, EItemType SlotItemType, int32 ItemQuantity, bool bTargetIsQuickSlot)
+void APlayerCharacter::MoveItem(FItemSlotData SlotData, bool bTargetIsQuickSlot)
 {
-	ServerMoveItem(SlotNum, ItemId, SlotItemType, ItemQuantity, bTargetIsQuickSlot);
+	ServerMoveItem(SlotData, bTargetIsQuickSlot);
 }
 
 
-void APlayerCharacter::ServerMoveItem_Implementation(int32 SlotNum, FName ItemId, EItemType SlotItemType, int32 ItemQuantity, bool bTargetIsQuickSlot)
+void APlayerCharacter::ServerMoveItem_Implementation(FItemSlotData SlotData, bool bTargetIsQuickSlot)
 {
 	if (!HasAuthority())return;
 
 	if (!bTargetIsQuickSlot)
 	{
-		if (!QuickSlot->bIsQuickSlotFull())
+		// 퀵슬롯에 등록
+		if (!Inventory->bIsQuickSlotFull())
 		{
 			bool TaskCompleted = false;
-			switch (SlotItemType)
+			switch (SlotData.ItemType)
 			{
 			case (EItemType::Armor):
 			{
-				TaskCompleted = QuickSlot->RegisterArmorToEmptySlot(ItemId);
+				TaskCompleted = Inventory->RegisterArmorToEmptySlot(SlotData, true);
 			} break;
 			case (EItemType::Weapon):
 			{
-				TaskCompleted = QuickSlot->RegisterWeaponToEmptySlot(ItemId);
+				TaskCompleted = Inventory->RegisterWeaponToEmptySlot(SlotData, true);
 			} break;
 			case (EItemType::Resource):
 			{
-				TaskCompleted = QuickSlot->RegisterResourceToEmptySlot(ItemId, ItemQuantity);
+				TaskCompleted = Inventory->RegisterResourceToEmptySlot(SlotData, true);
 			} break;
 			case (EItemType::Potion):
 			{
-				TaskCompleted = QuickSlot->RegisterPotionToEmptySlot(ItemId, ItemQuantity);
+				TaskCompleted = Inventory->RegisterPotionToEmptySlot(SlotData, true);
 			} break;
 			}
 
 			if (TaskCompleted)
 			{
-				Inventory->RemoveSlotItem(SlotNum);
+				Inventory->RemoveSlotItem(SlotData.SlotNumber);
 			}
 		}
 		else
@@ -652,32 +651,33 @@ void APlayerCharacter::ServerMoveItem_Implementation(int32 SlotNum, FName ItemId
 	}
 	else
 	{
+		// 퀵슬롯 해제
 		if (!Inventory->bIsInventorySlotFull())
 		{
 			bool TaskCompleted = false;
-			switch (SlotItemType)
+			switch (SlotData.ItemType)
 			{
 			case (EItemType::Armor):
 			{
-				TaskCompleted = Inventory->RegisterArmorToEmptySlot(ItemId);
+				TaskCompleted = Inventory->RegisterArmorToEmptySlot(SlotData);
 			} break;
 			case (EItemType::Weapon):
 			{
-				TaskCompleted = Inventory->RegisterWeaponToEmptySlot(ItemId);
+				TaskCompleted = Inventory->RegisterWeaponToEmptySlot(SlotData);
 			} break;
 			case (EItemType::Resource):
 			{
-				TaskCompleted = Inventory->RegisterResourceToEmptySlot(ItemId);
+				TaskCompleted = Inventory->RegisterResourceToEmptySlot(SlotData);
 			} break;
 			case (EItemType::Potion):
 			{
-				TaskCompleted = Inventory->RegisterPotionToEmptySlot(ItemId);
+				TaskCompleted = Inventory->RegisterPotionToEmptySlot(SlotData);
 			} break;
 			}
 
 			if (TaskCompleted)
 			{
-				QuickSlot->RemoveSlotItem(SlotNum);
+				Inventory->RemoveSlotItem(SlotData.SlotNumber);
 			}
 		}
 		

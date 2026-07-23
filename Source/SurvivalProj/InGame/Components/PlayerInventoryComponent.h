@@ -33,13 +33,13 @@ public:
 	UFUNCTION(Client, Reliable)
 	void ClientNotifyItemRegistered(int32 SlotIndex, FName Id, EItemType Type, int32 Quantity = 1);
 
-	bool RegisterWeaponToEmptySlot(FName WeaponId, bool bIsQuickSlot = false);
+	bool RegisterWeaponToEmptySlot(const FItemSlotData& ItemPacket, bool bIsQuickSlot = false);
 
-	bool RegisterArmorToEmptySlot(FName ArmorId, bool bIsQuickSlot = false);
+	bool RegisterArmorToEmptySlot(const FItemSlotData& ItemPacket, bool bIsQuickSlot = false);
 
-	bool RegisterResourceToEmptySlot(FName ResourceId, FItemSlotData* ItemPacket = nullptr, bool bIsQuickSlot = false);
+	bool RegisterResourceToEmptySlot(const FItemSlotData& ItemPacket, bool bIsQuickSlot = false);
 
-	bool RegisterPotionToEmptySlot(FName PotionId, FItemSlotData* ItemPacket = nullptr, bool bIsQuickSlot = false);
+	bool RegisterPotionToEmptySlot(const FItemSlotData& ItemPacket, bool bIsQuickSlot = false);
 	
 	void RemoveSlotItem(int32 SlotIndex);
 
